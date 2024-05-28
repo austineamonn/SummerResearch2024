@@ -6,3 +6,7 @@ To build a framework that will take various inputs from college student users, p
 
 # Goal:
 Using student input data (that is protected) students are given topics for future study. They then take these topics to advisors, professors, counselors, and peers. These people will help the student pick what courses to take the upcoming semester based on the courses offered at the student’s school.
+
+# Sources:
+https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog and Course Level Dataset
+https://educationdata.org/college-enrollment-statistics - College Demographic Statistics
