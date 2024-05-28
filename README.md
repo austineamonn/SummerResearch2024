@@ -9,4 +9,5 @@ Using student input data (that is protected) students are given topics for futur
 
 # Sources:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog and Course Level Dataset
+
 https://educationdata.org/college-enrollment-statistics - College Demographic Statistics
