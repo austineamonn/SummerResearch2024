@@ -6,9 +6,10 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DataPrivatizer:
-    def __init__(self):
+    def __init__(self, config):
         self.gender_mapping = {"Male": "G1", "Female": "G2"}
         self.international_mapping = {"International": "S1", "Domestic": "S2"}
+        self.config = config
 
     def privatizing_dataset(self, dataset: pd.DataFrame) -> (pd.DataFrame, list): # type: ignore
         """
@@ -30,7 +31,7 @@ class DataPrivatizer:
             private_dataset['international'] = private_dataset['international'].map(self.international_mapping)
 
             private_dataset, parameters = self.privatizing_class_year(dataset, private_dataset)
-            
+
             logging.info("Dataset privatization complete.")
             return private_dataset, parameters
 
@@ -81,12 +82,15 @@ class DataPrivatizer:
         noise = np.random.laplace(0, scale, 1)[0]
         return value + noise
 
-    def privatizing_class_year(self, dataset: pd.DataFrame, private_dataset: pd.DataFrame, 
-                               mechanism: str = 'Random', sensitivity: float = 1, epsilon: float = 0.5, 
-                               delta: float = 1e-5) -> (pd.DataFrame, list): # type: ignore
+    def privatizing_class_year(self, dataset: pd.DataFrame, private_dataset: pd.DataFrame) -> (pd.DataFrame, list): # type: ignore
         """
         Adds noise to the class year based on the chosen mechanism.
         """
+        mechanism = self.config["privacy"]["mechanism"]
+        sensitivity = self.config["privacy"]["sensitivity"]
+        epsilon = self.config["privacy"]["epsilon"]
+        delta = self.config["privacy"]["delta"]
+
         logging.debug("Privatizing class year with mechanism: %s", mechanism)
         try:
             if mechanism == 'Random':
@@ -103,6 +107,6 @@ class DataPrivatizer:
             raise
 
 # Export the function for external use
-def privatizing_dataset(dataset: pd.DataFrame) -> (pd.DataFrame, list): # type: ignore
-    privatizer = DataPrivatizer()
+def privatizing_dataset(dataset: pd.DataFrame, config: dict) -> (pd.DataFrame, list): # type: ignore
+    privatizer = DataPrivatizer(config)
     return privatizer.privatizing_dataset(dataset)

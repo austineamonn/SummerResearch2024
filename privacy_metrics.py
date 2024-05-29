@@ -32,8 +32,7 @@ class PrivacyMetrics:
                 "epsilon": parameters[1],
                 "delta": parameters[2]
             }
-
-            logging.info("Privacy metrics calculated: %s", privacy_metrics)
+            
             return privacy_metrics
 
         except Exception as e:
