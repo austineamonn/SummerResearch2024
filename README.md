@@ -22,7 +22,12 @@ Generates the privatized dataset based on the synthetic dataset. Privatizes the 
 # privacy_metrics:
 Calculates the level of data privatization using various metrics.
 
-# Sources:
+# simulated_attack:
+Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference.
+
+# Sources and Acknowlegments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog and Course Level Dataset
 
 https://educationdata.org/college-enrollment-statistics - College Demographic Statistics
+
+Python GPT and Chat GPT4o assisted in the programming process

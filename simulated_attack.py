@@ -1,75 +1,88 @@
 import pandas as pd
 import numpy as np
+import logging
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
-# Load the anonymized dataset
-anonymized_df = pd.read_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Privatized_Dataset.csv')
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Assume the adversary has access to a subset of the original data
-# Create a subset of the original data as external data
-external_data = anonymized_df.sample(frac=0.1, random_state=1)  # 10% sample as external data
+class SimulatedAttacks:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.anonymized_df = pd.read_csv(file_path)
+        self.external_data = self.anonymized_df.sample(frac=0.1, random_state=1)  # 10% sample as external data
 
-# Re-identification Attack
-def re_identification_attack(anonymized_df, external_data, quasi_identifiers):
-    # Match records based on quasi-identifiers
-    matches = pd.merge(anonymized_df, external_data, on=quasi_identifiers, how='inner')
-    return matches
+    def re_identification_attack(self, quasi_identifiers):
+        """
+        Perform re-identification attack using quasi-identifiers.
+        """
+        logging.info("Starting re-identification attack...")
+        matches = pd.merge(self.anonymized_df, self.external_data, on=quasi_identifiers, how='inner')
+        re_identification_rate = len(matches) / len(self.external_data) * 100
+        logging.info("Re-identification rate: %.2f%%", re_identification_rate)
+        return re_identification_rate
 
-# Define quasi-identifiers
-quasi_identifiers = ['race_ethnicity', 'gender', 'international']
+    def membership_inference_attack(self, quasi_identifiers, target_column='student class year'):
+        """
+        Simulate membership inference attack.
+        """
+        logging.info("Starting membership inference attack...")
 
-# Perform re-identification attack
-matches = re_identification_attack(anonymized_df, external_data, quasi_identifiers)
-re_identification_rate = len(matches) / len(external_data) * 100
+        # Prepare the dataset for a simple classification task
+        X = self.anonymized_df.drop(columns=[target_column])
+        y = self.anonymized_df[target_column]
 
-print(f"Re-identification rate: {re_identification_rate:.2f}%")
+        # Convert categorical features to numerical (one-hot encoding)
+        X = pd.get_dummies(X)
 
-# Membership Inference Attack
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
 
-# Prepare the dataset for a simple classification task
-# For simplicity, we'll use 'student class year' as the target and other fields as features
-X = anonymized_df.drop(columns=['student class year'])
-y = anonymized_df['student class year']
+        # Train a simple classifier
+        model = LogisticRegression(max_iter=1000)
+        model.fit(X_train, y_train)
 
-# Convert categorical features to numerical (one-hot encoding)
-X = pd.get_dummies(X)
+        # Predict on the test set
+        y_pred = model.predict(X_test)
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+        # Evaluate the model
+        accuracy = accuracy_score(y_test, y_pred)
+        logging.info("Model accuracy: %.2f%%", accuracy * 100)
 
-# Train a simple classifier
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
+        # Perform membership inference attack
+        inferred_memberships, threshold = self._calculate_memberships(model, X_train, X_test)
+        inferred_membership_rate = np.mean(inferred_memberships) * 100
 
-# Predict on the test set
-y_pred = model.predict(X_test)
+        logging.info("Inferred membership rate: %.2f%%", inferred_membership_rate)
+        logging.info("Confidence threshold: %.2f", threshold)
+        return inferred_membership_rate
 
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Model accuracy: {accuracy:.2f}%")
+    def _calculate_memberships(self, model, X_train, X_test, threshold_percentile=90):
+        """
+        Helper function to calculate memberships based on model's confidence scores.
+        """
+        train_scores = model.predict_proba(X_train)
+        test_scores = model.predict_proba(X_test)
+        
+        train_confidences = np.max(train_scores, axis=1)
+        threshold = np.percentile(train_confidences, threshold_percentile)
+        
+        test_confidences = np.max(test_scores, axis=1)
+        inferred_memberships = (test_confidences >= threshold).astype(int)
+        
+        return inferred_memberships, threshold
 
-# Simulate membership inference attack
-# We'll use the model's confidence scores to infer membership status
-def membership_inference_attack(model, X_train, X_test, threshold_percentile=90):
-    # Get the model's confidence scores
-    train_scores = model.predict_proba(X_train)
-    test_scores = model.predict_proba(X_test)
+# Usage example
+if __name__ == "__main__":
+    attack_simulator = SimulatedAttacks('/path/to/Privatized_Dataset.csv')
     
-    # Calculate the confidence threshold based on the training data
-    train_confidences = np.max(train_scores, axis=1)
-    threshold = np.percentile(train_confidences, threshold_percentile)
+    # Define quasi-identifiers
+    quasi_identifiers = ['race_ethnicity', 'gender', 'international']
     
-    # Apply the threshold to the test set
-    test_confidences = np.max(test_scores, axis=1)
-    inferred_memberships = (test_confidences >= threshold).astype(int)
+    # Perform re-identification attack
+    re_identification_rate = attack_simulator.re_identification_attack(quasi_identifiers)
     
-    return inferred_memberships, threshold
-
-# Perform membership inference attack
-inferred_memberships, threshold = membership_inference_attack(model, X_train, X_test)
-inferred_membership_rate = np.mean(inferred_memberships) * 100
-
-print(f"Inferred membership rate: {inferred_membership_rate:.2f}%")
-print(f"Confidence threshold: {threshold:.2f}")
+    # Perform membership inference attack
+    inferred_membership_rate = attack_simulator.membership_inference_attack(quasi_identifiers)
