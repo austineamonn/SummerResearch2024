@@ -7,7 +7,7 @@ def calculate_privacy_metrics(o_dataset, p_dataset, parameters):
     statistics_comparison = compare_statistics(o_dataset, p_dataset, 'student class year')
 
     # Define quasi-identifiers and sensitive attributes for the dataset
-    quasi_identifiers = ['race/ethnicity', 'gender', 'international']
+    quasi_identifiers = ['race_ethnicity', 'gender', 'international']
     sensitive_attribute = 'student class year'
 
     # Calculate k-anonymity and l-diversity of the privatized dataset

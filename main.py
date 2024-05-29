@@ -3,7 +3,7 @@ from basic_privatization import privatizing_dataset
 from privacy_metrics import calculate_privacy_metrics
 
 # Generate the dataset
-synthetic_dataset = generate_synthetic_dataset(10000)
+synthetic_dataset = generate_synthetic_dataset()
 
 # Print the first few rows of the original dataset
 print(synthetic_dataset.head())
