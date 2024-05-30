@@ -8,15 +8,9 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class CSVLoader:
-    def __init__(self, base_path):
-        self.base_path = base_path
+    def __init__(self):
         self.course_year_mapping = {}
         self.course_names = []
-        self.related_career_aspirations = []
-        self.extracurricular_activities_list = []
-        self.course_subject_mapping = {}
-        self.related_topics = []
-        self.extracurricular_to_subject = {}
         self.demographics_distribution = {
             'race_ethnicity': {
                 'European American or white': 53.4,
@@ -39,6 +33,12 @@ class CSVLoader:
                 'Low': 20,
                 'Middle': 60,
                 'High': 20
+            },
+            'learning_style': {
+                'Visual': 27.27,
+                'Auditory': 23.56,
+                'Read/Write': 21.16,
+                'Kinesthetic': 28.01
             }
         }
 
@@ -49,29 +49,6 @@ class CSVLoader:
         course_numbers = course_catalog['Number'].tolist()
         self.course_names = [name.replace('&', 'and') for name in self.course_names if pd.notna(name)]
         self.course_year_mapping = {course: self.map_course_to_year(number) for course, number in zip(self.course_names, course_numbers)}
-
-    def load_mapping_from_csv(self, filename):
-        logging.info("Loading mapping from %s", filename)
-        mapping = {}
-        df = pd.read_csv(filename)
-        for _, row in df.iterrows():
-            activity = row.iloc[0]
-            subjects = row.iloc[1:].dropna().tolist()
-            mapping[activity] = subjects
-        return mapping
-
-    def load_extracurricular_to_subject(self, filename):
-        logging.info("Loading extracurricular to subject mapping from %s", filename)
-        df = pd.read_csv(filename)
-        for _, row in df.iterrows():
-            activity = row.iloc[0]
-            subjects = tuple(row.iloc[1].split(',')) if pd.notna(row.iloc[1]) else []
-            self.extracurricular_to_subject[activity] = subjects
-
-    def load_extracurricular_activities(self, filename):
-        logging.info("Loading extracurricular activities from %s", filename)
-        df = pd.read_csv(filename)
-        self.extracurricular_activities_list = df['Activity'].tolist()
 
     def map_course_to_year(self, course_number):
         if pd.isna(course_number):
@@ -101,22 +78,12 @@ class CSVLoader:
             result = np.random.choice(demographics)
         return result
 
-# Initialize and load data
-loader = CSVLoader(base_path='/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/CSV_builder')
-loader.load_extracurricular_activities('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/CSV_builder/extracurricular_activities.csv')
-loader.load_extracurricular_to_subject('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/CSV_builder/extracurricular_to_subject.csv')
-loader.load_course_catalog('/Users/austinnicolas/Documents/SummerREU2024/course-catalog.csv')
 
-# Example demographic assignment
-demographic = loader.assign_demographic('race_ethnicity', 'real')
-logging.info("Assigned demographic: %s", demographic)
+# Initialize and load data
+loader = CSVLoader()
+loader.load_course_catalog('/Users/austinnicolas/Documents/SummerREU2024/course-catalog.csv')
 
 # Export for other modules
 course_year_mapping = loader.course_year_mapping
 course_names = loader.course_names
-related_career_aspirations = loader.related_career_aspirations
-extracurricular_activities_list = loader.extracurricular_activities_list
-course_subject_mapping = loader.course_subject_mapping
-related_topics = loader.related_topics
-extracurricular_to_subject = loader.extracurricular_to_subject
 assign_demographic = loader.assign_demographic

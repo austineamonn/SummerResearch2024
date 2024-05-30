@@ -30,4 +30,6 @@ https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog and C
 
 https://educationdata.org/college-enrollment-statistics - College Demographic Statistics
 
+https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics
+
 Python GPT and Chat GPT4o assisted in the programming process

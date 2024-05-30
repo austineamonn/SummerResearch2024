@@ -12,7 +12,8 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 
 def main():
     """
-    First the function generates synthetic data. Second the function privatizes the dataset.
+    First the function generates synthetic data.
+    Second the function privatizes the dataset.
     Third the function calculates the level of privacy of the privatized dataset through various privacy metrics.
     """
 

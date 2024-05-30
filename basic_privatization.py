@@ -20,14 +20,16 @@ class DataPrivatizer:
         private_dataset = dataset.copy()
 
         try:
-            # Reversing one-hot encoding and privatizing features
-            private_dataset = self.reverse_one_hot_encoding(private_dataset, 'race_ethnicity')
+            # Add noise to numerical features
+            numerical_columns = ['previous courses count', 'unique subjects in courses', 'subjects diversity', 'activities involvement count', 'gpa']
+            for col in numerical_columns:
+                private_dataset = self.add_noise(private_dataset, col)
+
+            # Privatizing features
             private_dataset['race_ethnicity'] = private_dataset['race_ethnicity'].apply(self.aggregate_race_ethnicity)
 
-            private_dataset = self.reverse_one_hot_encoding(private_dataset, 'gender')
             private_dataset['gender'] = private_dataset['gender'].map(self.gender_mapping)
 
-            private_dataset = self.reverse_one_hot_encoding(private_dataset, 'international')
             private_dataset['international'] = private_dataset['international'].map(self.international_mapping)
 
             private_dataset, parameters = self.privatizing_class_year(dataset, private_dataset)
@@ -37,21 +39,6 @@ class DataPrivatizer:
 
         except Exception as e:
             logging.error("Error during dataset privatization: %s", e)
-            raise
-
-    def reverse_one_hot_encoding(self, df: pd.DataFrame, feature_prefix: str) -> pd.DataFrame:
-        """
-        Reverses one-hot encoding for a specific feature.
-        """
-        logging.debug("Reversing one-hot encoding for feature: %s", feature_prefix)
-        try:
-            feature_cols = [col for col in df.columns if col.startswith(feature_prefix)]
-            df[feature_prefix] = df[feature_cols].idxmax(axis=1).apply(lambda x: x[len(feature_prefix) + 1:])
-            df = df.drop(columns=feature_cols)
-            return df
-
-        except Exception as e:
-            logging.error("Error during reversing one-hot encoding for %s: %s", feature_prefix, e)
             raise
 
     def aggregate_race_ethnicity(self, race: str) -> str:
@@ -105,6 +92,14 @@ class DataPrivatizer:
         except Exception as e:
             logging.error("Error during privatizing class year: %s", e)
             raise
+
+    def add_noise(self, dataframe, column_name, noise_level=0.01):
+        """
+        Add noise to numerical features for privacy.
+        """
+        noise = np.random.normal(0, noise_level, dataframe[column_name].shape)
+        dataframe[column_name] += noise
+        return dataframe
 
 # Export the function for external use
 def privatizing_dataset(dataset: pd.DataFrame, config: dict) -> (pd.DataFrame, list): # type: ignore

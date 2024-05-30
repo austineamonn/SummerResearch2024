@@ -1,10 +1,16 @@
-import json
-
-def load_config(config_file="config.json"):
-    """
-    Utility function for loading configurations
-    """
-
-    with open(config_file, "r") as file:
-        config = json.load(file)
-    return config
+def load_config():
+    return {
+        "logging": {
+            "level": "INFO",
+            "format": "%(asctime)s - %(levelname)s - %(message)s"
+        },
+        "synthetic_data": {
+            "num_samples": 1000
+        },
+        "privacy": {
+            "mechanism": "Gaussian",
+            "sensitivity": 1.0,
+            "epsilon": 0.1,
+            "delta": 1e-5
+        }
+    }
