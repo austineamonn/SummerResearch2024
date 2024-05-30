@@ -40,4 +40,8 @@ https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics
 
 https://data.world/len/us-first-names-database - First and Last Names Database
 
+Kifer D, Machanavajjhala A. Pufferfish: A framework for mathematical privacy definitions. ACM Trans Database Syst. 2014. https://doi.org/10.1145/2514689 - Inspiration for the pufferfish privatization
+
+Zhao J, Zhang J, Poor HV. Dependent differential privacy for correlated data, 2017;pp. 1–7. https://doi.org/10.1109/GLOCOMW.2017.8269219 - Inspiration for the dependent differential privacy
+
 Python GPT and Chat GPT4o assisted in the programming process

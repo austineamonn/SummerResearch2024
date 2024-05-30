@@ -1,11 +1,19 @@
 import pandas as pd
 import logging
 from typing import Tuple, Dict
+from config import load_config
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Load configuration
+config = load_config()
+
 class PrivacyMetrics:
+    def __init__(self,config):
+        self.config = config
+        self.mechanism = self.config["privacy"]["mechanism"]
+
     def calculate_privacy_metrics(self, o_dataset: pd.DataFrame, p_dataset: pd.DataFrame, parameters: list) -> Dict:
         """
         Calculate various privacy metrics for the privatized dataset.
@@ -24,14 +32,34 @@ class PrivacyMetrics:
             k_anonymity = self.calculate_k_anonymity(p_dataset, quasi_identifiers)
             l_diversity = self.calculate_l_diversity(p_dataset, quasi_identifiers, sensitive_attribute)
 
-            privacy_metrics = {
+            if self.mechanism == "Pufferfish":
+                privacy_metrics = {
                 "k-anonymity": k_anonymity,
                 "l-diversity": l_diversity,
                 "statistics": statistics_comparison,
-                "mechanism": parameters[0],
-                "epsilon": parameters[1],
-                "delta": parameters[2]
+                "secrets": parameters[0],
+                "discriminative pairs": parameters[1],
+                "epsilon": parameters[2]
             }
+            elif self.mechanism == "DDP":
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "secrets": parameters[0],
+                "epsilon": parameters[1],
+                "correlation coefficient": parameters[2]
+            }
+            else:
+                privacy_metrics = {
+                    "k-anonymity": k_anonymity,
+                    "l-diversity": l_diversity,
+                    "statistics": statistics_comparison,
+                    "mechanism": parameters[0],
+                    "sensitivity": parameters[1],
+                    "epsilon": parameters[2],
+                    "delta": parameters[3]
+                }
             
             return privacy_metrics
 
@@ -91,5 +119,5 @@ class PrivacyMetrics:
 
 # Export the function for external use
 def calculate_privacy_metrics(o_dataset: pd.DataFrame, p_dataset: pd.DataFrame, parameters: list) -> Dict:
-    privacy_metrics_calculator = PrivacyMetrics()
+    privacy_metrics_calculator = PrivacyMetrics(config)
     return privacy_metrics_calculator.calculate_privacy_metrics(o_dataset, p_dataset, parameters)
