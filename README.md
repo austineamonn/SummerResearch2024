@@ -10,8 +10,14 @@ Take student input data and build a privatized version. From the privatized vers
 # main:
 The main file of the framework. Generates a synthetic dataset using 'data_generation', privatizes the dataset using 'basic_privatization', and calculates the privacy metrics using 'privacy_metrics'.
 
+# config:
+Contains the basic configurations for the model.
+
 # csv_loading:
-Loads the mappings between various elements of the dataset. Creates the data groups and distributions that will be used to build the synthetic dataset.
+Loads the CSVs and pulls out the relevant information they contain.
+
+# dictionary:
+Dictionary that containts demographic information and mappings between various features of the dataset.
 
 # data_generation:
 Generates the synthetic dataset. The dataset contains the following elements: race/ethnicity, gender, international, student class year, previous courses taken, career aspirations, subjects of interest, extracurricular activities, and future topics.
