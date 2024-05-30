@@ -32,4 +32,6 @@ https://educationdata.org/college-enrollment-statistics - College Demographic St
 
 https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics
 
+https://data.world/len/us-first-names-database - First and Last Names Database
+
 Python GPT and Chat GPT4o assisted in the programming process

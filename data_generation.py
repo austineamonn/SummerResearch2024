@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import random
 import logging
-import sklearn
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from packaging import version
-from csv_loading import course_year_mapping, course_names, assign_demographic
+import re
+from sklearn.preprocessing import StandardScaler
+from csv_loading import course_loader, fn_loader, ln_loader
 from dictionary import get_combined_data
 
 # Set up logging
@@ -21,6 +20,16 @@ class DataGenerator:
         self.related_topics = combined_data['related_topics']
         self.course_type_to_learning_styles = combined_data['course_type_to_learning_styles']
         self.careers = combined_data['careers']
+        self.course_names = course_loader.course_names
+        self.course_numbers = course_loader.course_numbers
+        self.race_ethnicity = combined_data['race_ethnicity']
+        self.gender = combined_data['gender']
+        self.international = combined_data['international']
+        self.socioeconomic = combined_data['socioeconomic']
+        self.learning_style = combined_data['learning_style']
+        self.first_names_list = fn_loader.first_names
+        self.last_names_list = ln_loader.last_names
+        self.course_year_mapping = {course: self.map_course_to_year(number) for course, number in zip(self.course_names, self.course_numbers)}
 
     def generate_grades(self, previous_courses):
         """
@@ -33,7 +42,7 @@ class DataGenerator:
         """
         Filter courses based on class year.
         """
-        return [course for course in courses if class_year in range(*course_year_mapping.get(course, (0, 0)))]
+        return [course for course in courses if class_year in range(*self.course_year_mapping.get(course, (0, 0)))]
 
     def generate_previous_courses(self, student_class_year, learning_style):
         """
@@ -41,7 +50,7 @@ class DataGenerator:
         """
         previous_courses_taken = []
         for year in range(1, student_class_year + 1):
-            possible_courses = self.filter_courses_by_year(course_names, year)
+            possible_courses = self.filter_courses_by_year(self.course_names, year)
             # Filter courses based on learning style
             filtered_courses = [
                 course for course in possible_courses
@@ -51,6 +60,33 @@ class DataGenerator:
             previous_courses_taken.extend(random.sample(filtered_courses, num_courses))
 
         return previous_courses_taken
+    
+    def map_course_to_year(self, course_number):
+        if pd.isna(course_number):
+            return (0, 0)
+        match = re.match(r'(\d{3})', str(course_number))
+        if match:
+            course_num = int(match.group(1))
+            if 100 <= course_num < 200:
+                return (1, 2)  # First year: first and second semester
+            elif 200 <= course_num < 300:
+                return (3, 4)  # Second year: first and second semester
+            elif 300 <= course_num < 400:
+                return (5, 6)  # Third year: first and second semester
+            elif 400 <= course_num < 500:
+                return (7, 8)  # Fourth year: first and second semester
+            else:
+                return (9, 10)  # Fifth and Sixth year: first and second semester
+        return (0, 0)
+
+    def assign_demographic(self, demographic_type, bias):
+        demographics = list(demographic_type.keys())
+        if bias == 'real':
+            probabilities = [demographic_type[demo] / 100 for demo in demographics]
+            result = np.random.choice(demographics, p=probabilities)
+        else:
+            result = np.random.choice(demographics)
+        return result
 
     def generate_career_aspirations(self, subjects):
         """
@@ -78,8 +114,10 @@ class DataGenerator:
         """
         data = []
         for _ in range(num_samples):
+            first_name = random.choice(self.first_names_list)
+            last_name = random.choice(self.last_names_list)
             student_class_year = np.random.randint(1, 5)
-            learning_style = assign_demographic('learning_style', 'real')
+            learning_style = self.assign_demographic(self.learning_style, 'real')
             previous_courses = self.generate_previous_courses(student_class_year, learning_style)
             previous_courses_count = len(previous_courses)
             subjects_in_courses = [self.course_to_subject[course] for course in previous_courses if course in self.course_to_subject]
@@ -93,10 +131,12 @@ class DataGenerator:
             gpa = round(np.random.uniform(2.0, 4.0), 2)
             
             data.append({
-                'race_ethnicity': assign_demographic('race_ethnicity', 'real'),
-                'gender': assign_demographic('gender', 'real'),
-                'international': assign_demographic('international', 'real'),
-                'socioeconomic status': assign_demographic('socioeconomic', 'real'),
+                'first_name': first_name,
+                'last_name': last_name,
+                'race_ethnicity': self.assign_demographic(self.race_ethnicity, 'real'),
+                'gender': self.assign_demographic(self.gender, 'real'),
+                'international': self.assign_demographic(self.international, 'real'),
+                'socioeconomic status': self.assign_demographic(self.socioeconomic, 'real'),
                 'learning_style': learning_style,
                 'gpa': gpa,
                 'class year': student_class_year,

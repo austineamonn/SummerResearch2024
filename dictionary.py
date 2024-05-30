@@ -121,6 +121,34 @@ def get_combined_data():
             'Packaged Section': ['Kinesthetic'],
             'Quiz': [],
             'Practice': ['Kinesthetic']
+        },
+        'race_ethnicity': {
+            'European American or white': 53.4,
+            'Latino/a/x American': 20.6,
+            'African American or Black': 13.1,
+            'Asian American': 7.6,
+            'Multiracial': 4.3,
+            'American Indian or Alaska Native': 0.7,
+            'Pacific Islander': 0.3
+        },
+        'gender': {
+            'Female': 58.36,
+            'Male': 41.64
+        },
+        'international': {
+            'Domestic': 94.08,
+            'International': 5.92
+        },
+        'socioeconomic': {
+            'Low': 20,
+            'Middle': 60,
+            'High': 20
+        },
+        'learning_style': {
+            'Visual': 27.27,
+            'Auditory': 23.56,
+            'Read/Write': 21.16,
+            'Kinesthetic': 28.01
         }
     }
 
