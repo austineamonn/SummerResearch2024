@@ -23,7 +23,16 @@ Dictionary that containts demographic information and mappings between various f
 Generates the synthetic dataset. The dataset contains the following elements: race/ethnicity, gender, international, student class year, previous courses taken, career aspirations, subjects of interest, extracurricular activities, and future topics.
 
 # basic_privatization:
-Generates the privatized dataset based on the synthetic dataset. Privatizes the following elements: race/ethnicity, gender, international, and student class year.
+Generates the privatized dataset based on the synthetic dataset using aggregation, mapping, and noise addition.
+
+# pufferfish_privatization:
+Generates the privatized dataset based on the synthetic dataset using the pufferfish method.
+
+# ddp_privatization:
+Generates the privatized dataset based on the synthetic dataset using the dependent differential privacy method.
+
+# cba_privatization:
+Generates the privatized dataset based on the synthetic dataset using the coupled behavior analysis method.
 
 # privacy_metrics:
 Calculates the level of data privatization using various metrics.
@@ -43,5 +52,7 @@ https://data.world/len/us-first-names-database - First and Last Names Database
 Kifer D, Machanavajjhala A. Pufferfish: A framework for mathematical privacy definitions. ACM Trans Database Syst. 2014. https://doi.org/10.1145/2514689 - Inspiration for the pufferfish privatization
 
 Zhao J, Zhang J, Poor HV. Dependent differential privacy for correlated data, 2017;pp. 1–7. https://doi.org/10.1109/GLOCOMW.2017.8269219 - Inspiration for the dependent differential privacy
+
+Cao L, Ou Y, Yu P. Coupled behavior analysis with applications. Knowledge Data Eng IEEE Trans. 2012;24:1–1. https://doi.org/10.1109/TKDE.2011.129 - Inspiration for the coupled behavior analysis
 
 Python GPT and Chat GPT4o assisted in the programming process

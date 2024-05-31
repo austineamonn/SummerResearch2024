@@ -10,10 +10,11 @@ config = load_config()
 logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class DDPPrivatizer:
-    def __init__(self, secrets, epsilon, correlation_coefficient):
-        self.secrets = secrets
-        self.epsilon = epsilon
-        self.correlation_coefficient = correlation_coefficient
+    def __init__(self, config):
+        self.config = config
+        self.secrets = self.config["privacy"]["secrets"]
+        self.epsilon = self.config["privacy"]["epsilon"]
+        self.correlation_coefficient = ["privacy"]["ddp"]["correlation_coefficient"]
         self.parameters = [self.secrets, self.epsilon, self.correlation_coefficient]
 
     def privatize_dataset(self, dataset: pd.DataFrame) -> pd.DataFrame:

@@ -10,10 +10,11 @@ config = load_config()
 logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class PufferfishPrivatizer:
-    def __init__(self, secrets, discriminative_pairs, epsilon):
-        self.secrets = secrets
-        self.discriminative_pairs = discriminative_pairs
-        self.epsilon = epsilon
+    def __init__(self, config):
+        self.config = config
+        self.secrets = self.config["privacy"]["secrets"]
+        self.discriminative_pairs = self.config["privacy"]["discriminative_pairs"]
+        self.epsilon = self.config["privacy"]["epsilon"]
         self.parameters = [self.secrets, self.discriminative_pairs, self.epsilon]
 
     def privatize_dataset(self, dataset: pd.DataFrame) -> pd.DataFrame:

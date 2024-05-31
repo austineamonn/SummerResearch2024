@@ -50,6 +50,15 @@ class PrivacyMetrics:
                 "epsilon": parameters[1],
                 "correlation coefficient": parameters[2]
             }
+            elif self.mechanism == "CBA":
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "secrets": parameters[0],
+                "epsilon": parameters[1],
+                "coupling strength": parameters[2]
+            }  
             else:
                 privacy_metrics = {
                     "k-anonymity": k_anonymity,

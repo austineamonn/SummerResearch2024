@@ -5,6 +5,7 @@ from privacy_metrics import calculate_privacy_metrics
 from config import load_config
 from pufferfish_privatization import PufferfishPrivatizer
 from ddp_privatization import DDPPrivatizer
+from cba_privatization import CBAPrivatizer
 
 # Load configuration
 config = load_config()
@@ -32,31 +33,26 @@ def main():
         logging.info("Privatizing the dataset...")
         mechanism = config["privacy"]["mechanism"]
         if mechanism == "Pufferfish":
-            # Extract Pufferfish-specific configuration
-            pufferfish_config = config["privacy"]
-            secrets = pufferfish_config["secrets"]
-            discriminative_pairs = pufferfish_config["discriminative_pairs"]
-            epsilon = pufferfish_config["epsilon"]
-
             # Create PufferfishPrivatizer instance
-            privatizer = PufferfishPrivatizer(secrets, discriminative_pairs, epsilon)
+            privatizer = PufferfishPrivatizer(config)
 
             # Privatize dataset using Pufferfish mechanism
             private_dataset = privatizer.privatize_dataset(synthetic_dataset)
             logging.info("Pufferfish privatization applied.")
         elif mechanism == "DDP":
-            # Extract DDP-specific configuration
-            ddp_config = config["privacy"]["ddp"]
-            secrets = config["privacy"]["secrets"]
-            epsilon = config["privacy"]["epsilon"]
-            correlation_coefficient = ddp_config["correlation_coefficient"]
-
             # Create DDPPrivatizer instance
-            privatizer = DDPPrivatizer(secrets, epsilon, correlation_coefficient)
+            privatizer = DDPPrivatizer(config)
 
             # Privatize dataset using DDP mechanism
             private_dataset = privatizer.privatize_dataset(synthetic_dataset)
             logging.info("DDP privatization applied.")
+        elif mechanism == "CBA":
+            # Create CBAPrivatizer instance
+            privatizer = CBAPrivatizer(config)
+
+            # Privatize dataset using CBA mechanism
+            private_dataset = privatizer.privatize_dataset(synthetic_dataset)
+            logging.info("CBA privatization applied.")
         else:
             # Privatize dataset using basic privatization
             privatizer = DataPrivatizer(config)

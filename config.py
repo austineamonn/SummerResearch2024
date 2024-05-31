@@ -11,7 +11,10 @@ def load_config():
         },
         # A variety of parameters used in the privatization methods.
         "privacy": {
-            "mechanism": "DDP",
+            # Mechanism Options: Pufferfish, DDP, CBA, Basic
+            "mechanism": "CBA",
+            #Basic Mechanism Options: Random, Gaussian, Laplace, Exponential, Gamma, Uniform
+            #(note that these are all used in the basic_privatization function)
             "basic_mechanism": "Gaussian",
             "sensitivity": 1.0,
             "epsilon": 0.1,
@@ -20,6 +23,9 @@ def load_config():
             "discriminative_pairs": [("Male", "Female"), ("Domestic", "International")],
             "ddp": {
                 "correlation_coefficient": 0.5
+            },
+            "cba": {
+                "coupling_strength": 0.5
             }
         }
     }
