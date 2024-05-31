@@ -1,8 +1,12 @@
 import pandas as pd
 import logging
+from config import load_config
+
+# Load configuration
+config = load_config()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class CSVLoader:
     def __init__(self):

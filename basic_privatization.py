@@ -1,9 +1,13 @@
 import numpy as np
 import pandas as pd
 import logging
+from config import load_config
+
+# Load configuration
+config = load_config()
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class DataPrivatizer:
     def __init__(self, config):

@@ -3,14 +3,14 @@ import logging
 from typing import Tuple, Dict
 from config import load_config
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
 # Load configuration
 config = load_config()
 
+# Set up logging
+logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+
 class PrivacyMetrics:
-    def __init__(self,config):
+    def __init__(self, config):
         self.config = config
         self.mechanism = self.config["privacy"]["mechanism"]
 

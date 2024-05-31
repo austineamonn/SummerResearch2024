@@ -149,7 +149,13 @@ def get_combined_data():
             'Auditory': 23.56,
             'Read/Write': 21.16,
             'Kinesthetic': 28.01
-        }
+        },
+        'future_topics': [
+            'Anthropology', 'Art', 'Biology', 'Chemistry',
+            'Computer Science', 'Economics', 'Environmental Science',
+            'History', 'Literature', 'Mathematics', 'Music', 'Philosophy',
+            'Physics', 'Political Science', 'Psychology', 'Sociology'
+        ]
     }
 
     return combined_dict

@@ -2,7 +2,7 @@ def load_config():
     return {
         # Logging Level
         "logging": {
-            "level": "INFO",
+            "level": "DEBUG",
             "format": "%(asctime)s - %(levelname)s - %(message)s"
         },
         # How large of a dataset should be generated
@@ -27,5 +27,8 @@ def load_config():
             "cba": {
                 "coupling_strength": 0.5
             }
+        },
+        "preprocessing": {
+            "numerical_columns": ["gpa", "class year", "previous courses count", "subjects diversity", "activities involvement count"]
         }
     }

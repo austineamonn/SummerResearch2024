@@ -6,9 +6,13 @@ import re
 from sklearn.preprocessing import StandardScaler
 from csv_loading import course_loader, fn_loader, ln_loader
 from dictionary import get_combined_data
+from config import load_config
+
+# Load configuration
+config = load_config()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class DataGenerator:
     def __init__(self):

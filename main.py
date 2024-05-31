@@ -6,6 +6,8 @@ from config import load_config
 from pufferfish_privatization import PufferfishPrivatizer
 from ddp_privatization import DDPPrivatizer
 from cba_privatization import CBAPrivatizer
+from preprocessing import PreProcessing
+from neural_network import NeuralNetwork
 
 # Load configuration
 config = load_config()
@@ -23,6 +25,7 @@ def main():
     logging.info("Loading data and generating synthetic dataset...")
 
     try:
+        # Build the synthetic dataset and save it to a CSV file
         synthetic_dataset = generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
         logging.info("Synthetic dataset generated with %d samples.", len(synthetic_dataset))
         logging.info("First few rows of the synthetic dataset:\n%s", synthetic_dataset.head())
@@ -63,10 +66,30 @@ def main():
         private_dataset.to_csv('Privatized_Dataset.csv', index=False)
         logging.info("Privatized dataset saved to Privatized_Dataset.csv.")
 
+        # Calculate the privacy level of the privatized dataset
         logging.info("Calculating privacy metrics...")
         parameters = privatizer.parameters
         privacy_metrics = calculate_privacy_metrics(synthetic_dataset, private_dataset, parameters)
         logging.info("Privacy metrics calculated: %s", privacy_metrics)
+
+        # Drop the columns that should not impact recommendations for future topics
+        columns_to_drop = ["first_name", "last_name", "race_ethnicity", "gender", "international", "socioeconomic status"]
+        cleaned_dataset = private_dataset.drop(columns=columns_to_drop)
+        logging.info("Removed senstitive information from privatized dataset")
+
+        # Preprocess the cleaned dataset
+        processor = PreProcessing(config)
+        cleaned_dataset = processor.preprocessor(cleaned_dataset)
+        logging.info("Preprocessing of cleaned dataset completed")
+
+        # Save the cleaned dataset to a CSV
+        cleaned_dataset.to_csv('Cleaned_Dataset.csv', index=False)
+        logging.info("Cleaned dataset saved to Cleaned_Dataset.csv.")
+
+        network = NeuralNetwork(config)
+        loss, accuracy = network.neural_network(cleaned_dataset)
+        logging.info("Neural network loss %s", loss)
+        logging.info("Neural network accuracy %s", accuracy)
         
     except Exception as e:
         logging.error("Error in main execution: %s", e)

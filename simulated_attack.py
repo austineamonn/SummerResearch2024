@@ -4,9 +4,13 @@ import logging
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from config import load_config
+
+# Load configuration
+config = load_config()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
 class SimulatedAttacks:
     def __init__(self, file_path):
