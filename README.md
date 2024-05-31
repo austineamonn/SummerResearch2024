@@ -37,6 +37,12 @@ Generates the privatized dataset based on the synthetic dataset using the couple
 # privacy_metrics:
 Calculates the level of data privatization using various metrics.
 
+# preprocessing:
+Prepares privatized dataset to be fed into the machine learning model by generated a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (such as name) that should not play a role in how the model assigns future topics.
+
+# neural_network:
+Creates and runs a neural network on the cleaned dataset.
+
 # simulated_attack:
 Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference.
 
