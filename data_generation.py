@@ -5,7 +5,7 @@ import logging
 import re
 from sklearn.preprocessing import StandardScaler
 from csv_loading import course_loader, fn_loader, ln_loader
-from dictionary import get_combined_data
+from dictionary import Data
 from config import load_config
 
 # Load configuration
@@ -16,24 +16,30 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 
 class DataGenerator:
     def __init__(self):
-        combined_data = get_combined_data()
+        data = Data()
+        combined_data = data.get_data()
         self.subjects_of_interest = combined_data['subjects_of_interest']
         self.course_to_subject = combined_data['course_to_subject']
         self.related_career_aspirations = combined_data['related_career_aspirations']
         self.extracurricular_list = combined_data['extracurricular_list']
         self.related_topics = combined_data['related_topics']
         self.course_type_to_learning_styles = combined_data['course_type_to_learning_styles']
-        self.careers = combined_data['careers']
-        self.course_names = course_loader.course_names
-        self.course_numbers = course_loader.course_numbers
         self.race_ethnicity = combined_data['race_ethnicity']
         self.gender = combined_data['gender']
         self.international = combined_data['international']
         self.socioeconomic = combined_data['socioeconomic']
         self.learning_style = combined_data['learning_style']
+        self.careers = combined_data['careers']
+        logging.debug("Combined data loaded.")
+
+        self.course_names = course_loader.course_names
+        self.course_numbers = course_loader.course_numbers
+        self.course_year_mapping = {course: self.map_course_to_year(number) for course, number in zip(self.course_names, self.course_numbers)}
+        logging.debug("Course information loaded.")
+
         self.first_names_list = fn_loader.first_names
         self.last_names_list = ln_loader.last_names
-        self.course_year_mapping = {course: self.map_course_to_year(number) for course, number in zip(self.course_names, self.course_numbers)}
+        logging.debug("First and last names loaded.")
 
     def generate_grades(self, previous_courses):
         """
@@ -42,18 +48,18 @@ class DataGenerator:
         grades = {course: np.random.choice(['A', 'B', 'C', 'D', 'F'], p=[0.3, 0.3, 0.2, 0.1, 0.1]) for course in previous_courses}
         return grades
 
-    def filter_courses_by_year(self, courses, class_year):
+    def filter_courses_by_year(self, courses, semester):
         """
-        Filter courses based on class year.
+        Filter courses based on student semester.
         """
-        return [course for course in courses if class_year in range(*self.course_year_mapping.get(course, (0, 0)))]
+        return [course for course in courses if semester in range(*self.course_year_mapping.get(course, (0, 0)))]
 
-    def generate_previous_courses(self, student_class_year, learning_style):
+    def generate_previous_courses(self, semester, learning_style):
         """
-        Generate a list of previous courses taken by a student based on their class year and their learning style.
+        Generate a list of previous courses taken by a student based on their student semester and their learning style.
         """
         previous_courses_taken = []
-        for year in range(1, student_class_year + 1):
+        for year in range(1, semester + 1):
             possible_courses = self.filter_courses_by_year(self.course_names, year)
             # Filter courses based on learning style
             filtered_courses = [
@@ -119,20 +125,45 @@ class DataGenerator:
         data = []
         for _ in range(num_samples):
             first_name = random.choice(self.first_names_list)
+            logging.debug("First name chosen.")
+
             last_name = random.choice(self.last_names_list)
-            student_class_year = np.random.randint(1, 5)
+            logging.debug("Last name chosen.")
+
+            student_semester = np.random.randint(1, 12)
+            logging.debug("Student semester chosen chosen.")
+
             learning_style = self.assign_demographic(self.learning_style, 'real')
-            previous_courses = self.generate_previous_courses(student_class_year, learning_style)
+            logging.debug("Learning style chosen.")
+
+            previous_courses = self.generate_previous_courses(student_semester, learning_style)
+            logging.debug("Previous courses chosen.")
+
             previous_courses_count = len(previous_courses)
             subjects_in_courses = [self.course_to_subject[course] for course in previous_courses if course in self.course_to_subject]
             unique_subjects_in_courses = len(set(subjects_in_courses))
+            logging.debug("Previous courses described by count, subjects, and diversity.")
+
             subjects_of_interest_list = random.sample(self.subjects_of_interest,  min(np.random.randint(1, 5), len(self.subjects_of_interest)))
+            logging.debug("Subjects of interest chosen.")
+
             subjects_diversity = len(subjects_of_interest_list)
+            logging.debug("Subjects of interest described by diversity.")
+
             career_aspirations_list = self.generate_career_aspirations(subjects_of_interest_list)
+            logging.debug("Career aspirations chosen.")
+
             extracurricular_activities = random.sample(self.extracurricular_list, min(np.random.randint(0, 4), len(self.extracurricular_list)))
+            logging.debug("Extracurriculars chosen.")
+
             activities_involvement_count = len(extracurricular_activities)
+            logging.debug("Extracurriculars described by length.")
+
             future_topics = random.sample(list(self.related_topics.keys()), min(np.random.randint(1, 5), len(self.related_topics.keys()))) if self.related_topics else []
+            logging.debug("Future topics chosen.")
+
             gpa = round(np.random.uniform(2.0, 4.0), 2)
+            logging.debug("GPA chosen.")
             
             data.append({
                 'first_name': first_name,
@@ -143,7 +174,7 @@ class DataGenerator:
                 'socioeconomic status': self.assign_demographic(self.socioeconomic, 'real'),
                 'learning_style': learning_style,
                 'gpa': gpa,
-                'class year': student_class_year,
+                'student semester': student_semester,
                 'previous courses': previous_courses,
                 'previous courses count': previous_courses_count,
                 'unique subjects in courses': unique_subjects_in_courses,
@@ -154,22 +185,9 @@ class DataGenerator:
                 'activities involvement count': activities_involvement_count,
                 'future topics': future_topics
             })
+            logging.debug("Data appended.")
 
-        df = pd.DataFrame(data)
-        
-        # Normalize numerical features
-        numerical_columns = ['previous courses count', 'unique subjects in courses', 'subjects diversity', 'activities involvement count', 'gpa']
-        df = self.normalize_numerical_features(df, numerical_columns)
-        
-        return df
-
-    def normalize_numerical_features(self, dataframe, numerical_columns):
-        """
-        Normalize numerical features.
-        """
-        scaler = StandardScaler()
-        dataframe[numerical_columns] = scaler.fit_transform(dataframe[numerical_columns])
-        return dataframe
+        return pd.DataFrame(data)
 
 # Export the function for external use
 def generate_synthetic_dataset(num_samples=1000):

@@ -21,54 +21,27 @@ class PrivacyMetrics:
         logging.info("Calculating privacy metrics...")
 
         try:
-            # Compare statistics for the 'class year' column
-            statistics_comparison = self.compare_statistics(o_dataset, p_dataset, 'class year')
+            # Compare statistics for the 'student semester' column
+            statistics_comparison = self.compare_statistics(o_dataset, p_dataset, 'student semester')
 
             # Define quasi-identifiers and sensitive attributes for the dataset
             quasi_identifiers = ['race_ethnicity', 'gender', 'international']
-            sensitive_attribute = 'class year'
+            sensitive_attribute = 'student semester'
 
             # Calculate k-anonymity and l-diversity of the privatized dataset
             k_anonymity = self.calculate_k_anonymity(p_dataset, quasi_identifiers)
             l_diversity = self.calculate_l_diversity(p_dataset, quasi_identifiers, sensitive_attribute)
 
-            if self.mechanism == "Pufferfish":
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "secrets": parameters[0],
-                "discriminative pairs": parameters[1],
-                "epsilon": parameters[2]
+            privacy_metrics = {
+            "k-anonymity": k_anonymity,
+            "l-diversity": l_diversity,
+            "statistics": statistics_comparison,
+            "epsilon": parameters[0],
+            "delta": parameters[1],
+            "noise level": parameters[2],
+            "privatization method": parameters[3],
+            "generalization level": parameters[4]
             }
-            elif self.mechanism == "DDP":
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "secrets": parameters[0],
-                "epsilon": parameters[1],
-                "correlation coefficient": parameters[2]
-            }
-            elif self.mechanism == "CBA":
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "secrets": parameters[0],
-                "epsilon": parameters[1],
-                "coupling strength": parameters[2]
-            }  
-            else:
-                privacy_metrics = {
-                    "k-anonymity": k_anonymity,
-                    "l-diversity": l_diversity,
-                    "statistics": statistics_comparison,
-                    "mechanism": parameters[0],
-                    "sensitivity": parameters[1],
-                    "epsilon": parameters[2],
-                    "delta": parameters[3]
-                }
             
             return privacy_metrics
 

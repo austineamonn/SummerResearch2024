@@ -5,7 +5,7 @@ from tensorflow.keras.layers import Dense, Dropout # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
 import logging
 from config import load_config
-from dictionary import get_combined_data
+from dictionary import Data
 
 # Load configuration
 config = load_config()
@@ -16,7 +16,8 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 class NeuralNetwork:
     def __init__(self, config):
         self.config = config
-        combined_data = get_combined_data()
+        data = Data()
+        combined_data = data.get_data()
         self.future_topics = combined_data['future_topics']
 
     def neural_network(self, df):

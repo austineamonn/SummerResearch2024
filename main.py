@@ -1,13 +1,10 @@
 import logging
-from data_generation import generate_synthetic_dataset
-from basic_privatization import DataPrivatizer
+from data_generation import DataGenerator
 from privacy_metrics import calculate_privacy_metrics
 from config import load_config
-from pufferfish_privatization import PufferfishPrivatizer
-from ddp_privatization import DDPPrivatizer
-from cba_privatization import CBAPrivatizer
 from preprocessing import PreProcessing
 from neural_network import NeuralNetwork
+from privatization import Privatizer
 
 # Load configuration
 config = load_config()
@@ -26,7 +23,10 @@ def main():
 
     try:
         # Build the synthetic dataset and save it to a CSV file
-        synthetic_dataset = generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
+        dataset_builder = DataGenerator()
+        logging.debug("DataGenerator instance created.")
+
+        synthetic_dataset = dataset_builder.generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
         logging.info("Synthetic dataset generated with %d samples.", len(synthetic_dataset))
         logging.info("First few rows of the synthetic dataset:\n%s", synthetic_dataset.head())
         synthetic_dataset.to_csv('Dataset.csv', index=False)
@@ -35,32 +35,11 @@ def main():
         # Choose privacy mechanism
         logging.info("Privatizing the dataset...")
         mechanism = config["privacy"]["mechanism"]
-        if mechanism == "Pufferfish":
-            # Create PufferfishPrivatizer instance
-            privatizer = PufferfishPrivatizer(config)
 
-            # Privatize dataset using Pufferfish mechanism
-            private_dataset = privatizer.privatize_dataset(synthetic_dataset)
-            logging.info("Pufferfish privatization applied.")
-        elif mechanism == "DDP":
-            # Create DDPPrivatizer instance
-            privatizer = DDPPrivatizer(config)
-
-            # Privatize dataset using DDP mechanism
-            private_dataset = privatizer.privatize_dataset(synthetic_dataset)
-            logging.info("DDP privatization applied.")
-        elif mechanism == "CBA":
-            # Create CBAPrivatizer instance
-            privatizer = CBAPrivatizer(config)
-
-            # Privatize dataset using CBA mechanism
-            private_dataset = privatizer.privatize_dataset(synthetic_dataset)
-            logging.info("CBA privatization applied.")
-        else:
-            # Privatize dataset using basic privatization
-            privatizer = DataPrivatizer(config)
-            private_dataset = privatizer.privatizing_dataset(synthetic_dataset, config)
-            logging.info("Basic privatization applied")
+        # Privatizing the dataset
+        privatizer = Privatizer(config)
+        private_dataset = privatizer.privatize_dataset(synthetic_dataset)
+        logging.info("Privatization completed using %s", mechanism)
 
         # Save the privatized dataset to a new CSV file
         private_dataset.to_csv('Privatized_Dataset.csv', index=False)
