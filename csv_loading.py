@@ -10,18 +10,22 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 
 class CSVLoader:
     def __init__(self):
-        self.course_year_mapping = {}
-        self.course_names = []
         self.first_names = []
         self.last_names = []
-        self.course_numbers = []
+        self.course_tuples = []
 
     def load_course_catalog(self, file_path):
         logging.debug("Loading course catalog from %s", file_path)
         course_catalog = pd.read_csv(file_path)
-        self.course_names = course_catalog['Name'].tolist()
-        self.course_numbers = course_catalog['Number'].tolist()
-        self.course_names = [name.replace('&', 'and') for name in self.course_names if pd.notna(name)]
+
+        # Create tuples of a courses name, number, and type. Also replace '&amp' with 'and' in the
+        # names. Then cut out duplicate classes
+        self.course_tuples = list(
+            course_catalog[['Name', 'Number', 'Type']]
+            .assign(Name=course_catalog['Name'].str.replace('&amp', 'and'))
+            .itertuples(index=False, name=None)
+        )
+        self.course_tuples = list(set(self.course_tuples))
 
     def load_first_names(self, file_path):
         logging.debug("Loading first names from %s", file_path)

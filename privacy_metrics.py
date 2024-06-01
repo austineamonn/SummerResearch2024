@@ -1,6 +1,6 @@
 import pandas as pd
 import logging
-from typing import Tuple, Dict
+from typing import  Dict
 from config import load_config
 
 # Load configuration

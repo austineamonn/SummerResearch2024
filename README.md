@@ -1,5 +1,5 @@
 # SummerResearch2024
-For the iCompBio REU program Summer of 2024
+For the iCompBio REU program Summer of 2024. Project Lead: Austin Nicolas. Project Mentor: Dr. Shahnewaz Sakib.
 
 # General Outline of Summer Research Project:
 To build a framework that will take various inputs from college student users, protect their data by privatizing the dataset, and build a machine learning model trained on the privatized data that will output recommendations for topics that a student should consider for future study based on their inputs.
@@ -20,7 +20,7 @@ Loads the CSVs (Course catalog, first names, and last names) and pulls out the r
 Dictionary that containts demographic information and mappings between various features of the dataset.
 
 # data_generation:
-Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status,socioeconomic status, learning style, gpa, student semester, previous courses, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, activities involvement count, and future topics.
+Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status,socioeconomic status, learning style, gpa, student semester, previous courses, previous course types, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, activities involvement count, and future topics.
 
 # privatization:
 Generates the privatized dataset based on the synthetic dataset using anonymization, generalization, and noise addition. You can choose the noise addition from: Random, Laplace, Gaussian, Uniform, Exponential, Gamma, Pufferfish, Dependent Differential Privacy, and Coupled Behavior Analysis.
@@ -28,15 +28,14 @@ Generates the privatized dataset based on the synthetic dataset using anonymizat
 # privacy_metrics:
 Calculates the level of data privatization using various metrics. K-anonymity, L-diversity, Epsilon, Delta, Noise level, Generalization level, Mean comparison, and STD comparison.
 
-
 # preprocessing:
-Prepares privatized dataset to be fed into the machine learning model by generated a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (first name, last name, race or ethnicity, gender, international student status, and socioeconomic status) that should not play a role in how the model assigns future topics.
+Prepares privatized dataset to be fed into the machine learning model by generating a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (first name, last name, race or ethnicity, gender, international student status, and socioeconomic status) that should not play a role in how the model assigns future topics.
 
 # neural_network:
-Creates and runs a neural network on the cleaned dataset. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count.
+Creates and runs a neural network on the cleaned dataset. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count.
 
 # simulated_attack:
-Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference.
+Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference. This section has not yet been incorporated into main.py as it is still under construction.
 
 # Sources and Acknowlegments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog and Course Level Dataset

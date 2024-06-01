@@ -1,4 +1,3 @@
-import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Dense, Dropout # type: ignore
@@ -21,10 +20,6 @@ class NeuralNetwork:
         self.future_topics = combined_data['future_topics']
 
     def neural_network(self, df):
-        # Drop 'previous courses' column if it's of type 'object'
-        if df['previous courses'].dtype == 'object':
-            df = df.drop(columns=['previous courses'])
-        logging.debug("Previous courses dropped")
 
         # Define features and target
         X = df.drop(columns=self.future_topics)

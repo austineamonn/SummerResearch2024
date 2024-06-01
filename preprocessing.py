@@ -15,6 +15,7 @@ class PreProcessing:
     def __init__(self, config):
         self.config = config
         self.numerical_columns = self.config["preprocessing"]["numerical_columns"]
+        logging.debug("initialization complete.")
     
     def preprocessor(self, df):
         """
@@ -22,6 +23,8 @@ class PreProcessing:
         """
         # One-Hot Encode 'learning_style'
         df = self.one_hot_encode(df, 'learning_style')
+        df = self.one_hot_encode(df, 'previous courses')
+        df = self.one_hot_encode(df, 'course type')
         logging.info("One-hot encoding complete")
 
         # TF-IDF Vectorize text columns
@@ -40,6 +43,12 @@ class PreProcessing:
 
         # Return the preprocessed dataset
         return df
+    
+    def list_to_string(self, lst):
+        """
+        A function to convert a list to a string
+        """
+        return " ".join(lst)
 
     def one_hot_encode(self, df, column):
         """
@@ -52,6 +61,26 @@ class PreProcessing:
         Returns:
         pd.DataFrame: The dataframe with the specified column one-hot encoded.
         """
+        # Debug: print the columns of the dataframe
+        print(f"Columns in DataFrame: {df.columns.tolist()}")
+        
+        # Strip any leading/trailing spaces from column names
+        df.columns = df.columns.str.strip()
+        
+        # Check if the column exists in the DataFrame
+        if column not in df.columns:
+            raise ValueError(f"Column '{column}' not found in DataFrame")
+        
+        # Check if the column elements are lists, in which case convert them to strings
+        first_element = df[column].iloc[0]
+        if isinstance(first_element, list):
+            df[column] = df[column].apply(self.list_to_string)
+        elif isinstance(first_element, str):
+            # Safely parse the lists from strings if they are string representations of lists
+            df[column] = df[column].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
+            df[column] = df[column].apply(self.list_to_string)
+
+        # Encode the data
         one_hot_encoder = OneHotEncoder(sparse_output=False)
         encoded = one_hot_encoder.fit_transform(df[[column]])
         encoded_df = pd.DataFrame(encoded, columns=one_hot_encoder.get_feature_names_out([column]))

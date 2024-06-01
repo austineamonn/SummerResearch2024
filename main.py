@@ -31,7 +31,13 @@ def main():
         logging.info("First few rows of the synthetic dataset:\n%s", synthetic_dataset.head())
         synthetic_dataset.to_csv('Dataset.csv', index=False)
         logging.info("Synthetic dataset saved to Dataset.csv.")
-
+        
+        learning_styles_to_test = ['Auditory', 'Visual', 'Read/Write', 'Kinesthetic']
+        for style in learning_styles_to_test:
+            logging.debug(f"Testing with learning style: {style}")
+            previous_courses = dataset_builder.generate_previous_courses(8, [style])
+            logging.debug(f"Generated previous courses for learning style {style}: {previous_courses}")
+        
         # Choose privacy mechanism
         logging.info("Privatizing the dataset...")
         mechanism = config["privacy"]["mechanism"]
@@ -64,12 +70,12 @@ def main():
         # Save the cleaned dataset to a CSV
         cleaned_dataset.to_csv('Cleaned_Dataset.csv', index=False)
         logging.info("Cleaned dataset saved to Cleaned_Dataset.csv.")
-
+        
         network = NeuralNetwork(config)
         loss, accuracy = network.neural_network(cleaned_dataset)
         logging.info("Neural network loss %s", loss)
         logging.info("Neural network accuracy %s", accuracy)
-        
+               
     except Exception as e:
         logging.error("Error in main execution: %s", e)
 

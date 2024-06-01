@@ -16,14 +16,6 @@ def load_config():
             "sensitivity": 1.0,
             "epsilon": 0.1,
             "delta": 1e-5,
-            "secrets": ["gpa", "student semester"],
-            "discriminative_pairs": [("Male", "Female"), ("Domestic", "International")],
-            "ddp": {
-                "correlation_coefficient": 0.5
-            },
-            "cba": {
-                "coupling_strength": 0.5
-            },
             # Generalization levels: full, broad, slight, none
             "generalization_level": "broad",
             "noise_level": 1

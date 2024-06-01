@@ -240,21 +240,3 @@ class Privatizer:
 
         logging.debug("Noise added to %s", column)
         return dataset[column]
-
-
-        
-"""
-dataset = pd.read_csv("/mnt/data/Dataset.csv")
-
-anonymized_cba_dataset = anonymize_dataset(dataset.copy(), method='cba', generalization_level='full')
-anonymized_cba_dataset.to_csv("/mnt/data/anonymized_cba_dataset.csv", index=False)
-
-anonymized_ddp_dataset = anonymize_dataset(dataset.copy(), method='ddp', generalization_level='broad')
-anonymized_ddp_dataset.to_csv("/mnt/data/anonymized_ddp_dataset.csv", index=False)
-
-anonymized_pufferfish_dataset = anonymize_dataset(dataset.copy(), method='pufferfish', generalization_level='slight')
-anonymized_pufferfish_dataset.to_csv("/mnt/data/anonymized_pufferfish_dataset.csv", index=False)
-
-anonymized_dp_dataset = anonymize_dataset(dataset.copy(), method='dp', generalization_level='full')
-anonymized_dp_dataset.to_csv("/mnt/data/anonymized_differential_dataset.csv", index=False)
-"""

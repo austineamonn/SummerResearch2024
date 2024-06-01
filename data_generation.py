@@ -3,7 +3,6 @@ import numpy as np
 import random
 import logging
 import re
-from sklearn.preprocessing import StandardScaler
 from csv_loading import course_loader, fn_loader, ln_loader
 from dictionary import Data
 from config import load_config
@@ -32,9 +31,8 @@ class DataGenerator:
         self.careers = combined_data['careers']
         logging.debug("Combined data loaded.")
 
-        self.course_names = course_loader.course_names
-        self.course_numbers = course_loader.course_numbers
-        self.course_year_mapping = {course: self.map_course_to_year(number) for course, number in zip(self.course_names, self.course_numbers)}
+        self.course_tuples = course_loader.course_tuples
+        self.course_year_mapping = {course[0]: self.map_course_to_year(course) for course in self.course_tuples}
         logging.debug("Course information loaded.")
 
         self.first_names_list = fn_loader.first_names
@@ -52,26 +50,40 @@ class DataGenerator:
         """
         Filter courses based on student semester.
         """
-        return [course for course in courses if semester in range(*self.course_year_mapping.get(course, (0, 0)))]
+        return [course for course in courses if semester in range(*self.course_year_mapping.get(course[0], (0, 0)))]
 
-    def generate_previous_courses(self, semester, learning_style):
+    def generate_previous_courses(self, semester, learning_styles):
         """
         Generate a list of previous courses taken by a student based on their student semester and their learning style.
         """
+        logging.debug(f"Generating previous courses for semester: {semester}, learning_styles: {learning_styles}")
         previous_courses_taken = []
+
         for year in range(1, semester + 1):
-            possible_courses = self.filter_courses_by_year(self.course_names, year)
-            # Filter courses based on learning style
-            filtered_courses = [
-                course for course in possible_courses
-                if any(style in self.course_type_to_learning_styles.get(course, []) for style in learning_style)
-            ]
+            possible_courses = self.filter_courses_by_year(self.course_tuples, year)
+            logging.debug(f"Possible courses for year {year}: {possible_courses}")
+
+
+            filtered_courses = []
+            for course in possible_courses:
+                style = course[2]
+                course_styles = self.course_type_to_learning_styles[style]
+                for lstyle in learning_styles: # Allows for multiple learning styles
+                    if lstyle in course_styles:
+                        filtered_courses.append(course)
+
+            logging.debug(f"Filtered courses for learning styles {learning_styles}: {filtered_courses}")
+
+            # Select a number of courses to simulate the courses taken
             num_courses = max(0, min(4 + np.random.randint(-2, 2), len(filtered_courses)))  # Adding some randomness
             previous_courses_taken.extend(random.sample(filtered_courses, num_courses))
 
+        logging.debug(f"Previous courses taken: {previous_courses_taken}")
         return previous_courses_taken
-    
-    def map_course_to_year(self, course_number):
+
+
+    def map_course_to_year(self, course_tuple):
+        course_number = course_tuple[1]
         if pd.isna(course_number):
             return (0, 0)
         match = re.match(r'(\d{3})', str(course_number))
@@ -86,7 +98,7 @@ class DataGenerator:
             elif 400 <= course_num < 500:
                 return (7, 8)  # Fourth year: first and second semester
             else:
-                return (9, 10)  # Fifth and Sixth year: first and second semester
+                return (9, 12)  # Fifth and Sixth year: first and second semester
         return (0, 0)
 
     def assign_demographic(self, demographic_type, bias):
@@ -133,7 +145,10 @@ class DataGenerator:
             student_semester = np.random.randint(1, 12)
             logging.debug("Student semester chosen chosen.")
 
-            learning_style = self.assign_demographic(self.learning_style, 'real')
+            learning_style = [self.assign_demographic(self.learning_style, 'real')]
+            if np.random.rand() < 0.1:  # 10% chance to add an extra learning style
+                extra_style = self.assign_demographic(self.learning_style, 'real')
+                learning_style.append(extra_style)
             logging.debug("Learning style chosen.")
 
             previous_courses = self.generate_previous_courses(student_semester, learning_style)
@@ -175,7 +190,10 @@ class DataGenerator:
                 'learning_style': learning_style,
                 'gpa': gpa,
                 'student semester': student_semester,
-                'previous courses': previous_courses,
+
+                # Split the tuples into course name and course type
+                'previous courses': [course[0] for course in previous_courses],
+                'course type': list(set([course[2] for course in previous_courses])),
                 'previous courses count': previous_courses_count,
                 'unique subjects in courses': unique_subjects_in_courses,
                 'subjects of interest': subjects_of_interest_list,
