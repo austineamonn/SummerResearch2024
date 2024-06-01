@@ -11,7 +11,7 @@ Take student input data and build a privatized version. From the privatized vers
 The main file of the framework. Generates a synthetic dataset using 'data_generation', privatizes the dataset using 'privatization', calculates the privacy metrics using 'privacy_metrics', cleans the data for machine learning with 'preprocessing', and trains a neural network on the data using 'neural_network'.
 
 # config:
-Contains the basic configurations for the model.
+Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics, Clean Privatized Dataset, Run Neural Network, and Simulate Data Attack.
 
 # csv_loading:
 Loads the CSVs (Course catalog, first names, and last names) and pulls out the relevant information they contain.
