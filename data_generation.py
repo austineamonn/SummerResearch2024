@@ -173,10 +173,8 @@ class DataGenerator:
 
             if np.random.rand() < 0.3:  # 30% chance to add extra subjects of interest
                 extra_subjects = random.sample(self.subjects_of_interest,  min(np.random.randint(1, 3), len(self.subjects_of_interest)))
-                subjects_of_interest_list.append(tuple(extra_subjects))  # Convert list to tuple
+                subjects_of_interest_list.extend(extra_subjects)
 
-            # Convert list of lists to list of tuples for set operations
-            subjects_of_interest_list = [tuple(subjects) for subjects in subjects_of_interest_list]
             subjects_of_interest_list = list(set(random.sample(subjects_of_interest_list,  min(np.random.randint(1, 5), len(subjects_of_interest_list)))))
 
             logging.debug("Subjects of interest chosen")
