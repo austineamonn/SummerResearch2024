@@ -82,6 +82,7 @@ def main():
             logging.debug("New cleaned dataset not generated")
         
         if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
+            # Run a neural network on the cleaned dataset
             network = NeuralNetwork(config)
             loss, accuracy = network.neural_network(cleaned_dataset)
             logging.info("Neural network loss %s", loss)
@@ -90,6 +91,7 @@ def main():
             logging.debug("Neural network not run")
 
         if 'Simulate Data Attack' in config["running_model"]["parts_to_run"]:
+            # Run a simulated data attack on the privatized dataset
             logging.info("Simulated data attacks are still under construction")
         else:
             logging.debug("Simulated data attacks not run")

@@ -26,7 +26,7 @@ def load_config():
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
             # Privatize Dataset, Calculate Privacy Metrics, Clean Privatized Dataset, Run Neural Network, Simulate Data Attack
-            "parts_to_run": ['Run Neural Network'],
+            "parts_to_run": ['Generate Dataset', 'Privatize Dataset', 'Clean Privatized Dataset'],
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Dataset.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Privatized_Dataset.csv',
             "cleaned data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Cleaned_Dataset.csv'

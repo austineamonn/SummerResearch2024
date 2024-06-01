@@ -18,10 +18,10 @@ class CSVLoader:
         logging.debug("Loading course catalog from %s", file_path)
         course_catalog = pd.read_csv(file_path)
 
-        # Create tuples of a courses name, number, and type. Also replace '&amp' with 'and' in the
+        # Create tuples of a courses name, number, type, and subject. Also replace '&amp' with 'and' in the
         # names. Then cut out duplicate classes
         self.course_tuples = list(
-            course_catalog[['Name', 'Number', 'Type']]
+            course_catalog[['Name', 'Number', 'Type', 'Subject']]
             .assign(Name=course_catalog['Name'].str.replace('&amp', 'and'))
             .itertuples(index=False, name=None)
         )

@@ -21,10 +21,11 @@ class PreProcessing:
         """
         Main function that takes in the privatized dataset and preprocesses it
         """
-        # One-Hot Encode 'learning_style'
+        # One-Hot Encoding
         df = self.one_hot_encode(df, 'learning_style')
         df = self.one_hot_encode(df, 'previous courses')
         df = self.one_hot_encode(df, 'course type')
+        df = self.one_hot_encode(df, 'subjects in courses')
         logging.info("One-hot encoding complete")
 
         # TF-IDF Vectorize text columns
@@ -61,9 +62,6 @@ class PreProcessing:
         Returns:
         pd.DataFrame: The dataframe with the specified column one-hot encoded.
         """
-        # Debug: print the columns of the dataframe
-        print(f"Columns in DataFrame: {df.columns.tolist()}")
-        
         # Strip any leading/trailing spaces from column names
         df.columns = df.columns.str.strip()
         
@@ -97,10 +95,13 @@ class PreProcessing:
         Returns:
         pd.DataFrame: The dataframe with the specified column TF-IDF vectorized.
         """
-        # Join list elements into a single string for each row
-        df[column] = df[column].apply(lambda x: ' '.join(x) if isinstance(x, list) else x)
+        # Join list elements into a single string for each row.
+        logging.debug("Combine each element in the list of %s", df[column])
+        # The string becomes 'none' if the list is empty to ensure proper vectorization.
+        df[column] = df[column].apply(lambda x: ' '.join(x) if isinstance(x, list) and x else 'none' if isinstance(x, list) else x)
         
         tfidf_vectorizer = TfidfVectorizer()
+        logging.debug("begin vectorization of %s", df[column])
         tfidf_matrix = tfidf_vectorizer.fit_transform(df[column])
         tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=tfidf_vectorizer.get_feature_names_out())
         return pd.concat([df.drop(column, axis=1), tfidf_df], axis=1)

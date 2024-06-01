@@ -149,27 +149,46 @@ class DataGenerator:
             if np.random.rand() < 0.1:  # 10% chance to add an extra learning style
                 extra_style = self.assign_demographic(self.learning_style, 'real')
                 learning_style.append(extra_style)
-            logging.debug("Learning style chosen.")
+            logging.debug("Learning style chosen")
 
             previous_courses = self.generate_previous_courses(student_semester, learning_style)
-            logging.debug("Previous courses chosen.")
+            logging.debug("Previous courses chosen")
 
             previous_courses_count = len(previous_courses)
-            subjects_in_courses = [self.course_to_subject[course] for course in previous_courses if course in self.course_to_subject]
-            unique_subjects_in_courses = len(set(subjects_in_courses))
-            logging.debug("Previous courses described by count, subjects, and diversity.")
+            subjects_in_courses = list(set([course[3] for course in previous_courses]))
+            unique_subjects_in_courses = len(subjects_in_courses)
+            logging.debug("Previous courses described by count, course subject, and course subject diversity")
 
-            subjects_of_interest_list = random.sample(self.subjects_of_interest,  min(np.random.randint(1, 5), len(self.subjects_of_interest)))
-            logging.debug("Subjects of interest chosen.")
+            # Pick the subject of interest based on previous courses, with some random extra subjects added in
+            subjects_of_interest_list = []
+            for course in previous_courses:
+                logging.debug("Course being examined: %s", course)
+                if course[3] in self.course_to_subject.keys():
+                    subjects_of_interest_list.append(self.course_to_subject[course[3]])
+                    logging.debug("The couse has been added to the list")
+                else:
+                    logging.debug("this course subject %s", course[3])
+                    logging.debug("was not in the list %s", self.course_to_subject.keys())
+            logging.debug("Initial subject list chosen: %s", subjects_of_interest_list)
+
+            if np.random.rand() < 0.3:  # 30% chance to add extra subjects of interest
+                extra_subjects = random.sample(self.subjects_of_interest,  min(np.random.randint(1, 3), len(self.subjects_of_interest)))
+                subjects_of_interest_list.append(tuple(extra_subjects))  # Convert list to tuple
+
+            # Convert list of lists to list of tuples for set operations
+            subjects_of_interest_list = [tuple(subjects) for subjects in subjects_of_interest_list]
+            subjects_of_interest_list = list(set(random.sample(subjects_of_interest_list,  min(np.random.randint(1, 5), len(subjects_of_interest_list)))))
+
+            logging.debug("Subjects of interest chosen")
 
             subjects_diversity = len(subjects_of_interest_list)
-            logging.debug("Subjects of interest described by diversity.")
+            logging.debug("Subjects of interest described by diversity")
 
             career_aspirations_list = self.generate_career_aspirations(subjects_of_interest_list)
-            logging.debug("Career aspirations chosen.")
+            logging.debug("Career aspirations chosen")
 
             extracurricular_activities = random.sample(self.extracurricular_list, min(np.random.randint(0, 4), len(self.extracurricular_list)))
-            logging.debug("Extracurriculars chosen.")
+            logging.debug("Extracurriculars chosen")
 
             activities_involvement_count = len(extracurricular_activities)
             logging.debug("Extracurriculars described by length.")
@@ -195,6 +214,7 @@ class DataGenerator:
                 'previous courses': [course[0] for course in previous_courses],
                 'course type': list(set([course[2] for course in previous_courses])),
                 'previous courses count': previous_courses_count,
+                'subjects in courses': subjects_in_courses,
                 'unique subjects in courses': unique_subjects_in_courses,
                 'subjects of interest': subjects_of_interest_list,
                 'subjects diversity': subjects_diversity,
