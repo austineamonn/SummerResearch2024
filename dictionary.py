@@ -1,6 +1,24 @@
 class Data:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, config) -> None:
+        self.config = config
+        self.num_samples = config["synthetic_data"]["num_samples"]
+        self.mutation_rate = config["privacy"]["mutation_rate"]
+        self.epsilon = config["privacy"]["epsilon"]
+        self.delta = config["privacy"]["delta"]
+        self.noise_level = config["privacy"]["noise_level"]
+        self.scale = config["privacy"]["scale"]
+        self.shape = config["privacy"]["shape"]
+        self.low = config["privacy"]["low"]
+        self.high = config["privacy"]["high"]
+        self.lam = config["privacy"]["lam"]
+        self.salt_prob = config["privacy"]["salt_prob"]
+        self.pepper_prob = config["privacy"]["pepper_prob"]
+        self.variance = config["privacy"]["variance"]
+        self.flip_prob = config["privacy"]["flip_prob"]
+        self.snr = config["privacy"]["snr"]
+        self.generalization_level = config["privacy"]["generalization_level"]
+        self.sensitivity = config["privacy"]["sensitivity"]
+
     def get_data(self):
         data_dict = {
         'subjects_of_interest': [
@@ -1095,19 +1113,20 @@ class Data:
             'Pacific Islander': 0.3
         },
         'gender': {
-            'Female': 58.36,
-            'Male': 41.64
+            'Female': 54.83,
+            'Male': 40.07,
+            'Nonbinary': 5.1
         },
         'international': {
             'Domestic': 94.08,
             'International': 5.92
         },
         'socioeconomic': {
-            'In poverty': 16,
-            'Near poverty': 17,
+            'In poverty': 20,
+            'Near poverty': 19,
             'Lower-middle income': 15,
-            'Middle income': 41,
-            'Higher income': 12
+            'Middle income': 37,
+            'Higher income': 9
         },
         'learning_style': {
             'Visual': 27.27,
@@ -1163,7 +1182,24 @@ class Data:
             "Project Management",
             "Linguistics", "Paleontology",
             "Parks and Recreation Management"
-        ]
+        ],
+        'parameters': {
+            'Random': ['Random', self.noise_level],
+            'Gaussian': ['Gaussian', self.epsilon, self.delta, self.sensitivity],
+            'Laplace': ['Laplace', self.epsilon, self.sensitivity],
+            'Exponential': ['Exponential', self.epsilon, self.scale],
+            'Gamma': ['Gamma', self.shape, self.scale],
+            'Uniform': ['Uniform', self.low, self.high],
+            'CBA': ['CBA', self.noise_level],
+            'DDP': ['DDP', self.epsilon],
+            'Pufferfish': ['Pufferfish', self.noise_level],
+            'Poisson': ['Poisson', self.noise_level],
+            'SaltAndPepper': ['SaltAndPepper', self.salt_prob, self.pepper_prob],
+            'Speckle': ['Speckle', self.variance],
+            'BitFlip': ['BitFlip', self.flip_prob],
+            'AWGN': ['AWGN', self.snr],
+            'Multiplicative': ['Multiplicative', self.variance],
+        }
     }
         return data_dict
     def get_data_generalization(self):

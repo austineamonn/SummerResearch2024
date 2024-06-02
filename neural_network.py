@@ -5,6 +5,7 @@ from tensorflow.keras.optimizers import Adam # type: ignore
 import logging
 from config import load_config
 from dictionary import Data
+import pandas as pd
 
 # Load configuration
 config = load_config()
@@ -15,16 +16,36 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 class NeuralNetwork:
     def __init__(self, config):
         self.config = config
-        data = Data()
+        data = Data(config)
         combined_data = data.get_data()
         self.future_topics = combined_data['future_topics']
+        logging.debug("Neural Network class initialized")
 
     def neural_network(self, df):
+        # Ensure the target is defined using existing columns
+        existing_transformed_columns = [col for col in self.future_topics if col in df.columns]
+        logging.debug("Here are the transformed columns that exist in the dataset: %s", existing_transformed_columns)
 
-        # Define features and target
-        X = df.drop(columns=self.future_topics)
-        y = df[self.future_topics]
-        logging.debug("Features defined")
+        # Log the columns of the DataFrame before dropping any columns
+        logging.debug("DataFrame columns before dropping: %s", df.columns.tolist())
+
+        # Define target first
+        y = df[existing_transformed_columns]
+        
+        # Drop columns one by one with a check to ensure they exist
+        for col in existing_transformed_columns:
+            logging.debug("Examining the %s column", col)
+            if col in df.columns:
+                df = df.drop(columns=col)
+            else:
+                logging.debug("%s was not in the columns", col)
+
+        # Log the columns of the DataFrame after dropping
+        logging.debug("DataFrame columns after dropping: %s", df.columns.tolist())
+
+        # Define features
+        X = df
+        logging.debug("Features and targets defined")
 
         # Convert y to a numpy array
         y = y.values
@@ -45,7 +66,7 @@ class NeuralNetwork:
             Dropout(0.5),
             Dense(64, activation='relu'),
             Dropout(0.5),
-            Dense(len(self.future_topics), activation='sigmoid')  # Multi-label classification
+            Dense(min(y_train.shape[1], len(self.future_topics)), activation='sigmoid')  # Multi-label classification
         ])
         logging.debug("Neural network defined")
 

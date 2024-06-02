@@ -32,16 +32,135 @@ class PrivacyMetrics:
             k_anonymity = self.calculate_k_anonymity(p_dataset, quasi_identifiers)
             l_diversity = self.calculate_l_diversity(p_dataset, quasi_identifiers, sensitive_attribute)
 
-            privacy_metrics = {
-            "k-anonymity": k_anonymity,
-            "l-diversity": l_diversity,
-            "statistics": statistics_comparison,
-            "epsilon": parameters[0],
-            "delta": parameters[1],
-            "noise level": parameters[2],
-            "privatization method": parameters[3],
-            "generalization level": parameters[4]
-            }
+            if self.mechanism == 'Random':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "noise level": parameters[1]
+                }
+            elif self.mechanism == 'Gaussian':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "epsilon": parameters[1],
+                "delta": parameters[2],
+                "sensitivity": parameters[3]
+                }
+            elif self.mechanism == 'Laplace':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "epsilon": parameters[1],
+                "sensitivity": parameters[2]
+                }
+            elif self.mechanism == 'Exponential':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "epsilon": parameters[1],
+                "scale": parameters[2]
+                }
+            elif self.mechanism == 'Gamma':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "shape": parameters[1],
+                "scale": parameters[2]
+                }
+            elif self.mechanism == 'Uniform':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "low": parameters[1],
+                "high": parameters[2]
+                }
+            elif self.mechanism == 'CBA':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "noise level": parameters[1]
+                }
+            elif self.mechanism == 'DDP':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "epsilon": parameters[1]
+                }
+            elif self.mechanism == 'Pufferfish':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "noise level": parameters[1]
+                }
+            elif self.mechanism == 'Poisson':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "noise level": parameters[1]
+                }
+            elif self.mechanism == 'SaltAndPepper':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "salt probability": parameters[0],
+                "pepper probability": parameters[1]
+                }
+            elif self.mechanism == 'Speckle':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "variance": parameters[1]
+                }
+            elif self.mechanism == 'BitFlip':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "flip probability": parameters[1]
+                }
+            elif self.mechanism == 'AWGN':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "signal-to-noise ratio": parameters[1]
+                }
+            elif self.mechanism == 'Multiplicative':
+                privacy_metrics = {
+                "k-anonymity": k_anonymity,
+                "l-diversity": l_diversity,
+                "statistics": statistics_comparison,
+                "noise addition method": parameters[0],
+                "variance": parameters[1]
+                }
+            else:
+                logging.error("Unknown privacy mechanism")
             
             return privacy_metrics
 

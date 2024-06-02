@@ -65,7 +65,7 @@ def main():
 
         if 'Clean Privatized Dataset' in config["running_model"]["parts_to_run"]:
             # Drop the columns that should not impact recommendations for future topics
-            columns_to_drop = ["first_name", "last_name", "race_ethnicity", "gender", "international", "socioeconomic status"]
+            columns_to_drop = config["preprocessing"]["remove_columns"]
             cleaned_dataset = private_dataset.drop(columns=columns_to_drop)
             logging.info("Removed senstitive information from privatized dataset")
 

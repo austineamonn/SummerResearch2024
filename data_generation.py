@@ -15,7 +15,7 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 
 class DataGenerator:
     def __init__(self):
-        data = Data()
+        data = Data(config)
         combined_data = data.get_data()
         self.subjects_of_interest = combined_data['subjects_of_interest']
         self.course_to_subject = combined_data['course_to_subject']

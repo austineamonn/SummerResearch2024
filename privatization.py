@@ -12,19 +12,32 @@ config = load_config()
 # Set up logging
 logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
-data = Data()
+data = Data(config)
 data_dict = data.get_data()
 data_gen = data.get_data_generalization()
 
 class Privatizer:
     def __init__(self, config):
         self.config = config
-        self.epsilon = self.config["privacy"]["epsilon"]
-        self.delta = self.config["privacy"]["delta"]
-        self.noise_level = self.config["privacy"]["noise_level"]
+        self.num_samples = config["synthetic_data"]["num_samples"]
+        self.mutation_rate = config["privacy"]["mutation_rate"]
+        self.epsilon = config["privacy"]["epsilon"]
+        self.delta = config["privacy"]["delta"]
+        self.noise_level = config["privacy"]["noise_level"]
+        self.scale = config["privacy"]["scale"]
+        self.shape = config["privacy"]["shape"]
+        self.low = config["privacy"]["low"]
+        self.high = config["privacy"]["high"]
+        self.lam = config["privacy"]["lam"]
+        self.salt_prob = config["privacy"]["salt_prob"]
+        self.pepper_prob = config["privacy"]["pepper_prob"]
+        self.variance = config["privacy"]["variance"]
+        self.flip_prob = config["privacy"]["flip_prob"]
+        self.snr = config["privacy"]["snr"]
         self.method = config["privacy"]["mechanism"]
         self.generalization_level = config["privacy"]["generalization_level"]
-        self.parameters = [self.epsilon, self.delta, self.noise_level, self.method, self.generalization_level]
+        self.sensitivity = config["privacy"]["sensitivity"]
+        self.parameters = data_dict["parameters"][self.method]
 
         # Log the structure of data_dict and data_gen for 'gpa'
         logging.debug(f"data_dict structure for gpa: {data_dict.get('gpa')}")
@@ -150,6 +163,81 @@ class Privatizer:
         else:
             logging.error(f"Value is not numerical: {value}")
             return value
+        
+    def add_poisson_noise(self, value, lam):
+        logging.debug(f"Adding Poisson noise to value: {value} with lambda: {lam}")
+        if isinstance(value, (int, float)):
+            noise = np.random.poisson(lam)
+            result = value + noise
+            logging.debug(f"Result after adding Poisson noise: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
+
+    def add_salt_and_pepper_noise(self, value, salt_prob, pepper_prob):
+        logging.debug(f"Adding Salt and Pepper noise to value: {value} with salt probability: {salt_prob} and pepper probability: {pepper_prob}")
+        if isinstance(value, (int, float)):
+            random_value = np.random.rand()
+            if random_value < salt_prob:
+                result = 1  # Salt
+            elif random_value < salt_prob + pepper_prob:
+                result = 0  # Pepper
+            else:
+                result = value
+            logging.debug(f"Result after adding Salt and Pepper noise: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
+
+    def add_speckle_noise(self, value, variance):
+        logging.debug(f"Adding Speckle noise to value: {value} with variance: {variance}")
+        if isinstance(value, (int, float)):
+            noise = value * np.random.normal(0, variance)
+            result = value + noise
+            logging.debug(f"Result after adding Speckle noise: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
+
+    def add_bit_flip_noise(self, value, flip_prob):
+        logging.debug(f"Adding Bit Flip noise to value: {value} with flip probability: {flip_prob}")
+        if isinstance(value, (int, float)):
+            if np.random.rand() < flip_prob:
+                result = 1 - value  # Flip bit
+            else:
+                result = value
+            logging.debug(f"Result after adding Bit Flip noise: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
+
+    def add_awgn(self, value, snr):
+        logging.debug(f"Adding AWGN to value: {value} with SNR: {snr}")
+        if isinstance(value, (int, float)):
+            signal_power = np.mean(value ** 2)
+            noise_power = signal_power / (10 ** (snr / 10))
+            noise = np.sqrt(noise_power) * np.random.normal(0, 1, len(value))
+            result = value + noise
+            logging.debug(f"Result after adding AWGN: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
+
+    def add_multiplicative_noise(self, value, variance):
+        logging.debug(f"Adding Multiplicative noise to value: {value} with variance: {variance}")
+        if isinstance(value, (int, float)):
+            noise = value * (1 + np.random.normal(0, variance))
+            result = value + noise
+            logging.debug(f"Result after adding Multiplicative noise: {result}")
+            return result
+        else:
+            logging.error(f"Value is not numerical: {value}")
+            return value
 
     def privatize_dataset(self, dataset):
         dataset['first_name'] = dataset['first_name'].apply(self.anonymize_names)
@@ -213,17 +301,30 @@ class Privatizer:
             elif self.method == 'Laplace':
                 dataset[column] = dataset[column].apply(lambda x: self.add_laplace_noise(x, self.sensitivity, self.epsilon))
             elif self.method == 'Exponential':
-                dataset[column] = dataset[column].apply(lambda x: self.add_exponential_noise(x, scale=1/self.epsilon))
+                dataset[column] = dataset[column].apply(lambda x: self.add_exponential_noise(x, self.scale/self.epsilon))
             elif self.method == 'Gamma':
-                dataset[column] = dataset[column].apply(lambda x: self.add_gamma_noise(x, shape=2, scale=1))
+                dataset[column] = dataset[column].apply(lambda x: self.add_gamma_noise(x, self.shape, self.scale))
             elif self.method == 'Uniform':
-                dataset[column] = dataset[column].apply(lambda x: self.add_uniform_noise(x, low=-1, high=1))
+                dataset[column] = dataset[column].apply(lambda x: self.add_uniform_noise(x, self.low, self.high))
             elif self.method == 'CBA':
-                dataset[column] = dataset[column].apply(lambda x: self.add_noise_cba(x, noise_level=0.1))
+                dataset[column] = dataset[column].apply(lambda x: self.add_noise_cba(x, self.noise_level))
             elif self.method == 'DDP':
-                dataset[column] = dataset[column].apply(lambda x: self.add_noise_ddp(x, epsilon=1.0))
+                dataset[column] = dataset[column].apply(lambda x: self.add_noise_ddp(x, self.epsilon))
             elif self.method == 'Pufferfish':
-                dataset[column] = dataset[column].apply(lambda x: self.add_noise_pufferfish(x, noise_level=0.1))
+                dataset[column] = dataset[column].apply(lambda x: self.add_noise_pufferfish(x, self.noise_level))
+            elif self.method == 'Poisson':
+                dataset[column] = dataset[column].apply(lambda x: self.add_poisson_noise(x, self.lam))
+            elif self.method == 'SaltAndPepper':
+                dataset[column] = dataset[column].apply(lambda x: self.add_salt_and_pepper_noise(x, self.salt_prob, self.pepper_prob))
+            elif self.method == 'Speckle':
+                dataset[column] = dataset[column].apply(lambda x: self.add_speckle_noise(x, self.variance))
+            elif self.method == 'BitFlip':
+                dataset[column] = dataset[column].apply(lambda x: self.add_bit_flip_noise(x, self.flip_prob))
+            elif self.method == 'AWGN':
+                dataset[column] = dataset[column].apply(lambda x: self.add_awgn(x, self.snr))
+            elif self.method == 'Multiplicative':
+                dataset[column] = dataset[column].apply(lambda x: self.add_multiplicative_noise(x, self.variance))
+
 
             new_length = len(dataset)
             new_column_length = len(dataset[column])
@@ -240,3 +341,43 @@ class Privatizer:
 
         logging.debug("Noise added to %s", column)
         return dataset[column]
+    
+    def randomly_mutate_values(self, df, columns=None):
+        """
+        Randomly mutates values in the specified columns of the dataframe.
+        
+        Parameters:
+        df (pd.DataFrame): The dataframe to mutate.
+        mutation_count (int): The number of values to mutate.
+        columns (list of str, optional): The columns to mutate. If None, all columns are considered.
+        
+        Returns:
+        pd.DataFrame: The dataframe with mutated values.
+        """
+        if columns is None:
+            columns = df.columns
+
+        mutation_count = self.num_samples * self.mutation_rate
+
+        for _ in range(mutation_count):
+            # Randomly select a row and column to mutate
+            row_idx = np.random.randint(0, len(df))
+            col = np.random.choice(columns)
+            
+            # Get the current value and generate a new random value
+            current_value = df.iloc[row_idx][col]
+            if np.issubdtype(df[col].dtype, np.number):
+                new_value = np.random.uniform(df[col].min(), df[col].max())
+            elif np.issubdtype(df[col].dtype, np.object):
+                # Generate a random string as a new value
+                new_value = ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), size=len(str(current_value))))
+            else:
+                continue  # Skip mutation if data type is not handled
+
+            # Log the mutation
+            logging.debug(f"Mutating row {row_idx}, column '{col}' from '{current_value}' to '{new_value}'")
+
+            # Apply the mutation
+            df.at[row_idx, col] = new_value
+
+        return df
