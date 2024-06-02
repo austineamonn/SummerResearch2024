@@ -1103,9 +1103,11 @@ class Data:
             'International': 5.92
         },
         'socioeconomic': {
-            'Low': 20,
-            'Middle': 60,
-            'High': 20
+            'In poverty': 16,
+            'Near poverty': 17,
+            'Lower-middle income': 15,
+            'Middle income': 41,
+            'Higher income': 12
         },
         'learning_style': {
             'Visual': 27.27,
@@ -1228,19 +1230,25 @@ class Data:
             },
             'socioeconomic': {
                 'full': {
-                    'Low': 'Generalized',
-                    'Middle': 'Generalized',
-                    'High': 'Generalized'
+                    'In poverty': 'Generalized',
+                    'Near poverty': 'Generalized',
+                    'Lower-middle income': 'Generalized',
+                    'Middle income': 'Generalized',
+                    'Higher income': 'Generalized'
                 },
                 'broad': {
-                    'Low': 'Lower',
-                    'Middle': 'Lower',
-                    'High': 'Upper'
+                    'In poverty': 'Lower',
+                    'Near poverty': 'Lower',
+                    'Lower-middle income': 'Lower',
+                    'Middle income': 'Upper',
+                    'Higher income': 'Upper'
                 },
                 'slight': {
-                    'Low': 'Low',
-                    'Middle': 'Middle',
-                    'High': 'High'
+                    'In poverty': 'Lower',
+                    'Near poverty': 'Lower',
+                    'Lower-middle income': 'Middle',
+                    'Middle income': 'Middle',
+                    'Higher income': 'Upper'
                 },
                 'none': lambda x: x  # None: No change, keep the list
             },

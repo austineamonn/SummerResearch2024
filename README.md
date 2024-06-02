@@ -17,10 +17,10 @@ Contains the basic configurations for the model. Most important is the ability t
 Loads the CSVs (Course catalog, first names, and last names) and pulls out the relevant information they contain.
 
 # dictionary:
-Dictionary that containts demographic information and mappings between various features of the dataset.
+Dictionary that containts demographic information, mappings between various features of the dataset, and feature generalizations based on four generalization levels: full, broad, slight, and none.
 
 # data_generation:
-Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status,socioeconomic status, learning style, gpa, student semester, previous courses, previous course types, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, activities involvement count, and future topics.
+Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status,socioeconomic status, learning style, gpa, student semester, previous courses, previous course types, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, activities involvement count, and future topics.
 
 # privatization:
 Generates the privatized dataset based on the synthetic dataset using anonymization, generalization, and noise addition. You can choose the noise addition from: Random, Laplace, Gaussian, Uniform, Exponential, Gamma, Pufferfish, Dependent Differential Privacy, and Coupled Behavior Analysis.
@@ -32,7 +32,7 @@ Calculates the level of data privatization using various metrics. K-anonymity, L
 Prepares privatized dataset to be fed into the machine learning model by generating a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (first name, last name, race or ethnicity, gender, international student status, and socioeconomic status) that should not play a role in how the model assigns future topics.
 
 # neural_network:
-Creates and runs a neural network on the cleaned dataset. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count.
+Creates and runs a neural network on the cleaned dataset. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count.
 
 # simulated_attack:
 Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference. This section has not yet been incorporated into main.py as it is still under construction.
@@ -45,6 +45,8 @@ https://educationdata.org/college-enrollment-statistics - College Demographic St
 https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics
 
 https://data.world/len/us-first-names-database - First and Last Names Database
+
+https://www.pewresearch.org/social-trends/2019/05/22/a-rising-share-of-undergraduates-are-from-poor-families-especially-at-less-selective-colleges/ - College Family Income Statistics
 
 Kifer D, Machanavajjhala A. Pufferfish: A framework for mathematical privacy definitions. ACM Trans Database Syst. 2014. https://doi.org/10.1145/2514689 - Inspiration for the pufferfish privatization
 
