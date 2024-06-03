@@ -83,10 +83,22 @@ def main():
         
         if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
             # Run a neural network on the cleaned dataset
-            network = NeuralNetwork(config)
-            loss, accuracy = network.neural_network(cleaned_dataset)
+            network = NeuralNetwork(config, cleaned_dataset)
+            network.build_neural_network()
+            network.compile_model()
+            network.fit_model()
+            loss, accuracy = network.evaluate_model()
             logging.info("Neural network loss %s", loss)
             logging.info("Neural network accuracy %s", accuracy)
+            if 'Test Neural Network' in config["running_model"]["parts_to_run"]:
+                ave_loss, ave_accuracy = network.cross_validate_model()
+                logging.info("Neural network average loss from cross validation: %s", ave_loss)
+                logging.info("Neural network average accuracy from cross validation: %s", ave_accuracy)
+                feature_importance = network.get_feature_importance()
+                feature_importance.to_csv('Feature_Importance.csv', index=False)
+                logging.info("Neural network features ranked by importance: %s and saved to Feature_Importance.csv", feature_importance.head())
+            else:
+                logging.debug("Neural network testing not run")
         else:
             logging.debug("Neural network not run")
 
