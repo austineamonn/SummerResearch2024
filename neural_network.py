@@ -26,23 +26,10 @@ class NeuralNetwork:
         self.metrics = config["neural_network"]["metrics"]
         combined_data = data.get_data()
         self.future_topics = [col for col in combined_data['future_topics']]
-        #self.future_topics = [col.lower() for col in combined_data['future_topics']]  # Convert to lowercase
-        """ self.target_columns = []
-        # Note that these test train splits are only for the main model
-        # not the crossvalidation model
-        self.X_train = []
-        self.y_train = []
-        self.X_test = []
-        self.y_test = []
-        self.model = None
-        self.df = df
-
-        # Convert DataFrame columns to lowercase
-        self.df.columns = self.df.columns.str.lower()"""
 
     def test_train_split(self, df):
         # Ensure the target is defined using existing columns
-        target_columns = [col for col in self.future_topics if col in self.df.columns]
+        target_columns = [col for col in self.future_topics if col in df.columns]
         logging.debug("Here are the transformed columns that exist in the dataset: %s", target_columns)
 
         # Log the columns of the DataFrame before dropping any columns
@@ -233,7 +220,7 @@ class NeuralNetwork:
 
 
 
-    
+"""   
 # Load the dataset
 file_path = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Cleaned_Dataset.csv'
 df = pd.read_csv(file_path)
@@ -246,4 +233,4 @@ nn = NeuralNetwork(config)
 
 # Perform cross-validation
 avg_loss, avg_accuracy = nn.cross_validate(df)
-avg_loss, avg_accuracy
+avg_loss, avg_accuracy"""

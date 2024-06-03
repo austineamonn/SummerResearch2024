@@ -2,7 +2,7 @@ def load_config():
     return {
         # Logging Level
         "logging": {
-            "level": "DEBUG",
+            "level": "INFO",
             "format": "%(asctime)s - %(levelname)s - %(message)s"
         },
         # How large of a dataset should be generated

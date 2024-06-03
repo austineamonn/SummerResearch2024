@@ -83,18 +83,17 @@ def main():
         
         if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
             # Run a neural network on the cleaned dataset
-            network = NeuralNetwork(config, cleaned_dataset)
-            network.build_neural_network()
-            network.compile_model()
-            network.fit_model()
-            loss, accuracy = network.evaluate_model()
+            network = NeuralNetwork(config)
+            X_train, y_train, X_test, y_test = network.test_train_split(cleaned_dataset)
+            model = network.build_neural_network(X_train, y_train, X_test, y_test)
+            loss, accuracy = network.evaluate_model(model, X_test, y_test)
             logging.info("Neural network loss %s", loss)
             logging.info("Neural network accuracy %s", accuracy)
             if 'Test Neural Network' in config["running_model"]["parts_to_run"]:
-                ave_loss, ave_accuracy = network.cross_validate_model()
+                ave_loss, ave_accuracy = network.cross_validate(cleaned_dataset)
                 logging.info("Neural network average loss from cross validation: %s", ave_loss)
                 logging.info("Neural network average accuracy from cross validation: %s", ave_accuracy)
-                feature_importance = network.get_feature_importance()
+                feature_importance = network.get_feature_importance(model, X_test, y_test)
                 feature_importance.to_csv('Feature_Importance.csv', index=False)
                 logging.info("Neural network features ranked by importance: %s and saved to Feature_Importance.csv", feature_importance.head())
             else:
