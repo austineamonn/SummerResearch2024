@@ -7,7 +7,15 @@ def load_config():
         },
         # How large of a dataset should be generated
         "synthetic_data": {
-            "num_samples": 100
+            "num_samples": 10,
+
+            # "real" uses the real statistical distributions
+            # "Uniform" uses uniform distributions
+            "ethnoracial_group": "real",
+            "gender": "real",
+            "international_status": "real",
+            "socioeconomic_status": "real",
+            "learning_style": "real"
         },
         # A variety of parameters used in the privatization methods.
         "privacy": {
@@ -28,7 +36,7 @@ def load_config():
             "flip_prob": 0.01,
             "snr": 20,
             # Generalization levels: full, broad, slight, none
-            "generalization_level": "broad",
+            "generalization_level": "none",
             "mutation_rate": 0.05
         },
         "preprocessing": {
@@ -38,11 +46,12 @@ def load_config():
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
             # Privatize Dataset, Calculate Privacy Metrics, Clean Privatized Dataset, Run Neural Network, Test Neural Network, Simulate Data Attack
-            "parts_to_run": ['Run Neural Network', 'Test Neural Network'],
-            # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Clean Privatized Dataset', 'Run Neural Network', 'Test Neural Network'],
+            "parts_to_run": ['Generate Dataset'],
+            # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Clean Privatized Dataset', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Dataset.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Privatized_Dataset.csv',
-            "cleaned data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Cleaned_Dataset.csv'
+            "cleaned data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Cleaned_Dataset.csv',
+            "directory": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024'
         },
         "neural_network": {
             "optimizer": 'adam',
@@ -50,6 +59,32 @@ def load_config():
                 'learning_rate': 0.001
             },
             "loss": 'binary_crossentropy',
-            "metrics": ['accuracy']
+            "metrics": ['accuracy'],
+            "epochs": 50,
+            "batch_size": 32
         }
     }
+
+"""REU Training Session
+10-11 am, June 12th, ECS 312
+
+REU Training Session
+10-11 am, July 9th, ECS 312
+
+Online REU Workshop 
+12-1 pm, July 9th
+https://psu.zoom.us/j/94205819806
+
+Online REU Workshop
+12-1 pm, July 16th
+https://psu.zoom.us/j/98526259710
+
+
+if you don't see the paycheck by Friday morning email Dr. Wang
+
+Put all the travel costs in one thing once you get home
+
+send photos of all the reciepts to Dr. Qin and then Dr. Wang
+to get reimbursments
+
+"""

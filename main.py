@@ -85,10 +85,18 @@ def main():
             # Run a neural network on the cleaned dataset
             network = NeuralNetwork(config)
             X_train, y_train, X_test, y_test = network.test_train_split(cleaned_dataset)
-            model = network.build_neural_network(X_train, y_train, X_test, y_test)
+            
+            # Tune hyperparameters of the Neural Network
+            if 'Tune Neural Network' in config["running_model"]["parts_to_run"]:
+                model = network.tune_hyperparameters(X_train, y_train, X_test, y_test)
+            else:
+                model = network.build_neural_network(X_train, y_train, X_test, y_test)
+                logging.debug("Neural network tuning not run")
             loss, accuracy = network.evaluate_model(model, X_test, y_test)
             logging.info("Neural network loss %s", loss)
             logging.info("Neural network accuracy %s", accuracy)
+
+            # Test the Neural Network
             if 'Test Neural Network' in config["running_model"]["parts_to_run"]:
                 ave_loss, ave_accuracy = network.cross_validate(cleaned_dataset)
                 logging.info("Neural network average loss from cross validation: %s", ave_loss)

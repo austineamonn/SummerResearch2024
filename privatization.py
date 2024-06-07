@@ -46,24 +46,18 @@ class Privatizer:
     def anonymize_names(self, name):
         return hashlib.sha256(name.encode()).hexdigest()
 
-    def generalize_category(self, category, category_type='race_ethnicity'):
-        logging.debug(f"Generalizing category: {category}, Level: {self.generalization_level}, Category Type: {category_type}")
-        mapping = data_gen[category_type].get(self.generalization_level, {})
-        if isinstance(mapping, dict):
-            return mapping.get(category, 'Unknown')
-        else:
-            logging.error(f"Expected a dict, but got: {type(mapping)}")
-            return 'Unknown'
-
     def apply_generalization(self, value, category_type='student semester'):
+        logging.debug(f"Generalizing category: {value}, Level: {self.generalization_level}, Category Type: {category_type}")
         generalization = data_gen[category_type].get(self.generalization_level, 'Unknown')
         logging.debug(f"Generalization function for {category_type}: {generalization}")
         if callable(generalization):
             result = generalization(value)
             logging.debug(f"Generalized value for {category_type}: {result}")
             return result
+        elif isinstance(generalization, dict):
+            return generalization.get(value, 'Unknown')
         else:
-            logging.error(f"Generalization for {category_type} is not callable: {generalization}")
+            logging.error(f"Generalization for {category_type} is not a function or a dictionary, instead it is : {type(generalization)}")
             return generalization
 
 
@@ -246,17 +240,20 @@ class Privatizer:
         dataset['last_name'] = dataset['last_name'].apply(self.anonymize_names)
         logging.debug("Last names anonymized.")
 
-        dataset['race_ethnicity'] = dataset['race_ethnicity'].apply(lambda x: self.generalize_category(x, category_type='race_ethnicity'))
+        dataset['race_ethnicity'] = dataset['race_ethnicity'].apply(lambda x: self.apply_generalization(x, category_type='race_ethnicity'))
         logging.debug("Race and Ethnicity generalized.")
         
-        dataset['gender'] = dataset['gender'].apply(lambda x: self.generalize_category(x, category_type='gender'))
+        dataset['gender'] = dataset['gender'].apply(lambda x: self.apply_generalization(x, category_type='gender'))
         logging.debug("Gender generalized.")
         
-        dataset['socioeconomic status'] = dataset['socioeconomic status'].apply(lambda x: self.generalize_category(x, category_type='socioeconomic'))
-        logging.debug("Socioeconomic status generalized.")
-        
-        dataset['international'] = dataset['international'].apply(lambda x: self.generalize_category(x, category_type='international'))
+        dataset['international'] = dataset['international'].apply(lambda x: self.apply_generalization(x, category_type='international'))
         logging.debug("International student status generalized.")
+
+        dataset['socioeconomic'] = dataset['socioeconomic status'].apply(lambda x: self.apply_generalization(x, category_type='socioeconomic'))
+        logging.debug("Socioeconomic status generalized.")
+
+        dataset['learning_style'] = dataset['learning_style'].apply(lambda x: self.apply_generalization(x, category_type='learning_style'))
+        logging.debug("Learning style generalized.")
         
         dataset['gpa'] = dataset['gpa'].apply(lambda x: self.apply_generalization(x, category_type='gpa'))
         logging.debug("GPA generalized.")
@@ -341,43 +338,3 @@ class Privatizer:
 
         logging.debug("Noise added to %s", column)
         return dataset[column]
-    
-    def randomly_mutate_values(self, df, columns=None):
-        """
-        Randomly mutates values in the specified columns of the dataframe.
-        
-        Parameters:
-        df (pd.DataFrame): The dataframe to mutate.
-        mutation_count (int): The number of values to mutate.
-        columns (list of str, optional): The columns to mutate. If None, all columns are considered.
-        
-        Returns:
-        pd.DataFrame: The dataframe with mutated values.
-        """
-        if columns is None:
-            columns = df.columns
-
-        mutation_count = self.num_samples * self.mutation_rate
-
-        for _ in range(mutation_count):
-            # Randomly select a row and column to mutate
-            row_idx = np.random.randint(0, len(df))
-            col = np.random.choice(columns)
-            
-            # Get the current value and generate a new random value
-            current_value = df.iloc[row_idx][col]
-            if np.issubdtype(df[col].dtype, np.number):
-                new_value = np.random.uniform(df[col].min(), df[col].max())
-            elif np.issubdtype(df[col].dtype, np.object):
-                # Generate a random string as a new value
-                new_value = ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), size=len(str(current_value))))
-            else:
-                continue  # Skip mutation if data type is not handled
-
-            # Log the mutation
-            logging.debug(f"Mutating row {row_idx}, column '{col}' from '{current_value}' to '{new_value}'")
-
-            # Apply the mutation
-            df.at[row_idx, col] = new_value
-
-        return df

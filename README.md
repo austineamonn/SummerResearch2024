@@ -2,7 +2,7 @@
 For the iCompBio REU program Summer of 2024. Project Lead: Austin Nicolas. Project Mentor: Dr. Shahnewaz Sakib.
 
 # General Outline of Summer Research Project:
-To build a framework that will take various inputs from college student users, protect their data by privatizing the dataset, and build a machine learning model trained on the privatized data that will output recommendations for topics that a student should consider for future study based on their inputs.
+To build a framework that will take various inputs from college student users, protect their data by privatizing the dataset, and build a machine learning model trained on the privatized data that will solve a multilabel classification problem and output recommendations for topics that a student should consider for future study based on their inputs.
 
 # Goal:
 Take student input data and build a privatized version. From the privatized version a machine learning model will provide students with topics for future study. Then the students take these topics to advisors, professors, counselors, peers, and others. These people will help the student pick what courses to take the upcoming semester based on the topics given and the courses offered at the student’s school.
@@ -29,13 +29,10 @@ Generates the privatized dataset based on the synthetic dataset using anonymizat
 Calculates the level of data privatization using various metrics. K-anonymity, L-diversity, Epsilon, Delta, Noise level, Generalization level, Mean comparison, and STD comparison.
 
 # preprocessing:
-Prepares privatized dataset to be fed into the machine learning model by generating a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (first name, last name, race or ethnicity, gender, international student status, and socioeconomic status) that should not play a role in how the model assigns future topics.
+Prepares privatized dataset to be fed into the machine learning model by generating a cleaned dataset. This includes some encoding, vectorization, and normalization as well as cutting out some elements (first name, last name, race or ethnicity, gender, international student status, and socioeconomic status) that should not play a role in how the model assigns future topics. The privatized dataset has 3459 feature columns and 164 target columns. ​
 
 # neural_network:
-Creates and runs a neural network on the cleaned dataset. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count.
-
-# test_neural_network:
-Tests the neural network. Does a cross validation of the model and extracts the feature importance for the model.
+Creates and runs a neural network on the cleaned dataset. PCA is done to reduce the dimensionality of the problem. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count. The NeuralNetwork class can also run a cross validation of the model, extract the feature importance for the model, and tune the model hyperparameters.
 
 # simulated_attack:
 Simulates attacks on the dataset. This can run two different types of attack: re-identification and membership inference. This section has not yet been incorporated into main.py as it is still under construction.
@@ -54,6 +51,8 @@ https://www.pewresearch.org/social-trends/2019/05/22/a-rising-share-of-undergrad
 https://williamsinstitute.law.ucla.edu/publications/nonbinary-lgbtq-adults-us/ - Nonbinary Statistics
 
 https://nces.ed.gov - Gender College Statistics
+
+https://courses.illinois.edu/schedule/DEFAULT/DEFAULT - Course Subject to Major Mapping
 
 Kifer D, Machanavajjhala A. Pufferfish: A framework for mathematical privacy definitions. ACM Trans Database Syst. 2014. https://doi.org/10.1145/2514689 - Inspiration for the pufferfish privatization
 

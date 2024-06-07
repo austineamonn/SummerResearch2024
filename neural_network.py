@@ -2,11 +2,17 @@ import pandas as pd
 import numpy as np
 import logging
 from sklearn.model_selection import KFold, train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.inspection import permutation_importance
+from sklearn.decomposition import PCA
+from sklearn.utils import resample
 import tensorflow as tf
 from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.layers import Dense, Dropout # type: ignore
+from tensorflow.keras.layers import Dense, Dropout, BatchNormalization # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint # type: ignore
+from tensorflow.keras.regularizers import l2 # type: ignore
+from kerastuner.tuners import RandomSearch
 from config import load_config
 from dictionary import Data
 
@@ -26,8 +32,9 @@ class NeuralNetwork:
         self.metrics = config["neural_network"]["metrics"]
         combined_data = data.get_data()
         self.future_topics = [col for col in combined_data['future_topics']]
+        self.best_hps = None
 
-    def test_train_split(self, df):
+    def test_train_split(self, df, n_components=100):
         # Ensure the target is defined using existing columns
         target_columns = [col for col in self.future_topics if col in df.columns]
         logging.debug("Here are the transformed columns that exist in the dataset: %s", target_columns)
@@ -37,7 +44,7 @@ class NeuralNetwork:
 
         # Define target first
         y = df[target_columns]
-        
+
         # Drop columns one by one with a check to ensure they exist
         for col in target_columns:
             logging.debug("Examining the %s column", col)
@@ -53,30 +60,52 @@ class NeuralNetwork:
         X = df
         logging.debug("Features and targets defined")
 
+        # Standardize the features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        logging.debug("Features standardized")
+
+        # Apply PCA
+        pca = PCA(n_components=n_components)
+        X_pca = pca.fit_transform(X_scaled)
+        logging.debug("PCA applied to features")
+
         # Convert y to a numpy array
         y = y.values
         logging.debug("Target converted to a numpy array")
 
         # Split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
         logging.info("Test-train split completed")
 
         # Print shapes and types for debugging
-        logging.debug(f'X_train shape: {X_train.shape}, X_train type: {type(X_train)}, X_train dtype: {X_train.dtypes}')
-        logging.debug(f'y_train shape: {y_train.shape}, y_train type: {type(y_train)}, y_train dtype: {y_train.dtype}')
+        logging.debug(f'X_train shape: {X_train.shape}, X_train type: {type(X_train)}')
+        logging.debug(f'y_train shape: {y_train.shape}, y_train type: {type(y_train)}')
+        logging.debug(f'X_test shape: {X_test.shape}, X_test type: {type(X_test)}')
+        logging.debug(f'y_test shape: {y_test.shape}, y_test type: {type(y_test)}')
 
         # Return the test - train split
         return X_train, y_train, X_test, y_test
 
-    def build_neural_network(self, X_train, y_train, X_test, y_test):
+    def build_neural_network(self, X_train, y_train, X_test, y_test, hp=None):
         # Define the neural network model
         input_shape = (X_train.shape[1],)
+        
+        # Use hyperparameters if provided, otherwise use fixed values
+        units1 = hp.Int('units1', min_value=128, max_value=2048, step=64) if hp else 512
+        dropout1 = hp.Float('dropout1', min_value=0.0, max_value=0.7, step=0.05) if hp else 0.3
+        units2 = hp.Int('units2', min_value=128, max_value=2048, step=64) if hp else 256
+        dropout2 = hp.Float('dropout2', min_value=0.0, max_value=0.7, step=0.05) if hp else 0.3
+        learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4, 5e-4]) if hp else 1e-3
+
         model = Sequential([
             tf.keras.Input(shape=input_shape),
-            Dense(128, activation='relu'),
-            Dropout(0.5),
-            Dense(64, activation='relu'),
-            Dropout(0.5),
+            Dense(units1, activation='relu', kernel_regularizer=l2(0.01)),
+            BatchNormalization(),
+            Dropout(dropout1),
+            Dense(units2, activation='relu', kernel_regularizer=l2(0.01)),
+            BatchNormalization(),
+            Dropout(dropout2),
             Dense(min(y_train.shape[1], len(self.future_topics)), activation='sigmoid')  # Multi-label classification
         ])
         logging.debug("Neural network defined")
@@ -101,22 +130,26 @@ class NeuralNetwork:
             optimizer = self.optimizer.__class__.from_config(self.optimizer.get_config())
         else:
             raise ValueError(f"Unsupported optimizer: {self.optimizer}")
-        
+
+        # Use hyperparameter-tuned learning rate if available
+        if learning_rate is not None:
+            optimizer.learning_rate = learning_rate
+
         # Compile the model
-        model.compile(optimizer=self.optimizer, loss=self.loss, metrics=self.metrics)
-        logging.debug("Model compiled")
+        model.compile(optimizer=optimizer, loss=self.loss, metrics=self.metrics)
         
-        # Ensure the target data has the correct shape
-        if y_train.shape[1] != model.output_shape[1]:
-            raise ValueError(f"Shape mismatch: target data shape {y_train.shape} does not match model output shape {model.output_shape}")
+        # Callbacks for early stopping and model checkpointing (saving the best performing model)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+        model_checkpoint = ModelCheckpoint('best_model.keras', save_best_only=True, monitor='val_loss', mode='min')
 
-        # Train the model
-        model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
-        logging.info("Model trained")
-        
-        # Return fitted model
-        return model
+        history = model.fit(X_train, y_train, validation_data=(X_test, y_test), 
+                            epochs=config["neural_network"]["epochs"], 
+                            batch_size=config["neural_network"]["batch_size"], 
+                            callbacks=[early_stopping, model_checkpoint])
+        logging.info("Model training complete")
 
+        return model, history
+    
     def evaluate_model(self, model, X_test, y_test, verbose=0):
         if model is None:
             raise ValueError("Model is not defined. Call build_neural_network() first.")
@@ -143,7 +176,7 @@ class NeuralNetwork:
         
         logging.debug("Feature importance computed")
         return feature_importance
-    #don't forget to change it to cross_validate_model!
+
     def cross_validate(self, df, n_splits=5):
         kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
         val_losses = []
@@ -192,7 +225,7 @@ class NeuralNetwork:
 
             # Create a new neural network and optimizer for each fold
             try:
-                model = self.build_neural_network(X_train, y_train, X_val, y_val)
+                model = self.build_neural_network(X_train, y_train, X_val, y_val, self.best_hps)
             except Exception as e:
                 logging.error(f"Fold {fold} - Error building neural network: {e}")
                 continue
@@ -218,19 +251,25 @@ class NeuralNetwork:
         
         return avg_loss, avg_accuracy
 
+    def tune_hyperparameters(self, x_train, y_train, x_test, y_test):
+        tuner = RandomSearch(
+            lambda hp: self.build_neural_network(x_train, y_train, x_test, y_test, hp),
+            objective='val_loss',
+            max_trials=20,  # Increased from 5 to 20
+            executions_per_trial=3,
+            directory=self.config["running_model"]["directory"],
+            project_name='Hyperparameter_Tuning_of_NN'
+        )
 
+        tuner.search_space_summary()
 
-"""   
-# Load the dataset
-file_path = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/Cleaned_Dataset.csv'
-df = pd.read_csv(file_path)
+        tuner.search(x_train, y_train, epochs=20, validation_split=0.2)  # Increased epochs from 5 to 20
 
-# Print the first few rows and columns
-df.head(), df.columns.tolist()
+        tuner.results_summary()
 
-# Create an instance of the NeuralNetwork class
-nn = NeuralNetwork(config)
+        self.best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
+        model = self.build_neural_network(x_train, y_train, x_test, y_test, self.best_hps)
 
-# Perform cross-validation
-avg_loss, avg_accuracy = nn.cross_validate(df)
-avg_loss, avg_accuracy"""
+        logging.info(f"The hyperparameter search is complete. The optimal parameters are: units1={self.best_hps.get('units1')}, dropout1={self.best_hps.get('dropout1')}, units2={self.best_hps.get('units2')}, dropout2={self.best_hps.get('dropout2')}, and learning_rate={self.best_hps.get('learning_rate')}.")
+
+        return model
