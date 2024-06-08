@@ -78,12 +78,6 @@ class DataGenerator:
 
         return most_common_type, most_common_count
 
-    def filter_courses_by_year(self, courses, semester):
-        """
-        Filter courses based on student semester.
-        """
-        return [course for course in courses if semester in range(*self.course_year_mapping.get(course[0], (0, 0)))]
-
     def filter_course_by_learning_style(self, courses, learning_styles):
         # Filter possible courses for learning style
         filtered_ls_courses = []
@@ -210,29 +204,6 @@ class DataGenerator:
         logging.debug(f"Previous courses taken: {previous_courses}")
         return previous_courses
 
-    def map_course_to_year(self, course_tuple):
-        course_number = course_tuple[1]
-        if pd.isna(course_number):
-            return (0, 0)
-        match = re.match(r'(\d{3})', str(course_number))
-        if match:
-            course_num = int(match.group(1))
-            if 100 <= course_num < 200:
-                return (1, 2)  # First year: first and second semester and later
-            elif 200 <= course_num < 300:
-                return (3, 4)  # Second year: first and second semester and later
-            elif 300 <= course_num < 400:
-                return (5, 6)  # Third year: first and second semester and later
-            elif 400 <= course_num < 500:
-                return (7, 8)  # Fourth year: first and second semester and later
-            elif 500 <= course_num < 600:
-                return (9, 10)  # Fifth year: first and second semester and later
-            elif 600 <= course_num < 700:
-                return (11, 12)  # Sixth year: first and second semester and later
-            else:
-                return (13, 14)  # Seventh year: first and second semester and later
-        return (0, 0)
-    
     def filter_courses_by_number(self, courses, number):
         # Ensure courses is a list
         if not isinstance(courses, list):

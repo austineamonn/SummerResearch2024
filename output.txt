@@ -1,33 +1,291 @@
-2024-06-03 17:24:26,967 - INFO - All the CSVs have been loaded.
-2024-06-03 17:24:31,862 - INFO - Loading data and generating synthetic dataset...
-2024-06-03 17:25:20,727 - INFO - Test-train split completed
-Epoch 1/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 2s 5ms/step - accuracy: 0.0084 - loss: 0.6376 - val_accuracy: 0.0090 - val_loss: 0.1089 - learning_rate: 0.0010
-Epoch 2/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0084 - loss: 0.1139 - val_accuracy: 0.0095 - val_loss: 0.1080 - learning_rate: 0.0011
-Epoch 3/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0120 - loss: 0.1121 - val_accuracy: 0.0065 - val_loss: 0.1072 - learning_rate: 0.0013
-Epoch 4/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0138 - loss: 0.1087 - val_accuracy: 0.0070 - val_loss: 0.1081 - learning_rate: 0.0014
-Epoch 5/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0146 - loss: 0.1080 - val_accuracy: 0.0075 - val_loss: 0.1072 - learning_rate: 0.0016
-Epoch 6/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0157 - loss: 0.1061 - val_accuracy: 0.0105 - val_loss: 0.1078 - learning_rate: 0.0018
-Epoch 7/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0183 - loss: 0.1060 - val_accuracy: 0.0050 - val_loss: 0.1083 - learning_rate: 0.0020
-Epoch 8/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0229 - loss: 0.1039 - val_accuracy: 0.0080 - val_loss: 0.1083 - learning_rate: 0.0022
-Epoch 9/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0235 - loss: 0.1030 - val_accuracy: 0.0035 - val_loss: 0.1080 - learning_rate: 0.0025
-Epoch 10/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0238 - loss: 0.1019 - val_accuracy: 0.0125 - val_loss: 0.1081 - learning_rate: 0.0028
-Epoch 11/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 2s 6ms/step - accuracy: 0.0283 - loss: 0.1005 - val_accuracy: 0.0080 - val_loss: 0.1081 - learning_rate: 0.0032
-Epoch 12/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0301 - loss: 0.1005 - val_accuracy: 0.0130 - val_loss: 0.1085 - learning_rate: 0.0035
-Epoch 13/50
-250/250 ━━━━━━━━━━━━━━━━━━━━ 1s 4ms/step - accuracy: 0.0330 - loss: 0.0993 - val_accuracy: 0.0125 - val_loss: 0.1079 - learning_rate: 0.0040
-2024-06-03 17:25:36,269 - INFO - Model trained
-63/63 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - accuracy: 0.0049 - loss: 0.1076     
-2024-06-03 17:25:36,380 - INFO - Neural network loss 0.1071501150727272
-2024-06-03 17:25:36,380 - INFO - Neural network accuracy 0.006500000134110451
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Error extracting data for a row: Message: element click intercepted: Element <input class="master_detail_column_btn md-link" type="submit" value="More Details"> is not clickable at point (386, 862). Other element would receive the click: <span id="cn-notice-text" class="cn-text-container">...</span>
+  (Session info: chrome=125.0.6422.142)
+Stacktrace:
+0   chromedriver                        0x00000001035466b8 chromedriver + 6149816
+1   chromedriver                        0x000000010353dcda chromedriver + 6114522
+2   chromedriver                        0x0000000102fcad5c chromedriver + 400732
+3   chromedriver                        0x000000010301e896 chromedriver + 743574
+4   chromedriver                        0x000000010301c6c3 chromedriver + 734915
+5   chromedriver                        0x000000010301a0e7 chromedriver + 725223
+6   chromedriver                        0x0000000103019437 chromedriver + 721975
+7   chromedriver                        0x000000010300c672 chromedriver + 669298
+8   chromedriver                        0x000000010303acb2 chromedriver + 859314
+9   chromedriver                        0x000000010300bfe8 chromedriver + 667624
+10  chromedriver                        0x000000010303ae6e chromedriver + 859758
+11  chromedriver                        0x000000010305a0db chromedriver + 987355
+12  chromedriver                        0x000000010303aa53 chromedriver + 858707
+13  chromedriver                        0x000000010300a6d5 chromedriver + 661205
+14  chromedriver                        0x000000010300af6e chromedriver + 663406
+15  chromedriver                        0x0000000103507cf0 chromedriver + 5893360
+16  chromedriver                        0x000000010350d4bc chromedriver + 5915836
+17  chromedriver                        0x00000001034e98b4 chromedriver + 5769396
+18  chromedriver                        0x000000010350df89 chromedriver + 5918601
+19  chromedriver                        0x00000001034daec4 chromedriver + 5709508
+20  chromedriver                        0x000000010352e008 chromedriver + 6049800
+21  chromedriver                        0x000000010352e1c7 chromedriver + 6050247
+22  chromedriver                        0x000000010353d88e chromedriver + 6113422
+23  libsystem_pthread.dylib             0x00007ff815a4418b _pthread_start + 99
+24  libsystem_pthread.dylib             0x00007ff815a3fae3 thread_start + 15
+
+Data extraction complete. Saved to college_majors_data.csv
