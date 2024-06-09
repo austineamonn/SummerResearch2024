@@ -1,5 +1,9 @@
 # SummerResearch2024
-For the iCompBio REU program Summer of 2024. Project Lead: Austin Nicolas. Project Mentor: Dr. Shahnewaz Sakib.
+For the iCompBio REU program Summer of 2024 at the University of Tennessee Chattanooga.
+
+Project Lead: Austin Nicolas.
+
+Project Mentor: Dr. Shahnewaz Sakib.
 
 # General Outline of Summer Research Project:
 To build a framework that will take various inputs from college student users, protect their data by privatizing the dataset, and build a machine learning model trained on the privatized data that will solve a multilabel classification problem and output recommendations for topics that a student should consider for future study based on their inputs.
