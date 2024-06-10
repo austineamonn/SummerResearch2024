@@ -1,6 +1,12 @@
 import json
 
 class Data:
+    """
+    This class contains the list of each categorical data column from the final synthetic dataset.
+    The class also contains all the necessary mappings between these lists.
+    This class is called by the 'data_generation.py' file so that it can access the lists and maps
+    while making the dataset.
+    """
     def __init__(self) -> None:
         pass
 
@@ -36,7 +42,17 @@ class Data:
                 'Multiracial': 4.3,
                 'American Indian or Alaska Native': 0.7,
                 'Pacific Islander': 0.3
+            },
+            'ethnoracial_to_activities': {
+                'European American or white': ['European Student Association', 'Multicultural Student Association'],
+                'Latino/a/x American': ['Latino Student Union', 'Hispanic Heritage Club'],
+                'African American or Black': ['Black Student Union', 'African Student Association'],
+                'Asian American': ['Asian American Association', 'South Asian Student Association'],
+                'Multiracial': ['Multiracial Student Association', 'Multicultural Student Association'],
+                'American Indian or Alaska Native': ['Native American Student Association'],
+                'Pacific Islander': ['Pacific Islander Student Association']
             }
+
         }
 
         return race_ethnicity
@@ -47,6 +63,11 @@ class Data:
                 'Female': 54.83,
                 'Male': 40.07,
                 'Nonbinary': 5.1
+            },
+            'gender_to_activities': {
+                'Male': ["Men's Club", 'Fraternity Council'],
+                'Female': ["Women's Student Association", 'Sorority Council'],
+                'Non-binary': ['LGBTQ+ Alliance', 'Gender and Sexuality Alliance', 'Transgender Student Association'],
             }
         }
 
@@ -57,7 +78,12 @@ class Data:
             'international': {
                 'Domestic': 94.08,
                 'International': 5.92
+            },
+            'student_status_to_activities': {
+                'Domestic': ['Multicultural Student Association', 'Student Government Association'],
+                'International': ['International Students Club', 'Global Student Association']
             }
+
         }
 
         return status
@@ -149,7 +175,357 @@ class Data:
                 'Teacher Education: Multiple Levels', 'Theology And Religious Vocations',
                 'Transportation Sciences And Technologies', 'Treatment Therapy Professions',
                 'United States History', 'Visual And Performing Arts', 'Zoology'
-            ]
+            ],
+            'major_to_activities': {
+                'Accounting': ['Accounting Club', 'Business Club'],
+                'Actuarial Science': ['Mathematics Club', 'Business Club'],
+                'Advertising And Public Relations': ['Public Relations Club', 'Marketing Association'],
+                'Aerospace Engineering': ['Engineering Society', 'Aerospace Club'],
+                'Agricultural Economics': ['Agricultural Club', 'Environmental Science Club'],
+                'Agriculture Production And Management': ['Agricultural Club'],
+                'Animal Sciences': ['Veterinary Club', 'Biology Club'],
+                'Anthropology And Archeology': ['Anthropology Club', 'History Club'],
+                'Applied Mathematics': ['Mathematics Club'],
+                'Architectural Engineering': ['Architecture Society', 'Engineering Society'],
+                'Architecture': ['Architecture Society'],
+                'Area Ethnic And Civilization Studies': ['Multicultural Student Association', 'Ethnic Studies Club'],
+                'Art And Music Education': ['Art Club', 'Music Club'],
+                'Art History And Criticism': ['Art Club', 'History Club'],
+                'Astronomy And Astrophysics': ['Astronomy Club', 'Physics Club'],
+                'Atmospheric Sciences And Meteorology': ['Environmental Science Club', 'Physics Club'],
+                'Biochemical Sciences': ['Biochemistry Club', 'Biology Club'],
+                'Biological Engineering': ['Engineering Society', 'Biology Club'],
+                'Biology': ['Biology Club'],
+                'Biomedical Engineering': ['Engineering Society', 'Medical Students Association'],
+                'Botany': ['Biology Club'],
+                'Business Economics': ['Economics Club', 'Business Club'],
+                'Business Management And Administration': ['Business Club'],
+                'Chemical Engineering': ['Engineering Society', 'Chemical Engineering Club'],
+                'Chemistry': ['Chemistry Club'],
+                'Civil Engineering': ['Engineering Society', 'Civil Engineering Club'],
+                'Clinical Psychology': ['Psychology Club'],
+                'Cognitive Science And Biopsychology': ['Psychology Club', 'Neuroscience Club'],
+                'Commercial Art And Graphic Design': ['Graphic Design Club', 'Art Club'],
+                'Communication Disorders Sciences And Services': ['Speech and Hearing Club'],
+                'Communication Technologies': ['Media Club'],
+                'Communications': ['Communications Club'],
+                'Community And Public Health': ['Health and Wellness Club'],
+                'Composition And Rhetoric': ['Creative Writing Club', 'English Club'],
+                'Computer Administration Management And Security': ['Computer Science Club'],
+                'Computer And Information Systems': ['Computer Science Club'],
+                'Computer Engineering': ['Engineering Society', 'Computer Science Club'],
+                'Computer Networking And Telecommunications': ['Computer Science Club'],
+                'Computer Programming And Data Processing': ['Computer Science Club'],
+                'Computer Science': ['Computer Science Club'],
+                'Construction Services': ['Construction Management Club'],
+                'Cosmetology Services And Culinary Arts': ['Culinary Arts Club'],
+                'Counseling Psychology': ['Psychology Club'],
+                'Court Reporting': ['Law Club'],
+                'Criminal Justice And Fire Protection': ['Criminal Justice Club'],
+                'Criminology': ['Criminology Club'],
+                'Drama And Theater Arts': ['Theater Club'],
+                'Early Childhood Education': ['Education Society'],
+                'Ecology': ['Environmental Science Club'],
+                'Economics': ['Economics Club'],
+                'Educational Administration And Supervision': ['Education Society'],
+                'Educational Psychology': ['Psychology Club'],
+                'Electrical Engineering': ['Engineering Society', 'Electrical Engineering Club'],
+                'Electrical Engineering Technology': ['Engineering Society'],
+                'Electric, Mechanical, And Precision Tech': ['Engineering Society'],
+                'Elementary Education': ['Education Society'],
+                'Engineering And Industrial Management': ['Engineering Society', 'Industrial Engineering Club'],
+                'Engineering Mechanics Physics And Science': ['Engineering Society'],
+                'Engineering Technologies': ['Engineering Society'],
+                'English Language And Literature': ['English Club'],
+                'Environmental Engineering': ['Engineering Society', 'Environmental Engineering Club'],
+                'Environmental Science': ['Environmental Science Club'],
+                'Family And Consumer Sciences': ['Family and Consumer Sciences Club'],
+                'Film Video And Photographic Arts': ['Film Society', 'Photography Club'],
+                'Finance': ['Finance Club'],
+                'Fine Arts': ['Art Club'],
+                'Food Science': ['Food Science Club'],
+                'Forestry': ['Environmental Science Club'],
+                'French German And Other Language Studies': ['Language Clubs'],
+                'General Agriculture': ['Agricultural Club'],
+                'General Business': ['Business Club'],
+                'General Education': ['Education Society'],
+                'General Engineering': ['Engineering Society'],
+                'General Medical And Health Services': ['Medical Students Association'],
+                'General Social Sciences': ['Social Sciences Club'],
+                'Genetics': ['Biology Club'],
+                'Geography': ['Geography Club'],
+                'Geological And Geophysical Engineering': ['Engineering Society', 'Geology Club'],
+                'Geology And Earth Science': ['Geology Club'],
+                'Geosciences': ['Geology Club'],
+                'Health And Medical Administrative Services': ['Health Administration Club'],
+                'Health And Medical Preparatory Programs': ['Medical Students Association'],
+                'History': ['History Club'],
+                'Hospitality Management': ['Hospitality Management Club'],
+                'Human Resources And Personnel Management': ['Human Resources Club'],
+                'Human Services And Community Organization': ['Social Work Club'],
+                'Humanities': ['Humanities Club'],
+                'Industrial And Manufacturing Engineering': ['Engineering Society', 'Industrial Engineering Club'],
+                'Industrial And Organizational Psychology': ['Psychology Club'],
+                'Industrial Production Technologies': ['Engineering Society'],
+                'Information Sciences': ['Information Technology Club'],
+                'Intercultural And International Studies': ['International Students Club'],
+                'Interdisciplinary Social Sciences': ['Social Sciences Club'],
+                'International Business': ['International Business Club'],
+                'International Relations': ['International Relations Club'],
+                'Journalism': ['Journalism Club'],
+                'Language And Drama Education': ['Language Clubs', 'Theater Club'],
+                'Liberal Arts': ['Liberal Arts Club'],
+                'Library Science': ['Library Science Club'],
+                'Linguistics And Comparative Language And Literature': ['Linguistics Club', 'Language Clubs'],
+                'Management Information Systems And Statistics': ['Information Systems Club'],
+                'Marketing And Marketing Research': ['Marketing Association'],
+                'Mass Media': ['Media Club'],
+                'Materials Engineering And Materials Science': ['Engineering Society', 'Materials Science Club'],
+                'Materials Science': ['Materials Science Club'],
+                'Mathematics': ['Mathematics Club'],
+                'Mathematics And Computer Science': ['Mathematics Club', 'Computer Science Club'],
+                'Mathematics Teacher Education': ['Education Society', 'Mathematics Club'],
+                'Mechanical Engineering': ['Engineering Society', 'Mechanical Engineering Club'],
+                'Mechanical Engineering Related Technologies': ['Engineering Society'],
+                'Medical Assisting Services': ['Medical Students Association'],
+                'Medical Technologies Technicians': ['Medical Students Association'],
+                'Metallurgical Engineering': ['Engineering Society'],
+                'Microbiology': ['Biology Club'],
+                'Military Technologies': ['Military Student Organizations'],
+                'Mining And Mineral Engineering': ['Engineering Society'],
+                'Miscellaneous Agriculture': ['Agricultural Club'],
+                'Miscellaneous Biology': ['Biology Club'],
+                'Miscellaneous Business And Medical Administration': ['Business Club', 'Medical Students Association'],
+                'Miscellaneous Education': ['Education Society'],
+                'Miscellaneous Engineering': ['Engineering Society'],
+                'Miscellaneous Engineering Technologies': ['Engineering Society'],
+                'Miscellaneous Fine Arts': ['Art Club'],
+                'Miscellaneous Health Medical Professions': ['Medical Students Association'],
+                'Miscellaneous Psychology': ['Psychology Club'],
+                'Miscellaneous Social Sciences': ['Social Sciences Club'],
+                'Molecular Biology': ['Biology Club'],
+                'Multi-Disciplinary Or General Science': ['Science Club'],
+                'Multi/Interdisciplinary Studies': ['Interdisciplinary Studies Club'],
+                'Music': ['Music Club'],
+                'Natural Resources Management': ['Environmental Science Club'],
+                'Naval Architecture And Marine Engineering': ['Engineering Society', 'Marine Engineering Club'],
+                'Neuroscience': ['Neuroscience Club'],
+                'Nuclear Engineering': ['Engineering Society'],
+                'Nuclear, Industrial Radiology, And Biological Technologies': ['Engineering Society'],
+                'Nursing': ['Nursing Students Association'],
+                'Nutrition Sciences': ['Health and Wellness Club'],
+                'Oceanography': ['Environmental Science Club'],
+                'Operations Logistics And E-Commerce': ['Supply Chain Management Club'],
+                'Other Foreign Languages': ['Language Clubs'],
+                'Petroleum Engineering': ['Engineering Society', 'Petroleum Engineering Club'],
+                'Pharmacology': ['Pre-Pharmacy Club'],
+                'Pharmacy Pharmaceutical Sciences And Administration': ['Pre-Pharmacy Club'],
+                'Philosophy And Religious Studies': ['Philosophy Club', 'Religious Studies Club'],
+                'Physical And Health Education Teaching': ['Education Society'],
+                'Physical Fitness Parks Recreation And Leisure': ['Recreation Club'],
+                'Physical Sciences': ['Physics Club'],
+                'Physics': ['Physics Club'],
+                'Physiology': ['Biology Club'],
+                'Plant Science And Agronomy': ['Agricultural Club', 'Biology Club'],
+                'Political Science And Government': ['Political Science Club'],
+                'Pre-Law And Legal Studies': ['Pre-Law Society'],
+                'Psychology': ['Psychology Club'],
+                'Public Administration': ['Public Administration Club'],
+                'Public Policy': ['Public Policy Club'],
+                'School Student Counseling': ['Education Society'],
+                'Science And Computer Teacher Education': ['Education Society', 'Computer Science Club'],
+                'Secondary Teacher Education': ['Education Society'],
+                'Social Psychology': ['Psychology Club'],
+                'Social Science Or History Teacher Education': ['Education Society'],
+                'Social Work': ['Social Work Club'],
+                'Sociology': ['Sociology Club'],
+                'Soil Science': ['Agricultural Club'],
+                'Special Needs Education': ['Education Society'],
+                'Statistics And Decision Science': ['Statistics Club'],
+                'Studio Arts': ['Art Club'],
+                'Teacher Education: Multiple Levels': ['Education Society'],
+                'Theology And Religious Vocations': ['Religious Studies Club'],
+                'Transportation Sciences And Technologies': ['Transportation Club'],
+                'Treatment Therapy Professions': ['Health and Wellness Club'],
+                'United States History': ['History Club'],
+                'Visual And Performing Arts': ['Art Club', 'Theater Club'],
+                'Zoology': ['Biology Club']
+            },
+            'major_to_course_subject': {
+                'Accounting': 'ACCY',
+                'Actuarial Science': 'ASRM',
+                'Advertising And Public Relations': 'ADV',
+                'Aerospace Engineering': 'AE',
+                'Agricultural Economics': 'ACE',
+                'Agriculture Production And Management': 'ACES',
+                'Animal Sciences': 'ANSC',
+                'Anthropology And Archeology': 'ANTH',
+                'Applied Mathematics': 'MATH',
+                'Architectural Engineering': 'ARCH',
+                'Architecture': 'ARCH',
+                'Area Ethnic And Civilization Studies': 'GWS',
+                'Art And Music Education': 'MUSE',
+                'Art History And Criticism': 'ARTH',
+                'Astronomy And Astrophysics': 'ASTR',
+                'Atmospheric Sciences And Meteorology': 'ATMS',
+                'Biochemical Sciences': 'BIOC',
+                'Biological Engineering': 'BIOE',
+                'Biology': 'BIO',
+                'Biomedical Engineering': 'BIOE',
+                'Botany': 'PLBIO',
+                'Business Economics': 'ACE',
+                'Business Management And Administration': 'BADM',
+                'Chemical Engineering': 'CHBE',
+                'Chemistry': 'CHEM',
+                'Civil Engineering': 'CEE',
+                'Clinical Psychology': 'PSY',
+                'Cognitive Science And Biopsychology': 'PSY',
+                'Commercial Art And Graphic Design': 'GD',
+                'Communication Disorders Sciences And Services': 'SHS',
+                'Communication Technologies': 'CMN',
+                'Communications': 'CMN',
+                'Community And Public Health': 'CHLH',
+                'Composition And Rhetoric': 'BTW',
+                'Computer Administration Management And Security': 'CS',
+                'Computer And Information Systems': 'CS',
+                'Computer Engineering': 'COE',
+                'Computer Networking And Telecommunications': 'CS',
+                'Computer Programming And Data Processing': 'CS',
+                'Computer Science': 'CS',
+                'Construction Services': 'ENG',
+                'Cosmetology Services And Culinary Arts': 'CPSC',
+                'Counseling Psychology': 'PSY',
+                'Court Reporting': 'LAW',
+                'Criminal Justice And Fire Protection': 'CRIM',
+                'Criminology': 'CRIM',
+                'Drama And Theater Arts': 'THEA',
+                'Early Childhood Education': 'EDUC',
+                'Ecology': 'EEB',
+                'Economics': 'ECON',
+                'Educational Administration And Supervision': 'EDUC',
+                'Educational Psychology': 'EPSY',
+                'Electrical Engineering': 'ECE',
+                'Electrical Engineering Technology': 'ECE',
+                'Electric, Mechanical, And Precision Tech': 'ENG',
+                'Elementary Education': 'EDUC',
+                'Engineering And Industrial Management': 'ENG',
+                'Engineering Mechanics Physics And Science': 'ENG',
+                'Engineering Technologies': 'ETMA',
+                'English Language And Literature': 'ENGL',
+                'Environmental Engineering': 'ENVS',
+                'Environmental Science': 'ENVS',
+                'Family And Consumer Sciences': 'HDFS',
+                'Film Video And Photographic Arts': 'MACS',
+                'Finance': 'FIN',
+                'Fine Arts': 'FA',
+                'Food Science': 'FSHN',
+                'Forestry': 'AGCM',
+                'French German And Other Language Studies': 'FR',
+                'General Agriculture': 'ACES',
+                'General Business': 'BUS',
+                'General Education': 'EDUC',
+                'General Engineering': 'ENG',
+                'General Medical And Health Services': 'CHLH',
+                'General Social Sciences': 'GWS',
+                'Genetics': 'MCB',
+                'Geography': 'GEOG',
+                'Geological And Geophysical Engineering': 'GEOL',
+                'Geology And Earth Science': 'GEOL',
+                'Geosciences': 'GEOL',
+                'Health And Medical Administrative Services': 'CHLH',
+                'Health And Medical Preparatory Programs': 'CHLH',
+                'History': 'HIST',
+                'Hospitality Management': 'RST',
+                'Human Resources And Personnel Management': 'LER',
+                'Human Services And Community Organization': 'HDFS',
+                'Humanities': 'HUM',
+                'Industrial And Manufacturing Engineering': 'IE',
+                'Industrial And Organizational Psychology': 'PSY',
+                'Industrial Production Technologies': 'ETMA',
+                'Information Sciences': 'INFO',
+                'Intercultural And International Studies': 'GLBL',
+                'Interdisciplinary Social Sciences': 'GWS',
+                'International Business': 'BADM',
+                'International Relations': 'IR',
+                'Journalism': 'JOUR',
+                'Language And Drama Education': 'EDUC',
+                'Liberal Arts': 'LAS',
+                'Library Science': 'IS',
+                'Linguistics And Comparative Language And Literature': 'LING',
+                'Management Information Systems And Statistics': 'BADM',
+                'Marketing And Marketing Research': 'MKT',
+                'Mass Media': 'MDIA',
+                'Materials Engineering And Materials Science': 'MSE',
+                'Materials Science': 'MSE',
+                'Mathematics': 'MATH',
+                'Mathematics And Computer Science': 'CS',
+                'Mathematics Teacher Education': 'EDUC',
+                'Mechanical Engineering': 'ME',
+                'Mechanical Engineering Related Technologies': 'ME',
+                'Medical Assisting Services': 'CHLH',
+                'Medical Technologies Technicians': 'CHLH',
+                'Metallurgical Engineering': 'ENG',
+                'Microbiology': 'MICR',
+                'Military Technologies': 'MILS',
+                'Mining And Mineral Engineering': 'ENG',
+                'Miscellaneous Agriculture': 'ACES',
+                'Miscellaneous Biology': 'BIO',
+                'Miscellaneous Business And Medical Administration': 'BUS',
+                'Miscellaneous Education': 'EDUC',
+                'Miscellaneous Engineering': 'ENG',
+                'Miscellaneous Engineering Technologies': 'ETMA',
+                'Miscellaneous Fine Arts': 'FA',
+                'Miscellaneous Health Medical Professions': 'CHLH',
+                'Miscellaneous Psychology': 'PSY',
+                'Miscellaneous Social Sciences': 'GWS',
+                'Molecular Biology': 'MCB',
+                'Multi-Disciplinary Or General Science': 'BIO',
+                'Multi/Interdisciplinary Studies': 'LAS',
+                'Music': 'MUS',
+                'Natural Resources Management': 'NRES',
+                'Naval Architecture And Marine Engineering': 'ENG',
+                'Neuroscience': 'NEUR',
+                'Nuclear Engineering': 'NPRE',
+                'Nuclear, Industrial Radiology, And Biological Technologies': 'NPRE',
+                'Nursing': 'NURS',
+                'Nutrition Sciences': 'NUTR',
+                'Oceanography': 'ESCI',
+                'Operations Logistics And E-Commerce': 'BADM',
+                'Other Foreign Languages': 'LCTL',
+                'Petroleum Engineering': 'ENG',
+                'Pharmacology': 'BIO',
+                'Pharmacy Pharmaceutical Sciences And Administration': 'CHLH',
+                'Philosophy And Religious Studies': 'PHIL',
+                'Physical And Health Education Teaching': 'KIN',
+                'Physical Fitness Parks Recreation And Leisure': 'RST',
+                'Physical Sciences': 'PHYS',
+                'Physics': 'PHYS',
+                'Physiology': 'BIO',
+                'Plant Science And Agronomy': 'PLBIO',
+                'Political Science And Government': 'PLSC',
+                'Pre-Law And Legal Studies': 'LAW',
+                'Psychology': 'PSY',
+                'Public Administration': 'PADM',
+                'Public Policy': 'PADM',
+                'School Student Counseling': 'EDUC',
+                'Science And Computer Teacher Education': 'EDUC',
+                'Secondary Teacher Education': 'EDUC',
+                'Social Psychology': 'PSY',
+                'Social Science Or History Teacher Education': 'EDUC',
+                'Social Work': 'SOCW',
+                'Sociology': 'SOC',
+                'Soil Science': 'HORT',
+                'Special Needs Education': 'EDUC',
+                'Statistics And Decision Science': 'STAT',
+                'Studio Arts': 'ARTS',
+                'Teacher Education: Multiple Levels': 'EDUC',
+                'Theology And Religious Vocations': 'RLST',
+                'Transportation Sciences And Technologies': 'UP',
+                'Treatment Therapy Professions': 'CHLH',
+                'United States History': 'HIST',
+                'Visual And Performing Arts': 'FA',
+                'Zoology': 'BIO'
+            }
         }
 
         return major
@@ -160,7 +536,448 @@ class Data:
             course_tuples = json.load(f)
 
         courses = {
-            'course_list': course_tuples
+            'course_list': course_tuples,
+            'course_subject': [
+                'AAS', 'ABE', 'ACCY', 'ACE', 'ACES', 'ADV', 'AE', 'AFAS', 'AFRO', 'AFST',
+                'AGCM', 'AGED', 'AHS', 'AIS', 'ALEC', 'ANSC', 'ANTH', 'ARAB', 'ARCH', 'ART',
+                'ARTD', 'ARTE', 'ARTF', 'ARTH', 'ARTJ', 'ARTS', 'ASRM', 'ASST', 'ASTR',
+                'ATMS', 'BADM', 'BASQ', 'BCOG', 'BCS', 'BDI', 'BIOC', 'BIOE', 'BIOP', 'BSE',
+                'BTW', 'BUS', 'CAS', 'CB', 'CDB', 'CEE', 'CHBE', 'CHEM', 'CHIN', 'CHLH',
+                'CHP', 'CI', 'CIC', 'CLCV', 'CLE', 'CMN', 'CPSC', 'CS', 'CSE', 'CW', 'CWL',
+                'CZCH', 'DANC', 'DTX', 'EALC', 'ECE', 'ECON', 'EDPR', 'EDUC', 'EEB', 'EIL',
+                'ENG', 'ENGL', 'ENSU', 'ENT', 'ENVS', 'EPOL', 'EPSY', 'ERAM', 'ESE', 'ESL',
+                'ETMA', 'EURO', 'FAA', 'FIN', 'FLTE', 'FR', 'FSHN', 'GC', 'GEOL', 'GER',
+                'GGIS', 'GLBL', 'GMC', 'GRK', 'GRKM', 'GS', 'GSD', 'GWS', 'HDFS', 'HEBR',
+                'HIST', 'HNDI', 'HORT', 'HT', 'HUM', 'IB', 'IE', 'IHLT', 'INFO', 'IS',
+                'ITAL', 'JAPN', 'JOUR', 'JS', 'KIN', 'KOR', 'LA', 'LAS', 'LAST', 'LAT',
+                'LAW', 'LCTL', 'LEAD', 'LER', 'LING', 'LLS', 'MACS', 'MATH', 'MBA', 'MCB',
+                'MDIA', 'MDVL', 'ME', 'MICR', 'MILS', 'MIP', 'MSE', 'MUS', 'MUSC', 'MUSE',
+                'NE', 'NEUR', 'NPRE', 'NURS', 'NUTR', 'PATH', 'PHIL', 'PHYS', 'PLBIO',
+                'PLSC', 'PORT', 'PSYC', 'PADM', 'RLST', 'RST', 'REES', 'SOCW', 'SOC',
+                'SPAN', 'SHS', 'STAT', 'SD', 'THEA', 'VCM', 'VDPAM', 'VMPM', 'VPTH', 'VETM',
+                'WGSS', 'AFAM', 'ARTHI', 'ARST', 'ARTM', 'ATMOS', 'BIO', 'COMM', 'COE',
+                'CRW', 'DES', 'DM', 'ESCI', 'FILM', 'FA', 'FRST', 'GEOG', 'GSCI', 'GERST',
+                'GD', 'HED', 'IR', 'ITST', 'JPST', 'MGT', 'MKT', 'MTH', 'NEURO', 'POLS',
+                'PSY', 'PUBH', 'SPST', 'THA', 'UP', 'WST'
+            ],
+            'course_subject_to_unabbreviated_subject': {
+                # Asian American Studies
+                "AAS": "Sociology",
+                # Agricultural and Biological Engineering
+                "ABE": "Agricultural Sciences",
+                # Accountancy
+                "ACCY": "Business",
+                # Agricultural and Consumer Economics
+                "ACE": "Economics",
+                # Agricultural, Consumer, and Environmental Sciences
+                "ACES": "Agricultural Sciences",
+                # Advertising
+                "ADV": "Communications",
+                # Aerospace Engineering
+                "AE": "Aerospace Engineering",
+                # African Studies
+                "AFAS": "African Studies",
+                # African American Studies
+                "AFRO": "African American Studies",
+                # African Studies
+                "AFST": "African Studies",
+                # Agricultural Communications
+                "AGCM": "Agricultural Communications",
+                # Agricultural Education
+                "AGED": "Agricultural Education",
+                # Agricultural Health and Safety
+                "AHS": "Agricultural Health and Safety",
+                # Agricultural Science Education
+                "AIS": "Agricultural Science Education",
+                # Agricultural Leadership, Education, and Communications
+                "ALEC": "Agricultural Sciences",
+                # Animal Sciences
+                "ANSC": "Animal Sciences",
+                # Anthropology
+                "ANTH": "Anthropology",
+                # Arabic
+                "ARAB": "Languages",
+                # Architecture
+                "ARCH": "Architecture",
+                # Art
+                "ART": "Art",
+                # Art and Design
+                "ARTD": "Art",
+                # Art Education
+                "ARTE": "Art",
+                # Art Foundation
+                "ARTF": "Art",
+                # Art History
+                "ARTH": "Art",
+                # Art Jewelry/Metal
+                "ARTJ": "Art",
+                # Art Studio
+                "ARTS": "Art",
+                # Actuarial Science and Risk Management
+                "ASRM": "Statistics",
+                # Asian Studies
+                "ASST": "Asian Studies",
+                # Astronomy
+                "ASTR": "Astronomy",
+                # Atmospheric Sciences
+                "ATMS": "Atmospheric Sciences",
+                # Business Administration
+                "BADM": "Business",
+                # Basque
+                "BASQ": "Languages",
+                # Behavioral Sciences
+                "BCOG": "Behavioral Sciences",
+                # Bosnian, Croatian, Serbian
+                "BCS": "Languages",
+                # Business Data Innovation
+                "BDI": "Business",
+                # Biochemistry
+                "BIOC": "Biochemistry",
+                # Biomedical Engineering
+                "BIOE": "Biomedical Engineering",
+                # Biophysics
+                "BIOP": "Biophysics",
+                # Engineering
+                "BSE": "Engineering",
+                # Business and Technical Writing
+                "BTW": "Communications",
+                # Business
+                "BUS": "Business",
+                # Communication Arts and Sciences
+                "CAS": "Communications",
+                # Cell Biology
+                "CB": "Biology",
+                # Cell and Developmental Biology
+                "CDB": "Biology",
+                # Civil and Environmental Engineering
+                "CEE": "Engineering",
+                # Chemical and Biomolecular Engineering
+                "CHBE": "Engineering",
+                # Chemistry
+                "CHEM": "Chemistry",
+                # Chinese
+                "CHIN": "Languages",
+                # Public Health
+                "CHLH": "Public Health",
+                # Public Health
+                "CHP": "Public Health",
+                # Curriculum and Instruction
+                "CI": "Education",
+                # College of Education
+                "CIC": "Education",
+                # Classical Civilization
+                "CLCV": "History",
+                # Clinical Laboratory Science
+                "CLE": "Languages",
+                # Communication
+                "CMN": "Communications",
+                # Crop Sciences
+                "CPSC": "Agricultural Sciences",
+                # Computer Science
+                "CS": "Computer Science",
+                # Engineering
+                "CSE": "Engineering",
+                # Creative Writing
+                "CW": "Literature",
+                # Comparative World Literature
+                "CWL": "Comparative World Literature",
+                # Czech
+                "CZCH": "Languages",
+                # Dance
+                "DANC": "Dance",
+                # Dance Technology
+                "DTX": "Dance",
+                # East Asian Languages and Cultures
+                "EALC": "Languages",
+                # Electrical and Computer Engineering
+                "ECE": "Engineering",
+                # Economics
+                "ECON": "Economics",
+                # Education Practice
+                "EDPR": "Education",
+                # Education
+                "EDUC": "Education",
+                # Ecology and Evolutionary Biology
+                "EEB": "Biology",
+                # English as an International Language
+                "EIL": "Languages",
+                # English
+                "ENG": "Literature",
+                # English
+                "ENGL": "Literature",
+                # Environmental Sustainability
+                "ENSU": "Environmental Science",
+                # Entomology
+                "ENT": "Agricultural Sciences",
+                # Environmental Sciences
+                "ENVS": "Environmental Science",
+                # Education Policy, Organization and Leadership
+                "EPOL": "Education",
+                # Educational Psychology
+                "EPSY": "Education",
+                # Environmental Resource and Management
+                "ERAM": "Agricultural Sciences",
+                # Earth, Society, and Environment
+                "ESE": "Environmental Science",
+                # English as a Second Language
+                "ESL": "Languages",
+                # Engineering Technology and Management for Agricultural Systems
+                "ETMA": "Engineering",
+                # European Union Studies
+                "EURO": "Languages",
+                # Fine and Applied Arts
+                "FAA": "Art",
+                # Finance
+                "FIN": "Business",
+                # Foreign Language Teacher Education
+                "FLTE": "Education",
+                # French
+                "FR": "Languages",
+                # Food Science and Human Nutrition
+                "FSHN": "Food Science and Human Nutrition",
+                # Germanic Languages and Literatures
+                "GC": "Languages",
+                # Geology
+                "GEOL": "Geology",
+                # German
+                "GER": "Languages",
+                # Geography and Geographic Information Science
+                "GGIS": "Geographic Information Systems",
+                # Global Studies
+                "GLBL": "Global Studies",
+                # Greek and Modern Classical
+                "GMC": "Languages",
+                # Greek
+                "GRK": "Languages",
+                # Modern Greek
+                "GRKM": "Languages",
+                # General Studies
+                "GS": "Gender and Women's Studies",
+                # Germanic Studies
+                "GSD": "Gender and Women's Studies",
+                # Gender and Women's Studies
+                "GWS": "Gender and Women's Studies",
+                # Human Development and Family Studies
+                "HDFS": "Human Development and Family Studies",
+                # Hebrew
+                "HEBR": "Languages",
+                # History
+                "HIST": "History",
+                # Hindi
+                "HNDI": "Languages",
+                # Horticulture
+                "HORT": "Agricultural Sciences",
+                # Humanities Teaching
+                "HT": "Languages",
+                # Humanities
+                "HUM": "Humanities",
+                # Integrative Biology
+                "IB": "Biology",
+                # Industrial Engineering
+                "IE": "Engineering",
+                # Interdisciplinary Health Sciences
+                "IHLT": "Health and Human Services",
+                # Information Sciences
+                "INFO": "Computer Science",
+                # Information Sciences
+                "IS": "Computer Science",
+                # Italian
+                "ITAL": "Languages",
+                # Japanese
+                "JAPN": "Languages",
+                # Journalism
+                "JOUR": "Communications",
+                # Jewish Studies
+                "JS": "Jewish Studies",
+                # Kinesiology
+                "KIN": "Kinesiology",
+                # Korean
+                "KOR": "Languages",
+                # Landscape Architecture
+                "LA": "Landscape Architecture",
+                # Liberal Arts and Sciences
+                "LAS": "Liberal Arts and Sciences",
+                # Latin American and Caribbean Studies
+                "LAST": "Latin American and Caribbean Studies",
+                # Latin
+                "LAT": "Languages",
+                # Law
+                "LAW": "Law",
+                # Less Commonly Taught Languages
+                "LCTL": "Languages",
+                # Leadership Studies
+                "LEAD": "Education",
+                # Labor and Employment Relations
+                "LER": "Labor and Employment Relations",
+                # Linguistics
+                "LING": "Linguistics",
+                # Latina/Latino Studies
+                "LLS": "Latina/Latino Studies",
+                # Media and Cinema Studies
+                "MACS": "Media and Cinema Studies",
+                # Mathematics
+                "MATH": "Mathematics",
+                # Business
+                "MBA": "Business",
+                # Molecular and Cellular Biology
+                "MCB": "Molecular and Cellular Biology",
+                # Media
+                "MDIA": "Media",
+                # Medieval Studies
+                "MDVL": "Medieval Studies",
+                # Mechanical Engineering
+                "ME": "Engineering",
+                # Microbiology
+                "MICR": "Microbiology",
+                # Military Science
+                "MILS": "Military Science",
+                # Music Instrumental Performance
+                "MIP": "Music",
+                # Materials Science and Engineering
+                "MSE": "Engineering",
+                # Music
+                "MUS": "Music",
+                # Music
+                "MUSC": "Music",
+                # Music Education
+                "MUSE": "Music",
+                # Engineering
+                "NE": "Engineering",
+                # Neuroscience
+                "NEUR": "Neuroscience",
+                # Nuclear, Plasma, and Radiological Engineering
+                "NPRE": "Engineering",
+                # Nursing
+                "NURS": "Nursing",
+                # Nutrition
+                "NUTR": "Nutrition",
+                # Pathobiology
+                "PATH": "Pathobiology",
+                # Philosophy
+                "PHIL": "Philosophy",
+                # Physics
+                "PHYS": "Physics",
+                # Plant Biology
+                "PLBIO": "Plant Biology",
+                # Political Science
+                "PLSC": "Political Science",
+                # Portuguese
+                "PORT": "Languages",
+                # Psychology
+                "PSYC": "Psychology",
+                # Public Administration
+                "PADM": "Public Administration",
+                # Religion
+                "RLST": "Religion",
+                # Recreation, Sport and Tourism
+                "RST": "Recreation, Sport and Tourism",
+                # Russian, East European, and Eurasian Studies
+                "REES": "Russian, East European, and Eurasian Studies",
+                # Social Work
+                "SOCW": "Social Work",
+                # Sociology
+                "SOC": "Sociology",
+                # Spanish
+                "SPAN": "Languages",
+                # Speech and Hearing Science
+                "SHS": "Speech and Hearing Science",
+                # Statistics
+                "STAT": "Statistics",
+                # Sustainable Design
+                "SD": "Sustainable Design",
+                # Theatre
+                "THEA": "Theatre",
+                # Veterinary Clinical Medicine
+                "VCM": "Veterinary Clinical Medicine",
+                # Veterinary Diagnostic and Production Animal Medicine
+                "VDPAM": "Veterinary Diagnostic and Production Animal Medicine",
+                # Veterinary Microbiology and Preventive Medicine
+                "VMPM": "Veterinary Microbiology and Preventive Medicine",
+                # Veterinary Pathology
+                "VPTH": "Veterinary Pathology",
+                # Veterinary Medicine
+                "VETM": "Veterinary Medicine",
+                # Women, Gender, and Sexuality Studies
+                "WGSS": "Women, Gender, and Sexuality Studies",
+                # African American Studies
+                "AFAM": "African American Studies",
+                # Architecture History
+                "ARTHI": "Architecture History",
+                # Art Studio
+                "ARST": "Art Studio",
+                # Art History
+                "ARTH": "Art History",
+                # Arts Management
+                "ARTM": "Arts Management",
+                # Atmospheric Science
+                "ATMOS": "Atmospheric Science",
+                # Biology
+                "BIO": "Biology",
+                # Communications
+                "COMM": "Communications",
+                # Computer Engineering
+                "COE": "Computer Engineering",
+                # Creative Writing
+                "CRW": "Creative Writing",
+                # Design
+                "DES": "Design",
+                # Digital Media
+                "DM": "Digital Media",
+                # Earth Sciences
+                "ESCI": "Earth Sciences",
+                # Film Studies
+                "FILM": "Film Studies",
+                # Fine Arts
+                "FA": "Fine Arts",
+                # French Studies
+                "FRST": "French Studies",
+                # Geography
+                "GEOG": "Geography",
+                # Geological Sciences
+                "GSCI": "Geological Sciences",
+                # German Studies
+                "GERST": "German Studies",
+                # Graphic Design
+                "GD": "Graphic Design",
+                # Health Education
+                "HED": "Health Education",
+                # History
+                "HIST": "History",
+                # International Relations
+                "IR": "International Relations",
+                # Italian Studies
+                "ITST": "Italian Studies",
+                # Japanese Studies
+                "JPST": "Japanese Studies",
+                # Latin American Studies
+                "LAST": "Latin American Studies",
+                # Management
+                "MGT": "Management",
+                # Marketing
+                "MKT": "Marketing",
+                # Mathematics
+                "MATH": "Mathematics",
+                # Music Theory
+                "MTH": "Music Theory",
+                # Neuroscience
+                "NEURO": "Neuroscience",
+                # Physics
+                "PHYS": "Physics",
+                # Political Science
+                "POLS": "Political Science",
+                # Psychology
+                "PSY": "Psychology",
+                # Public Health
+                "PUBH": "Public Health",
+                # Spanish Studies
+                "SPST": "Spanish Studies",
+                # Theatre Arts
+                "THA": "Theatre Arts",
+                # Urban Planning
+                "UP": "Urban Planning",
+                # Women's Studies
+                "WST": "Women's Studies"
+            }
         }
 
         return courses
@@ -266,24 +1083,514 @@ class Data:
                 'Television, Video, and Motion Picture Camera Operator and Editor', 'Therapist,', 'Waiter and Waitress',
                 'Welding, Soldering, and Brazing Worker', 'Wholesale and Retail Buyer, Except Farm Product',
                 'Writer and Author'
-            ]
+            ],
+            'career_to_activities': {
+                'Accountant and Auditor': ['Accounting Club', 'Business Club'],
+                'Actor, Producer, and Director': ['Theater Club', 'Film Society'],
+                'Actuary': ['Mathematics Society', 'Business Club'],
+                'Aerospace Engineer': ['Engineering Society', 'Aerospace Club'],
+                'Agricultural and Food Scientist': ['Agricultural Club', 'Environmental Science Club'],
+                'Agricultural worker': ['Agricultural Club'],
+                'Air Traffic Controller and Airfield Operation Specialist': ['Aviation Club'],
+                'Aircraft Mechanic and Service Technician': ['Aviation Club'],
+                'Aircraft Pilot and Flight Engineer': ['Aviation Club'],
+                'Architect, Except Naval': ['Architecture Society'],
+                'Artist and Related Worker': ['Art Club'],
+                'Athlete, Coach, Umpire, and Related Worker': ['Sports Management Club'],
+                'Atmospheric and Space Scientist': ['Environmental Science Club'],
+                'Automotive Service Technician and Mechanic': ['Automotive Club'],
+                'Bartender': ['Hospitality Management Club'],
+                'Bill and Account Collector': ['Business Club'],
+                'Biological Scientist': ['Biology Club'],
+                'Bookkeeping, Accounting, and Auditing Clerk': ['Accounting Club'],
+                'Broadcast and Sound Engineering Technician and Radio Operator, and media and communication equipment worker': ['Broadcasting Club', 'Media Club'],
+                'Bus and Truck Mechanic and Diesel Engine Specialist': ['Automotive Club'],
+                'Cashier': ['Business Club'],
+                'Chef and Cook': ['Culinary Arts Club'],
+                'Chemical Engineer': ['Engineering Society', 'Chemical Engineering Club'],
+                'Chemical Technician': ['Chemical Engineering Club'],
+                'Chemist and Material Scientist': ['Chemistry Club'],
+                'Chief executive and legislator/public administration': ['Business Club', 'Political Science Club'],
+                'Childcare Worker': ['Education Society'],
+                'Civil Engineer': ['Engineering Society', 'Civil Engineering Club'],
+                'Claim Adjuster, Appraiser, Examiner, and Investigator': ['Business Club'],
+                'Clergy': ['Religious Student Organizations'],
+                'Clinical Laboratory Technologist and Technician': ['Medical Students Association'],
+                'Combined Food Preparation and Serving Worker,Including Fast Food': ['Hospitality Management Club'],
+                'Computer Programmer': ['Computer Science Club'],
+                'Computer Scientist and System Analyst/Network system Analyst/Web Developer': ['Computer Science Club'],
+                'Computer Support Specialist': ['Computer Science Club'],
+                'Conservation Scientist and Forester': ['Environmental Science Club'],
+                'Construction Manager': ['Construction Management Club'],
+                'Cost Estimator': ['Business Club'],
+                'Counselor': ['Psychology Club'],
+                'Credit Counselor and Loan Officer': ['Finance Club'],
+                'Customer Service Representative': ['Business Club'],
+                'Dancer and Choreographer': ['Dance Team'],
+                'Dental Hygienist': ['Pre-Dental Society'],
+                'Designer': ['Graphic Design Club'],
+                'Diagnostic Related Technologist and Technician': ['Medical Students Association'],
+                'Dietician and Nutritionist': ['Health and Wellness Club'],
+                'Director, Religious Activities and Education': ['Religious Student Organizations'],
+                'Drafter': ['Architecture Society'],
+                'Editor, News Analyst, Reporter, and Correspondent': ['Journalism Club'],
+                'Electrical and Electronic Engineer': ['Engineering Society', 'Electrical Engineering Club'],
+                'Elementary and Middle School Teacher': ['Education Society'],
+                'Engineer': ['Engineering Society'],
+                'Environmental Engineer': ['Engineering Society', 'Environmental Engineering Club'],
+                'Environmental Scientist and Geoscientist': ['Environmental Science Club'],
+                'Farmer, Rancher, and Other Agricultural Manager': ['Agricultural Club'],
+                'Financial Analyst': ['Finance Club'],
+                'Financial Manager': ['Finance Club'],
+                'Firefighter': ['Public Safety Club'],
+                'First-Line Enlisted Military Supervisor': ['Military Student Organizations'],
+                'First-Line Supervisor of Construction Trade and Extraction Worker': ['Construction Management Club'],
+                'First-Line Supervisor of Food Preparation and Serving Worker': ['Hospitality Management Club'],
+                'First-Line Supervisor of Production and Operating Worker': ['Business Club'],
+                'First-Line Supervisor of Sale Worker': ['Marketing Association'],
+                'Food Service and Lodging Manager': ['Hospitality Management Club'],
+                'General and Operation Manager': ['Business Club'],
+                'Ground Maintenance Worker': ['Environmental Science Club'],
+                'Health Diagnosing and Treating Practitioner Support Technician': ['Medical Students Association'],
+                'Healthcare Practitioner and Technical Occupation': ['Medical Students Association'],
+                'Human Resource Manager': ['Human Resources Club'],
+                'Human Resource, Training, and Labor Relation Specialist': ['Human Resources Club'],
+                'Industrial Engineer, including Health and Safety': ['Engineering Society', 'Industrial Engineering Club'],
+                'Industrial and Refractory Machinery Mechanic': ['Engineering Society'],
+                'Inspector, Tester, Sorter, Sampler, and Weigher': ['Quality Assurance Club'],
+                'Insurance Sale Agent': ['Business Club'],
+                'Jeweler and Precious Stone and Metal Worker': ['Art Club'],
+                'Laborer and Freight, Stock, and Material Mover, Hand': ['Business Club'],
+                'Legal Support Worker': ['Pre-Law Society'],
+                'Librarian': ['Library Science Club'],
+                'Life, Physical, and Social Science Technician': ['Science Clubs'],
+                'Logging Worker': ['Environmental Science Club'],
+                'Logistician': ['Supply Chain Management Club'],
+                'Management Analyst': ['Business Club'],
+                'Manager': ['Business Club'],
+                'Manager in Marketing, Advertising, and Public Relations': ['Marketing Association'],
+                'Marine Engineer and Naval Architect': ['Engineering Society', 'Marine Engineering Club'],
+                'Material Engineer': ['Engineering Society', 'Materials Science Club'],
+                'Mathematical Science Occupation': ['Mathematics Club'],
+                'Mechanical Engineer': ['Engineering Society', 'Mechanical Engineering Club'],
+                'Media and Communication Worker': ['Media Club'],
+                'Medical Assistant and Other Healthcare Support Occupation': ['Medical Students Association'],
+                'Medical and Health Service Manager': ['Health Administration Club'],
+                'Meeting and Convention Planner': ['Hospitality Management Club'],
+                'Military Enlisted Tactical Operation and Air/Weapon Specialist and Crew Member': ['Military Student Organizations'],
+                'Military, Rank Not Specified': ['Military Student Organizations'],
+                'Musician, Singer, and Related Worker': ['Music Club'],
+                'Network and Computer System Administrator': ['Computer Science Club'],
+                'Nonfarm Animal Caretaker': ['Veterinary Club'],
+                'Nursing, Psychiatric, and Home Health Aide': ['Nursing Students Association'],
+                'Office Clerk, General': ['Business Club'],
+                'Operation Research Analyst': ['Operations Research Club'],
+                'Other Business Operation and Management Specialist': ['Business Club'],
+                'Other Teacher and Instructor': ['Education Society'],
+                'Paralegal and Legal Assistant': ['Pre-Law Society'],
+                'Personal Care Aide': ['Health and Wellness Club'],
+                'Personal Financial Advisor': ['Finance Club'],
+                'Petroleum, Mining and Geological Engineer, including Mining Safety Engineer': ['Engineering Society', 'Petroleum Engineering Club'],
+                'Pharmacist': ['Pre-Pharmacy Club'],
+                'Photographer': ['Photography Club'],
+                'Physical Scientist': ['Physics Club'],
+                'Physical Therapist': ['Pre-Physical Therapy Club'],
+                'Physician Assistant': ['Pre-Physician Assistant Club'],
+                'Police Officer and Detective': ['Criminal Justice Club'],
+                'Postsecondary Teacher': ['Education Society'],
+                'Power Plant Operator, Distributor, and Dispatcher': ['Energy Club'],
+                'Preschool and Kindergarten Teacher': ['Education Society'],
+                'Production, Planning, and Expediting Clerk': ['Business Club'],
+                'Public Relations Specialist': ['Public Relations Club'],
+                'Purchasing Agent, Except Wholesale, Retail, and Farm Product': ['Supply Chain Management Club'],
+                'Radiation Therapist': ['Medical Students Association'],
+                'Real Estate Broker and Sale Agent': ['Real Estate Club'],
+                'Recreation and Fitness Worker': ['Health and Wellness Club'],
+                'Refuse and Recyclable Material Collector': ['Environmental Science Club'],
+                'Registered Nurse': ['Nursing Students Association'],
+                'Residential Advisor': ['Residential Life Club'],
+                'Respiratory Therapist': ['Medical Students Association'],
+                'Retail Salesperson': ['Business Club'],
+                'Sailor and Marine Oiler, and Ship Engineer': ['Marine Engineering Club'],
+                'Sale Representative, Service, All Other': ['Marketing Association'],
+                'Sale Representative, Wholesale and Manufacturing': ['Marketing Association'],
+                'Sale and Related Worker, All Other': ['Marketing Association'],
+                'Secondary School Teacher': ['Education Society'],
+                'Secretary and Administrative Assistant': ['Business Club'],
+                'Securities, Commodities, and Financial Service Sale Agent': ['Finance Club'],
+                'Security Guard and Gaming Surveillance Officer': ['Criminal Justice Club'],
+                'Sheriff, Bailiff, Correctional Officer, and Jailer': ['Criminal Justice Club'],
+                'Ship and Boat Captain and Operator': ['Marine Engineering Club'],
+                'Social Worker': ['Social Work Club'],
+                'Software Developer, Application and System Software': ['Computer Science Club'],
+                'Special Education Teacher': ['Education Society'],
+                'Speech Language Pathologist': ['Pre-Speech Language Pathology Club'],
+                'Stock Clerk and Order Filler': ['Business Club'],
+                'Surveyor, Cartographer, and Photogrammetrist': ['Geography Club'],
+                'Teacher Assistant': ['Education Society'],
+                'Television, Video, and Motion Picture Camera Operator and Editor': ['Film Society', 'Broadcasting Club'],
+                'Therapist': ['Psychology Club'],
+                'Waiter and Waitress': ['Hospitality Management Club'],
+                'Welding, Soldering, and Brazing Worker': ['Engineering Society'],
+                'Wholesale and Retail Buyer, Except Farm Product': ['Supply Chain Management Club'],
+                'Writer and Author': ['Creative Writing Club', 'Journalism Club']
+            }
         }
 
         return careers
     
     def extracurricular_actitivites(self):
         actitivities = {
-            'extracurricular_list': [
-                "Robotics Club", "Drama Club", "Debate Team", "Math Club", "Science Club", "Art Club",
-                "Music Band", "Chess Club", "Environmental Club", "Volunteer Group", "Sports Team",
-                "Photography Club", "Literature Club", "History Club", "Language Club", "Computer Club",
-                "Cooking Club", "Dance Team", "Film Club", "Journalism Club", "Astronomy Club",
-                "Business Club", "Gardening Club", "Animal Rights Club", "Health and Fitness Club",
-                "Model United Nations", "Entrepreneurship Club", "Book Club", "Coding Club",
-                "Cultural Club", "Student Government", "Peer Tutoring", "Glee Club", "Scouting",
-                "Yoga Club", "Martial Arts Club", "Speech Club",
-                "Philosophy Club", "Geology Club", "Medicine Club", "Law Club",
-            ]
+            "career_based": [
+                "Business Club", "Pre-Law Society", "Engineering Society", "Medical Students Association", "Accounting Club",
+                "Entrepreneurship Club", "Investment Banking Club", "Marketing Association", "Consulting Club", "Journalism Club",
+                "Computer Science Club", "Education Society", "Architecture Society", "Public Relations Club", "Human Resources Club",
+                "Hospitality Management Club", "Real Estate Club", "Pharmacy Club", "Veterinary Society", "Environmental Science Club",
+                "Aerospace Club", "Agricultural Club", "Biology Club", "Anthropology Club", "History Club", "Mathematics Club",
+                "Neuroscience Club", "Speech and Hearing Club", "Media Club", "Communications Club", "Health and Wellness Club",
+                "Construction Management Club", "Law Club", "Criminal Justice Club", "Criminology Club", "Family and Consumer Sciences Club",
+                "Finance Club", "Food Science Club", "Language Clubs", "Library Science Club", "Linguistics Club", "Information Systems Club",
+                "Materials Science Club", "Statistics Club", "Marine Engineering Club", "Residential Life Club", "Geography Club",
+                "Social Sciences Club", "Humanities Club", "International Business Club", "International Relations Club", "Liberal Arts Club",
+                "Operations Research Club", "Pre-Physical Therapy Club", "Health Administration Club", "Public Administration Club",
+                "Public Policy Club", "Supply Chain Management Club", "Religious Studies Club", "Philosophy Club", "Social Work Club",
+                "Sociology Club", "Mathematics Society", "Pre-Dental Society", "Pre-Pharmacy Club"
+            ],
+            "identity_based": [
+                "Black Student Union", "Asian American Association", "Latino Student Union", "LGBTQ+ Alliance", "Women's Student Association",
+                "International Students Club", "Native American Student Association", "Muslim Student Association", "Jewish Student Union",
+                "Disability Alliance", "First-Generation College Student Club", "Veterans Student Association", "Multicultural Student Association",
+                "Hispanic Heritage Club", "South Asian Student Association", "Middle Eastern Student Association", "African Student Association",
+                "Pacific Islander Student Association", "Transfer Student Organization", "Non-Traditional Students Club", "Multiracial Student Association",
+                "European Student Association", "Men's Club", "Fraternity Council", "Sorority Council", "Gender and Sexuality Alliance",
+                "Transgender Student Association", "Multicultural Student Association", "International Students Club", "Student Government Association",
+                "Global Student Association"
+            ],
+            "academic_and_honors": [
+                "Phi Beta Kappa", "Honors College Council", "Academic Decathlon", "Dean's List Society", "National Society of Collegiate Scholars",
+                "Golden Key International Honour Society", "Alpha Lambda Delta", "Mortar Board", "Tau Beta Pi", "Sigma Xi", "Phi Kappa Phi",
+                "Phi Theta Kappa", "Eta Kappa Nu", "Psi Chi", "Beta Gamma Sigma", "Sigma Alpha Pi", "Lambda Pi Eta", "Sigma Tau Delta",
+                "Pi Mu Epsilon", "Upsilon Pi Epsilon"
+            ],
+            "service_and_philanthropy": [
+                "Rotaract Club", "Habitat for Humanity Campus Chapter", "Circle K International", "Alpha Phi Omega", "Relay for Life", "Red Cross Club",
+                "Best Buddies", "Big Brothers Big Sisters", "Amnesty International", "UNICEF Campus Initiative", "Volunteers Around the World",
+                "Project Sunshine", "Global Brigades", "Engineers Without Borders", "Food Recovery Network", "Operation Smile", "Invisible Children",
+                "Student United Way", "Camp Kesem", "Global Medical Brigades"
+            ],
+            "arts_and_culture": [
+                "Theater Club", "Film Society", "Dance Team", "A Cappella Group", "Photography Club", "Literary Magazine", "Creative Writing Club",
+                "Jazz Band", "Symphony Orchestra", "Art Club", "Graphic Design Club", "Cultural Dance Club", "Music Production Club",
+                "Culinary Arts Club", "Fashion Design Club", "Stand-Up Comedy Club", "Anime Club", "K-Pop Dance Club", "Poetry Slam Team",
+                "Chorale Ensemble", "Music Club"
+            ],
+            "sports_and_recreation": [
+                "Intramural Sports League", "Running Club", "Rock Climbing Club", "Ultimate Frisbee Team", "Swim Team", "Martial Arts Club",
+                "Yoga Club", "Cycling Club", "Ski and Snowboard Club", "Equestrian Club", "Tennis Club", "Basketball Club", "Soccer Club",
+                "Lacrosse Club", "Table Tennis Club", "Fencing Club", "Rowing Club", "Volleyball Club", "Rugby Club", "Badminton Club"
+            ],
+            "special_interest": [
+                "Debate Club", "Chess Club", "Model United Nations", "Robotics Club", "Astronomy Club", "Gaming Club", "Eco Club",
+                "Meditation and Mindfulness Club", "Travel Club", "Cooking Club", "Gardening Club", "Wine Tasting Club",
+                "Baking Club", "Board Games Club", "Historical Reenactment Society" "Fantasy Sports Club", "Cryptocurrency Club",
+                "Book Club", "Pet Lovers Club", "Space Exploration Club"
+            ],
+            "political_and_advocacy": [
+                "College Democrats", "College Republicans", "Libertarian Club", "Students for Social Justice", "Young Americans for Liberty",
+                "Feminist Majority Leadership Alliance", "Environmental Action Club", "Students for Political Action", "Human Rights Club",
+                "Pro-Life Club", "Pro-Choice Club", "Students for Free Speech", "Animal Rights Club", "Fair Trade Club", "Labor Rights Club",
+                "Anti-War Club", "Progressive Student Alliance", "Conservative Student Union", "Democratic Socialists Club", "Gun Rights Club",
+                "Students for Justice in Palestine"
+            ],
+            "religious_and_spiritual": [
+                "Christian Fellowship", "Hillel", "Newman Club", "Buddhist Meditation Group", "Hindu Students Council", "Interfaith Council",
+                "Campus Crusade for Christ", "Pagan Student Association", "Sikh Student Association", "Latter-day Saint Student Association",
+                "Baha'i Club", "Quaker Student Group", "Jain Student Association", "Spiritual Exploration Club", "Atheist and Agnostic Club",
+                "Catholic Student Union", "Orthodox Christian Fellowship", "Zen Club", "Scientology Club", "Agnostic Student Society"
+            ],
+            'activities_to_future_topics': {
+                "Aerospace Club": ["Astronomy", "Astrophysics", "Engineering", "Physics", "Space Science"],
+                "African Student Association": ["African Studies", "African American Studies"],
+                "Agricultural Club": ["Agricultural Communications", "Agricultural Education", "Agricultural Health and Safety", "Agricultural Science Education", "Agricultural Sciences", "Animal Sciences", "Horticulture"],
+                "Anthropology Club": ["Anthropology", "Archaeology", "Behavioral Sciences", "Cultural Studies"],
+                "Asian American Association": ["Asian Studies", "East Asian Languages and Cultures", "Japanese", "Korean", "Chinese"],
+                "Astronomy Club": ["Astronomy", "Astrophysics", "Physics", "Space Science"],
+                "Biology Club": ["Biochemistry", "Biophysics", "Biostatistics", "Biomedical Engineering", "Biology", "Molecular and Cellular Biology", "Neuroscience", "Microbiology", "Pathobiology"],
+                "Black Student Union": ["African American Studies"],
+                "Business Club": ["Business", "Business Administration", "Finance", "Management", "Marketing"],
+                "Chemistry Club": ["Biochemistry", "Chemical Engineering", "Chemistry"],
+                "Chinese Student Association": ["Chinese", "Asian Studies"],
+                "Christian Fellowship": ["Religious Studies", "Theology"],
+                "Computer Science Club": ["Computer Science", "Cybersecurity", "Data Science", "Software Engineering"],
+                "Creative Writing Club": ["Comparative World Literature", "English", "Literature", "World Literatures"],
+                "Cultural Dance Club": ["Dance", "Dance Theater", "Performance Studies"],
+                "Economics Club": ["Economics", "Finance", "Public Policy"],
+                "Education Society": ["Education", "Educational Psychology", "Family Studies"],
+                "Engineering Society": ["Biomedical Engineering", "Chemical Engineering", "Civil Engineering", "Electrical and Computer Engineering", "Electrical Engineering", "Engineering", "Environmental Engineering", "Mechanical Engineering", "Nuclear Engineering", "Safety Engineering"],
+                "Environmental Action Club": ["Environmental Health", "Environmental Policy and Planning", "Environmental Science", "Environmental Studies", "Natural Resources and Environmental Sciences"],
+                "Film Society": ["Film and Media Studies", "Film Studies", "Media and Cinema Studies", "Digital Media"],
+                "Finance Club": ["Business", "Finance", "Economics"],
+                "Geography Club": ["Geography", "Geographic Information Systems"],
+                "Graphic Design Club": ["Art", "Graphic Design", "Digital Media"],
+                "History Club": ["History", "Medieval Studies"],
+                "International Relations Club": ["International Relations", "Global Studies"],
+                "Journalism Club": ["Journalism", "Communications", "Media"],
+                "LGBTQ+ Alliance": ["Gender Studies", "Queer Studies"],
+                "Literary Magazine": ["Comparative World Literature", "English", "Literature", "World Literatures"],
+                "Mathematics Club": ["Calculus", "Mathematics", "Statistics", "Biostatistics"],
+                "Medical Students Association": ["Biomedical Engineering", "Epidemiology", "Medicine", "Public Health", "Pharmacology"],
+                "Music Club": ["Music", "Ethnomusicology", "Music Theory"],
+                "Philosophy Club": ["Ethics", "Philosophy", "Logic"],
+                "Physics Club": ["Biophysics", "Physics", "Quantum Mechanics", "Relativity"],
+                "Political Science Club": ["Political Science", "Public Policy"],
+                "Pre-Law Society": ["Law", "Environmental Law"],
+                "Psychology Club": ["Behavioral Sciences", "Cognitive Science", "Psychology"],
+                "Social Work Club": ["Social Work", "Public Health"],
+                "Sociology Club": ["Sociology", "Cultural Studies"],
+                "Theater Club": ["Drama", "Theater", "Performance Studies"],
+                "Veterinary Society": ["Animal Sciences", "Veterinary Medicine"],
+                "Women's Student Association": ["Gender Studies", "Women's Studies", "Family Studies"]
+            },
+            'activities_to_subjects': {
+                "Business Club": "Business",
+                "Pre-Law Society": "Law",
+                "Engineering Society": "Engineering",
+                "Medical Students Association": "Medicine",
+                "Accounting Club": "Business",
+                "Entrepreneurship Club": "Business",
+                "Investment Banking Club": "Business",
+                "Marketing Association": "Business",
+                "Consulting Club": "Business",
+                "Journalism Club": "Communications",
+                "Computer Science Club": "Computer Science",
+                "Education Society": "Education",
+                "Architecture Society": "Engineering",
+                "Public Relations Club": "Communications",
+                "Human Resources Club": "Business",
+                "Hospitality Management Club": "Business",
+                "Real Estate Club": "Business",
+                "Pharmacy Club": "Medicine",
+                "Veterinary Society": "Veterinary Medicine",
+                "Environmental Science Club": "Environmental Science",
+                "Aerospace Club": ["Aerospace Engineering", "Physics"],
+                "Agricultural Club": "Agricultural Sciences",
+                "Biology Club": "Biology",
+                "Anthropology Club": "Anthropology",
+                "History Club": "History",
+                "Mathematics Club": "Mathematics",
+                "Neuroscience Club": "Neuroscience",
+                "Speech and Hearing Club": "Health and Human Services",
+                "Media Club": "Media and Cinema Studies",
+                "Communications Club": "Communications",
+                "Health and Wellness Club": "Health and Human Services",
+                "Construction Management Club": "Engineering",
+                "Law Club": "Law",
+                "Criminal Justice Club": "Law",
+                "Criminology Club": "Law",
+                "Family and Consumer Sciences Club": "Family Studies",
+                "Finance Club": "Business",
+                "Food Science Club": "Food Science and Human Nutrition",
+                "Language Clubs": "Languages",
+                "Library Science Club": "Education",
+                "Linguistics Club": "Linguistics",
+                "Information Systems Club": "Computer Science",
+                "Materials Science Club": "Engineering",
+                "Statistics Club": "Statistics",
+                "Marine Engineering Club": "Engineering",
+                "Residential Life Club": "Education",
+                "Geography Club": "Geography",
+                "Social Sciences Club": "Sociology",
+                "Humanities Club": "Humanities",
+                "International Business Club": "Business",
+                "International Relations Club": "Political Science",
+                "Liberal Arts Club": "Liberal Arts and Sciences",
+                "Operations Research Club": "Business",
+                "Pre-Physical Therapy Club": "Health and Human Services",
+                "Health Administration Club": "Health and Human Services",
+                "Public Administration Club": "Public Administration",
+                "Public Policy Club": "Public Policy",
+                "Supply Chain Management Club": "Business",
+                "Religious Studies Club": "Religious Studies",
+                "Philosophy Club": "Philosophy",
+                "Social Work Club": "Social Work",
+                "Sociology Club": "Sociology",
+                "Mathematics Society": "Mathematics",
+                "Pre-Dental Society": "Medicine",
+                "Pre-Pharmacy Club": "Medicine",
+                "Black Student Union": "African American Studies",
+                "Asian American Association": "Asian Studies",
+                "Latino Student Union": "Latina/Latino Studies",
+                "LGBTQ+ Alliance": ["Gender Studies", "Queer Studies"],
+                "Women's Student Association": "Gender Studies",
+                "International Students Club": "Global Studies",
+                "Native American Student Association": "Native American Studies",
+                "Muslim Student Association": "Religious Studies",
+                "Jewish Student Union": "Jewish Studies",
+                "Disability Alliance": "Health and Human Services",
+                "First-Generation College Student Club": "Education",
+                "Veterans Student Association": "Health and Human Services",
+                "Multicultural Student Association": "Global Studies",
+                "Hispanic Heritage Club": "Latina/Latino Studies",
+                "South Asian Student Association": "Asian Studies",
+                "Middle Eastern Student Association": "Middle Eastern Studies",
+                "African Student Association": ["African Studies", "African American Studies"],
+                "Pacific Islander Student Association": "Global Studies",
+                "Transfer Student Organization": "Education",
+                "Non-Traditional Students Club": "Education",
+                "Multiracial Student Association": "Global Studies",
+                "European Student Association": "European Studies",
+                "Men's Club": "Gender Studies",
+                "Fraternity Council": "Education",
+                "Sorority Council": "Education",
+                "Gender and Sexuality Alliance": "Gender Studies",
+                "Transgender Student Association": "Gender Studies",
+                "Multicultural Student Association": "Global Studies",
+                "International Students Club": "Global Studies",
+                "Student Government Association": "Political Science",
+                "Global Student Association": "Global Studies",
+                "Phi Beta Kappa": "Honor Society",
+                "Honors College Council": "Honor Society",
+                "Academic Decathlon": "Education",
+                "Dean's List Society": "Honor Society",
+                "National Society of Collegiate Scholars": "Honor Society",
+                "Golden Key International Honour Society": "Honor Society",
+                "Alpha Lambda Delta": "Honor Society",
+                "Mortar Board": "Honor Society",
+                "Tau Beta Pi": "Engineering",
+                "Sigma Xi": "Research",
+                "Phi Kappa Phi": "Honor Society",
+                "Phi Theta Kappa": "Honor Society",
+                "Eta Kappa Nu": "Engineering",
+                "Psi Chi": "Psychology",
+                "Beta Gamma Sigma": "Business",
+                "Sigma Alpha Pi": "Leadership",
+                "Lambda Pi Eta": "Communications",
+                "Sigma Tau Delta": "English",
+                "Pi Mu Epsilon": "Mathematics",
+                "Upsilon Pi Epsilon": "Computer Science",
+                "Rotaract Club": "Service",
+                "Habitat for Humanity Campus Chapter": "Service",
+                "Circle K International": "Service",
+                "Alpha Phi Omega": "Service",
+                "Relay for Life": "Service",
+                "Red Cross Club": "Service",
+                "Best Buddies": "Service",
+                "Big Brothers Big Sisters": "Service",
+                "Amnesty International": "Advocacy",
+                "UNICEF Campus Initiative": "Service",
+                "Volunteers Around the World": "Service",
+                "Project Sunshine": "Service",
+                "Global Brigades": "Service",
+                "Engineers Without Borders": "Engineering",
+                "Food Recovery Network": "Service",
+                "Operation Smile": "Service",
+                "Invisible Children": "Advocacy",
+                "Student United Way": "Service",
+                "Camp Kesem": "Service",
+                "Global Medical Brigades": "Service",
+                "Theater Club": "Theater",
+                "Film Society": "Media and Cinema Studies",
+                "Dance Team": "Dance",
+                "A Cappella Group": "Music",
+                "Photography Club": "Art",
+                "Literary Magazine": ["Comparative World Literature", "English"],
+                "Creative Writing Club": ["Comparative World Literature", "English"],
+                "Jazz Band": "Music",
+                "Symphony Orchestra": "Music",
+                "Art Club": "Art",
+                "Graphic Design Club": "Art",
+                "Cultural Dance Club": "Dance",
+                "Music Production Club": "Music",
+                "Culinary Arts Club": "Nutrition",
+                "Fashion Design Club": "Art",
+                "Stand-Up Comedy Club": "Performance Studies",
+                "Anime Club": "Media and Cinema Studies",
+                "K-Pop Dance Club": "Dance",
+                "Poetry Slam Team": "English",
+                "Chorale Ensemble": "Music",
+                "Music Club": "Music",
+                "Intramural Sports League": "Physical Education",
+                "Running Club": "Physical Education",
+                "Rock Climbing Club": "Physical Education",
+                "Ultimate Frisbee Team": "Physical Education",
+                "Swim Team": "Physical Education",
+                "Martial Arts Club": "Physical Education",
+                "Yoga Club": "Physical Education",
+                "Cycling Club": "Physical Education",
+                "Ski and Snowboard Club": "Physical Education",
+                "Equestrian Club": "Physical Education",
+                "Tennis Club": "Physical Education",
+                "Basketball Club": "Physical Education",
+                "Soccer Club": "Physical Education",
+                "Lacrosse Club": "Physical Education",
+                "Table Tennis Club": "Physical Education",
+                "Fencing Club": "Physical Education",
+                "Rowing Club": "Physical Education",
+                "Volleyball Club": "Physical Education",
+                "Rugby Club": "Physical Education",
+                "Badminton Club": "Physical Education",
+                "Debate Club": "Communications",
+                "Chess Club": "Mathematics",
+                "Model United Nations": "Political Science",
+                "Robotics Club": "Engineering",
+                "Astronomy Club": "Astronomy",
+                "Gaming Club": "Computer Science",
+                "Eco Club": "Environmental Science",
+                "Meditation and Mindfulness Club": "Health and Human Services",
+                "Travel Club": "Global Studies",
+                "Cooking Club": "Nutrition",
+                "Gardening Club": "Agricultural Sciences",
+                "Wine Tasting Club": "Nutrition",
+                "Baking Club": "Nutrition",
+                "Board Games Club": "Mathematics",
+                "Historical Reenactment Society": "History",
+                "Fantasy Sports Club": "Mathematics",
+                "Cryptocurrency Club": "Economics",
+                "Book Club": "English",
+                "Pet Lovers Club": "Animal Sciences",
+                "Space Exploration Club": "Astronomy",
+                "College Democrats": "Political Science",
+                "College Republicans": "Political Science",
+                "Libertarian Club": "Political Science",
+                "Students for Social Justice": "Sociology",
+                "Young Americans for Liberty": "Political Science",
+                "Feminist Majority Leadership Alliance": "Gender Studies",
+                "Environmental Action Club": "Environmental Science",
+                "Students for Political Action": "Political Science",
+                "Human Rights Club": "Sociology",
+                "Pro-Life Club": "Political Science",
+                "Pro-Choice Club": "Political Science",
+                "Students for Free Speech": "Political Science",
+                "Animal Rights Club": "Animal Sciences",
+                "Fair Trade Club": "Economics",
+                "Labor Rights Club": "Sociology",
+                "Anti-War Club": "Political Science",
+                "Progressive Student Alliance": "Political Science",
+                "Conservative Student Union": "Political Science",
+                "Democratic Socialists Club": "Political Science",
+                "Gun Rights Club": "Political Science",
+                "Students for Justice in Palestine": "Political Science",
+                "Christian Fellowship": "Religious Studies",
+                "Hillel": "Jewish Studies",
+                "Newman Club": "Religious Studies",
+                "Buddhist Meditation Group": "Religious Studies",
+                "Hindu Students Council": "Religious Studies",
+                "Interfaith Council": "Religious Studies",
+                "Campus Crusade for Christ": "Religious Studies",
+                "Pagan Student Association": "Religious Studies",
+                "Sikh Student Association": "Religious Studies",
+                "Latter-day Saint Student Association": "Religious Studies",
+                "Baha'i Club": "Religious Studies",
+                "Quaker Student Group": "Religious Studies",
+                "Jain Student Association": "Religious Studies",
+                "Spiritual Exploration Club": "Religious Studies",
+                "Atheist and Agnostic Club": "Philosophy",
+                "Catholic Student Union": "Religious Studies",
+                "Orthodox Christian Fellowship": "Religious Studies",
+                "Zen Club": "Religious Studies",
+                "Scientology Club": "Religious Studies",
+                "Agnostic Student Society": "Philosophy"
+            }
         }
 
         return actitivities
@@ -295,31 +1602,31 @@ class Data:
                 "Agricultural Health and Safety", "Agricultural Science Education", "Agricultural Sciences", "Animal Behavior",
                 "Animal Sciences", "Anthropology", "Arabic", "Archaeology", "Architecture", "Art", "Art History",
                 "Asian Studies", "Astronomy", "Astrophysics", "Atmospheric Sciences", "Basque", "Behavioral Sciences",
-                "Biochemistry", "Biophysics", "Biostatistics", "Biomedical Engineering", "Biology", "Biophysics", "Business",
-                "Business Administration", "Calculus", "Chemical Engineering", "Chemistry", "Classical Civilizations",
+                "Biochemistry", "Biophysics", "Biostatistics", "Biomedical Engineering", "Biology", "Business",
+                "Business Administration", "Calculus", "Chemical Engineering", "Chemistry", "Chinese", "Classical Civilizations",
                 "Cognitive Science", "Communications", "Comparative World Literature", "Computer Science", "Cultural Studies",
                 "Cybersecurity", "Dance", "Dance Theater", "Data Science", "Digital Media", "Drama", "Earth Sciences",
-                "East Asian Languages and Cultures", "Ecology", "Economics", "Education", "Electrical and Computer Engineering",
-                "Electrical Engineering", "Engineering", "English", "Environmental Design", "Environmental Health",
-                "Environmental Law", "Environmental Policy and Planning", "Environmental Science", "Environmental Studies",
-                "Epidemiology", "Ethics", "Ethnomusicology", "Family Health", "Family Studies", "Film and Media Studies",
-                "Film Studies", "Finance", "Food Science and Human Nutrition", "French", "Gender and Women's Studies",
-                "Gender Studies", "Geographic Information Systems", "Geography", "Geology", "German", "Global Studies",
-                "Graphic Design", "Greek", "Health and Fitness", "Health and Human Services", "Hebrew", "Hindi", "History",
-                "Horticulture", "Human Development and Family Studies", "Integrative Biology", "International Relations",
+                "East Asian Languages and Cultures", "Ecology", "Economics", "Education", "Educational Psychology",
+                "Electrical and Computer Engineering", "Electrical Engineering", "Engineering", "English", "Environmental Design",
+                "Environmental Engineering", "Environmental Health", "Environmental Law", "Environmental Policy and Planning",
+                "Environmental Science", "Environmental Studies", "Epidemiology", "Ethics", "Ethnomusicology", "Family Health",
+                "Family Studies", "Film and Media Studies", "Film Studies", "Finance", "Food Science and Human Nutrition",
+                "French", "Gender and Women's Studies", "Gender Studies", "Geographic Information Systems", "Geography", "Geology",
+                "German", "Global Studies", "Graphic Design", "Greek", "Health and Fitness", "Health and Human Services", "Hebrew",
+                "Hindi", "History", "Horticulture", "Human Development and Family Studies", "Integrative Biology", "International Relations",
                 "Italian", "Japanese", "Jewish Studies", "Journalism", "Kinesiology", "Korean", "Labor and Employment Relations",
                 "Languages", "Landscape Architecture", "Latin", "Latin American and Caribbean Studies", "Latina/Latino Studies",
                 "Law", "Leadership Studies", "Linguistics", "Literature", "Logic", "Management", "Marketing", "Material Science",
                 "Mathematics", "Mechanical Engineering", "Media", "Media and Cinema Studies", "Medieval Studies", "Medicine",
                 "Middle Eastern Studies", "Microbiology", "Molecular and Cellular Biology", "Music", "Music Theory",
                 "Natural Resources and Environmental Sciences", "Near Eastern Languages and Cultures", "Neuroscience",
-                "Nuclear Engineering", "Nutrition", "Pathobiology", "Performance Studies", "Persian", "Pharmacology",
-                "Philosophy", "Physical Education", "Physics", "Political Science", "Portuguese", "Public Health", "Public Policy",
-                "Quantum Mechanics", "Quechua", "Recreation, Sport, and Tourism", "Rehabilitation Education", "Relativity",
-                "Religious Studies", "Robotics", "Russian", "Safety Engineering", "Scandinavian", "Social Work", "Sociology",
-                "Software Engineering", "Sound Engineering", "Space Science", "Spanish", "Special Education", "Sports Science",
-                "Statistics", "Swahili", "Theater", "Thermodynamics", "Turkish", "Ukrainian", "Urban Planning", "Veterinary Medicine",
-                "Women's Studies", "World Literatures", "Yiddish", "Zulu"
+                "Nuclear Engineering", "Nutrition", "Pathobiology", "Performance Studies", "Persian", "Pharmacology", "Philosophy",
+                "Physical Education", "Physics", "Political Science", "Portuguese", "Public Health", "Public Policy", "Quantum Mechanics",
+                "Quechua", "Queer Studies", "Recreation, Sport, and Tourism", "Rehabilitation Education", "Relativity", "Religious Studies",
+                "Robotics", "Russian", "Safety Engineering", "Scandinavian", "Social Work", "Sociology", "Software Engineering",
+                "Sound Engineering", "Space Science", "Spanish", "Special Education", "Sports Science", "Statistics", "Swahili", "Theater",
+                "Thermodynamics", "Theology", "Turkish", "Ukrainian", "Urban Planning", "Veterinary Medicine", "Women's Studies", "World Literatures",
+                "Yiddish", "Zulu"
             ]
         }
 
