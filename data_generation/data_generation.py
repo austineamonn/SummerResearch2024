@@ -40,6 +40,9 @@ class DataGenerator:
         self.international_stats = international_data['international']
         self.international_to_activities = international_data['student_status_to_activities']
 
+        # Demographics to Extracurriculars - combine the 3 dictionaries into one
+        self.demographics_to_activities = {k: v for d in (self.ethnoracial_to_activities, self.gender_to_activities, self.international_to_activities) for k, v in d.items()}
+
         # Socioeconomic Status
         SES_data = data.socioeconomics_status()
         self.socioeconomic_stats = SES_data['socioeconomic']
@@ -68,6 +71,7 @@ class DataGenerator:
         self.subjects_list = subject_data['subjects_list']
         self.subjects_to_future_topics = subject_data['subjects_to_future_topics']
         self.subjects_to_careers = subject_data['subjects_to_careers']
+        self.subjects_to_activtities = subject_data['subjects_to_activtities']
 
         # Careers
         career_data = data.careers()
@@ -81,6 +85,7 @@ class DataGenerator:
         self.activity_list = activities_data['activity_list']
         self.career_based_activities = activities_data['career_based']
         self.identity_based_activities = activities_data['identity_based']
+        self.identity_org_for_all = activities_data['identity_org_for_all']
         self.academic_and_honors_actitivities = activities_data['academic_and_honors']
         self.service_and_philanthropy_activities = activities_data['service_and_philanthropy']
         self.arts_and_culture_activities = activities_data['arts_and_culture']
@@ -90,6 +95,7 @@ class DataGenerator:
         self.religious_and_spiritual_activities = activities_data['religious_and_spiritual']
         self.activities_to_future_topics = activities_data['activities_to_future_topics']
         self.activities_to_subjects = activities_data['activities_to_subjects']
+        self.activities_to_careers = activities_data['activities_to_careers']
         
         # Future Topics
         future_topics_data = data.future_topics()
@@ -131,7 +137,7 @@ class DataGenerator:
         filtered_mj_courses = []
         for course in courses:
             subject = course[3]
-            course_subjects = self.course_subject_to_major[subject]
+            course_subjects = self.course_subject_to_major.get(subject, [])
             for major in majors: # Allows for multiple majors
                 if major in course_subjects:
                     filtered_mj_courses.append(course)
@@ -207,12 +213,21 @@ class DataGenerator:
 
         # Filter the courses by learning style and majors
         possible_courses_ls = self.filter_course_by_learning_style(possible_courses, learning_styles)
-        possible_courses_higher_ls = self.filter_course_by_learning_style(possible_courses_higher, learning_styles)
-        possible_courses_lower_ls = self.filter_course_by_learning_style(possible_courses_lower, learning_styles)
-
         possible_courses_mj = self.filter_course_by_major(possible_courses, majors)
-        possible_courses_higher_mj = self.filter_course_by_major(possible_courses_higher, majors)
-        possible_courses_lower_mj = self.filter_course_by_major(possible_courses_lower, majors)
+        if semester > 1:
+            possible_courses_higher_ls = self.filter_course_by_learning_style(possible_courses_higher, learning_styles)
+            possible_courses_higher_mj = self.filter_course_by_major(possible_courses_higher, majors)
+            if semester > 2:
+                possible_courses_lower_ls = self.filter_course_by_learning_style(possible_courses_lower, learning_styles)
+                possible_courses_lower_mj = self.filter_course_by_major(possible_courses_lower, majors)
+            else:
+                possible_courses_lower_ls = []
+                possible_courses_lower_mj =[]
+        else:
+            possible_courses_higher_ls = []
+            possible_courses_higher_mj = []
+            possible_courses_lower_ls = []
+            possible_courses_lower_mj =[]
 
         # Pick 4 of the possible courses to take, mostly from the main group
         # but some from the 'higher' and 'lower' groups
@@ -297,32 +312,87 @@ class DataGenerator:
             result = np.random.choice(demographics)
         return result
 
-    def generate_career_aspirations(self, subjects=[], majors=[]):
+    def generate_learning_style(self):
+        learning_style = [self.assign_demographic(self.learning_style_stats, config["synthetic_data"]["learning_style"])]
+        if np.random.rand() < 0.1:  # 10% chance to add an extra learning style
+            extra_style = self.assign_demographic(self.learning_style_stats, config["synthetic_data"]["learning_style"])
+            if extra_style in learning_style:
+                logging.debug("Double up of learning style")
+            else: # Only add the extra learning style if it is different than the original one
+                learning_style.append(extra_style)
+        return learning_style
+    
+    def generate_gpa(self, semester):
+        if semester == 0:
+            gpa = None
+            logging.debug("GPA left empty because student semester is zero")
+        else:
+            gpa = round(np.random.uniform(2.0, 4.0), 2)
+            logging.debug("GPA chosen: %.2f", gpa)
+
+    def choose_major(self, semester, gender):
+        # Weigh majors by gender
+        major_weights = []
+        for major in self.major_tuples:
+            ranking = 1-(float(major[2])/173) # There are 173 majors
+            # Assume nonmale
+            percent = float(major[1])/100
+            # If male change the percentage
+            if gender == 'Male':
+                percent = 1-(percent)
+            # Weigh the major by the gender percentage and the popularity ranking
+            weight = percent + ranking
+            major_weights.append(weight)
+        
+        if semester <=4:
+            if np.random.rand() < 0.3: # Only 30% of underclassmen students have a major / intended major
+                major = random.choices(self.major_list, major_weights, k=1)[0]
+            else:
+                major = []
+                logging.debug("Major left empty because student has no major / intended major")
+        elif semester > 4:
+            major = random.choices(self.major_list, major_weights, k=1)[0]
+        
+        if len(major) == 1:
+            if np.random.rand() < 0.3: # Only 30% of students have a second major / intended major
+                extra_major = random.choices(self.major_list, major_weights, k=1)[0]
+                if extra_major in major:
+                    logging.debug("Double up of major")
+                else: # Only add the extra major if it is different than the original one
+                    major.append(extra_major)
+        return major
+
+    def generate_career_aspirations(self, careers=[], subjects=[], majors=[], activities=[]):
         """
         Generate a list of career aspirations for a student based on their subjects of interest.
         """
-        # Find all possible careers related to the subjects of interest
         possible_careers = []
+        # Find all possible careers related to the subjects of interest
         for subject in subjects:
-            if subject in self.related_career_aspirations:
-                possible_careers.extend(self.related_career_aspirations[subject])
+            if subject in self.subjects_to_careers:
+                possible_careers.extend(self.subjects_to_careers[subject])
 
-        # Find all possible careers related to major(s)
+        # Find top 5 careers most major(s) get after college
         for major in majors:
-            if major in self.majors_to_careers:
-                possible_careers.extend(self.majors_to_careers[major])
+            if major in self.major_list:
+                possible_careers.extend(self.major_tuples[5])
+
+        # Find all possible careers related to extracurricular activities
+        for activity in activities:
+            if activity in self.activities_to_careers:
+                possible_careers.extend(self.activities_to_careers[activity])
         
         # Add a small chance of including a random career from all possible careers
         if np.random.rand() < 0.1:  # 10% chance
-            possible_careers.append(np.random.choice(self.careers))
-        
-        # Remove duplicates from the possible careers list
-        possible_careers = list(set(possible_careers))
+            possible_careers.append(np.random.choice(self.careers_list))
         
         # Select a random number of careers (between 0 and 4) from the possible careers
-        return random.sample(possible_careers, min(np.random.randint(0, 5), len(possible_careers))) if possible_careers else []
+        possible_careers = random.sample(possible_careers, min(np.random.randint(0, 5), len(possible_careers)))
 
-    def generate_extracurricular_activities(self, subjects, activities=[]):
+        # Return the new career list
+        return careers.extend(possible_careers)
+
+    def generate_extracurricular_activities(self, subjects=[], activities=[]):
         """
         Inputs: subjects of interest, current activities list
         Output: new activity list
@@ -330,18 +400,18 @@ class DataGenerator:
         possible_activities = []
 
         for subject in subjects:
-            value = self.activity_to_subject.get(subject)
+            value = self.subjects_to_activtities.get(subject)
             if value is not None:
                 logging.debug(f"Key {subject} exists in the dictionary with value {value}")
                 if np.random.rand() < 0.3: # 30% chance a person joins a club based on a subject of interest
-                    possible_activities.append(value)
+                    possible_activities.extend(value)
                     logging.debug(f"{value} added because of {subject}")
             else:
                 logging.debug(f"Key {subject} does not exist in the dictionary")
 
         # 10% chance a person joins a club regarless of subjects of interest
         if np.random.rand() < 0.1:
-            extra_club = random.choice(self.extracurricular_list)
+            extra_club = random.choice(self.activity_list)
             possible_activities.append(extra_club)
 
         # Randomly add 0-5 of the possible activities and ensure no duplicates
@@ -359,11 +429,11 @@ class DataGenerator:
         activities = []
 
         for identity in identities:
-            value = self.identity_org.get(identity)
+            value = self.demographics_to_activities.get(identity)
             if value is not None:
                 logging.debug(f"Key {identity} exists in the dictionary with value {value}")
                 if np.random.rand() < 0.2: # 20% chance a person joins a club based on an identity
-                    activities.append(value)
+                    activities.extend(value)
                     logging.debug(f"{value} added because of {identity}")
             else:
                 logging.debug(f"Key {identity} does not exist in the dictionary")
@@ -385,33 +455,38 @@ class DataGenerator:
         # Add in subjects of interest based on previous courses taken
         for course in previous_courses:
             logging.debug("Course being examined: %s", course)
-            if course[3] in self.course_to_subject.keys():
+            if course[3] in self.course_subject_to_unabbreviated_subject.keys():
                     # 100 level courses indicate a 30% interest in the subject
                     if 100 <= course[1] < 200:
                         if np.random.rand() < 0.3:
-                            possible_subjects.append(self.course_to_subject[course[3]])
-                            logging.debug("%s has been added to the list", self.course_to_subject[course[3]])
+                            possible_subjects.append(self.course_subject_to_unabbreviated_subject[course[3]])
+                            logging.debug("%s has been added to the list", self.course_subject_to_unabbreviated_subject[course[3]])
                     # 200 level courses indicate a 60% interest in the subject
                     elif 200 <= course[1] < 300:
                         if np.random.rand() < 0.6:
-                            possible_subjects.append(self.course_to_subject[course[3]])
-                            logging.debug("%s has been added to the list", self.course_to_subject[course[3]])
+                            possible_subjects.append(self.course_subject_to_unabbreviated_subject[course[3]])
+                            logging.debug("%s has been added to the list", self.course_subject_to_unabbreviated_subject[course[3]])
                     # By the 300 level you are committed to the subject
                     elif 300 <= course[1]:
-                        possible_subjects.append(self.course_to_subject[course[3]])
-                        logging.debug("%s has been added to the list", self.course_to_subject[course[3]])
+                        possible_subjects.append(self.course_subject_to_unabbreviated_subject[course[3]])
+                        logging.debug("%s has been added to the list", self.course_subject_to_unabbreviated_subject[course[3]])
             else:
-                logging.debug("this course subject %s was not in the list %s", course[3], self.course_to_subject.keys())
+                logging.debug("this course subject %s was not in the list %s", course[3], self.course_subject_to_unabbreviated_subject.keys())
         logging.debug("Initial subject list chosen: %s", possible_subjects)
 
         # Add in subjects of interest based on career aspirations
+        if careers == None:
+            careers = []
         for career in careers:
-            if career in self.career_to_subject:
-                possible_subjects.extend(self.career_to_subject[career])
+            print(career)
+            if career in self.careers_to_subjects:
+                subjects = self.careers_to_subjects.get(career, None)
+                if subjects is not None:
+                    possible_subjects.extend(subjects)
         logging.debug("Added in subjects based on career aspirations")
 
         if np.random.rand() < 0.3:  # 30% chance to add extra subjects of interest
-            extra_subjects = random.sample(self.subjects_of_interest,  min(np.random.randint(1, 3), len(self.subjects_of_interest)))
+            extra_subjects = random.sample(self.subjects_list,  min(np.random.randint(1, 3), len(self.subjects_list)))
             possible_subjects.extend(extra_subjects)
 
         # Randomly add 0-5 of the possible subjects of interest
@@ -419,7 +494,7 @@ class DataGenerator:
         
         # Add in all the subjects related to a person's major
         for major in majors:
-            value = self.majors_to_subjects.get(major)
+            value = self.major_to_course_subject.get(major)
             if value is not None:
                 subjects.extend(value)
                 logging.debug(f"{value} added because of {major}")
@@ -428,8 +503,8 @@ class DataGenerator:
 
         # Add in the subjects related to the most common subject in courses taken
         if top_subject is not None:
-            if top_subject in self.course_to_subject:
-                subjects.append(self.course_to_subject[top_subject])
+            if top_subject in self.course_subject_to_unabbreviated_subject:
+                subjects.append(self.course_subject_to_unabbreviated_subject[top_subject])
         
         logging.debug("Final subjects list %s", subjects)
         return subjects
@@ -482,17 +557,17 @@ class DataGenerator:
 
             for element, weight in top_n_elements:
                 # Add future topics for subjects of interest
-                if element in self.related_topics:
-                    possible_topics.extend(self.related_topics[element])
+                if element in self.subjects_to_future_topics:
+                    possible_topics.extend(self.subjects_to_future_topics[element])
 
                 # Add future topics for extracurriculars 20% of the time
-                if element in self.activity_to_future_topics:
+                if element in self.activities_to_future_topics:
                     if np.random.rand() < 0.2:
-                        possible_topics.extend(self.activity_to_future_topics[element])
+                        possible_topics.extend(self.activities_to_future_topics[element])
 
                 # Add future topics for career aspirations
-                if element in self.careers_to_topics:
-                    possible_topics.extend(self.careers_to_topics[element])
+                if element in self.careers_to_future_topics:
+                    possible_topics.extend(self.careers_to_future_topics[element])
 
             # Remove duplicates and update future_topics
             future_topics = list(set(possible_topics))
@@ -521,65 +596,39 @@ class DataGenerator:
         # Create num_samples many samples in the dataset
         for _ in range(num_samples):
 
-            first_name = random.choice(self.first_names_list)
+            first_name = random.choice(self.first_names)
             logging.debug("First name chosen")
 
-            last_name = random.choice(self.last_names_list)
+            last_name = random.choice(self.last_names)
             logging.debug("Last name chosen")
 
-            ethnoracial_group = self.assign_demographic(self.race_ethnicity, config["synthetic_data"]["ethnoracial_group"])
+            ethnoracial_group = self.assign_demographic(self.ethnoracial_stats, config["synthetic_data"]["ethnoracial_group"])
             logging.debug("Ethnoracial group chosen")
 
-            gender = self.assign_demographic(self.gender, config["synthetic_data"]["gender"])
+            gender = self.assign_demographic(self.gender_stats, config["synthetic_data"]["gender"])
             logging.debug("Gender chosen")
 
-            international_status = self.assign_demographic(self.international, config["synthetic_data"]["international_status"])
+            international_status = self.assign_demographic(self.international_stats, config["synthetic_data"]["international_status"])
             logging.debug("International student status chosen")
 
-            socioeconomic_status = self.assign_demographic(self.socioeconomic, config["synthetic_data"]["socioeconomic_status"])
+            socioeconomic_status = self.assign_demographic(self.socioeconomic_stats, config["synthetic_data"]["socioeconomic_status"])
 
             # List of all a student's identities
             identities = [ethnoracial_group, gender, international_status]
 
-            learning_style = [self.assign_demographic(self.learning_style, config["synthetic_data"]["learning_style"])]
-            if np.random.rand() < 0.1:  # 10% chance to add an extra learning style
-                extra_style = self.assign_demographic(self.learning_style, config["synthetic_data"]["learning_style"])
-                if extra_style in learning_style:
-                    logging.debug("Double up of learning style")
-                else: # Only add the extra learning style if it is different than the original one
-                    learning_style.append(extra_style)
+            learning_style = self.generate_learning_style()
             logging.debug("Learning style(s) chosen")
             
             # Student semester chosen from 0 (Not yet started college) to 14 (Seventh year second semester)
             student_semester = np.random.randint(0, 15)
             logging.debug("Student semester chosen: %d", student_semester)
 
-            if student_semester == 0:
-                gpa = None
-                logging.debug("GPA left empty because student semester is zero")
-            else:
-                gpa = round(np.random.uniform(2.0, 4.0), 2)
-                logging.debug("GPA chosen: %.2f", gpa)
+            gpa = self.generate_gpa(student_semester)
 
-
-            if student_semester <=4:
-                if np.random.rand() < 0.3: # Only 30% of underclassmen students have a major / intended major
-                    major = [random.choice(self.majors)]
-                else:
-                    major = []
-                    logging.debug("Major left empty because student has no major / intended major")
-            elif student_semester > 4:
-                major = [random.choice(self.majors)]
-            
-            if len(major) == 1:
-                if np.random.rand() < 0.3: # Only 30% of students have a second major / intended major
-                    extra_major = random.choice(self.majors)
-                    if extra_major in major:
-                        logging.debug("Double up of major")
-                    else: # Only add the extra major if it is different than the original one
-                        major.append(extra_major)
+            major = self.choose_major(student_semester, gender)
             logging.debug("Major(s) chosen")
 
+            # Generate identity based extracurriculars
             extracurricular_activities = self.generate_identity_org(identities)
 
             previous_courses = []

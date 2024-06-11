@@ -63,14 +63,10 @@ def load_config():
                 "shuffle_ratio": 0.1
             }
         },
-        "preprocessing": {
-            "numerical_columns": ["gpa", "student semester", "previous courses count", "subjects diversity", "activities involvement count", "unique subjects in courses"],
-            "remove_columns": ["first_name", "last_name", "race_ethnicity", "gender", "international", "socioeconomic status"]
-        },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
             # Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network, Simulate Data Attack
-            "parts_to_run": ['Privatize Dataset'],
+            "parts_to_run": ['Generate Dataset'],
             # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',
