@@ -2,6 +2,7 @@ import logging
 import pandas as pd
 from config import load_config
 from data_generation.data_generation import DataGenerator
+from data_preprocessing.preprocessing import PreProcessing
 from data_privatization.privatization import Privatizer
 from data_privatization.privacy_metrics import PrivacyMetrics
 from neural_network.neural_network import NeuralNetwork
@@ -35,6 +36,22 @@ def main():
         else:
             synthetic_dataset = pd.read_csv(config["running_model"]["data path"])
             logging.debug("New synthetic dataset not generated")
+
+        if'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
+            # Choose privacy style
+            logging.info("Preprocessing the dataset...")
+
+            # Privatizing the dataset
+            preprocesser = PreProcessing(config)
+            preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset, config["running_model"]["analyze_PCA"])
+            logging.info("Preprocessing completed")
+
+            # Save the preprocessed dataset to a new CSV file
+            preprocessed_dataset.to_csv(config["running_model"]["preprocessed data path"], index=False)
+            logging.info("Preprocessed dataset saved to Preprocessed_Dataset.csv")
+        else:
+            preprocessed_dataset = pd.read_csv(config["running_model"]["preprocessed data path"])            
+            logging.debug("New preprocessed dataset not generated")    
         
         if'Privatize Dataset' in config["running_model"]["parts_to_run"]:
             # Choose privacy style
@@ -43,31 +60,25 @@ def main():
 
             # Privatizing the dataset
             privatizer = Privatizer(config)
-            private_dataset = privatizer.privatize_dataset(synthetic_dataset)
+            private_dataset = privatizer.privatize_dataset(preprocessed_dataset)
             logging.info("Privatization completed using %s", style)
 
             # Save the privatized dataset to a new CSV file
             private_dataset.to_csv(config["running_model"]["privatized data path"], index=False)
             logging.info("Privatized dataset saved to Privatized_Dataset.csv")
+
+            # Calculate dimensionality of the problem
+            dimensionality = private_dataset.shape[1]
+            logging.info("The Dimensionality of the problem is %s", dimensionality)
         else:
             private_dataset = pd.read_csv(config["running_model"]["privatized data path"])
             logging.debug("New privatized dataset not generated")
 
         if 'Calculate Privacy Metrics' in config["running_model"]["parts_to_run"]:
-            # Cleaning the dataset
-            style = config["privacy"]["style"]
-            privatizer = Privatizer(config)
-            clean_dataset = privatizer.clean_dataset(synthetic_dataset)
-            logging.info("Privatization completed using %s", style)
-
-            # Save the cleaned dataset to a new CSV file
-            clean_dataset.to_csv(config["running_model"]["cleaned data path"], index=False)
-            logging.info("Cleaned dataset saved to Cleaned_Dataset.csv")
-
             # Calculate the privacy level of the privatized dataset
             logging.info("Calculating privacy metrics...")
             metrics_privatizer = PrivacyMetrics(config)
-            privacy_metrics = metrics_privatizer.calculate_privacy_metrics(clean_dataset, private_dataset)
+            privacy_metrics = metrics_privatizer.calculate_privacy_metrics(preprocessed_dataset, private_dataset)
             logging.info("Privacy metrics calculated: %s", privacy_metrics)
         else:
             logging.debug("Privacy metrics not run")

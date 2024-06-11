@@ -30,10 +30,20 @@ Dictionary that containts demographic information, lists of features, feature tu
 ### [data_generation](data_generation/data_generation.py):
 Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
+```python
+from data_generation import DataGenerator
+
+# Create generator class
+generator = DataGenerator
+
+# Returns a synthetic dataset with 1,000
+generator.generate_synthetic_dataset(1,000)
+```
+
 ### [Dataset](data_generation/Dataset.csv)
 Synthetic dataset. 1,000 'students'.
 
-## Data Privatization:
+## Data Preprocessing:
 
 ### Splitting the Data:
 Xp = [first name, last name, race or ethnicity, gender, international student status, socioeconomic status]
@@ -46,29 +56,83 @@ X columns are privatized using various techniques. These will also be the featur
 
 Xu = [career aspirations, future topics]
 
-Xu columns are left alone. These are the targets for the neural network.
+Xu columns are left alone. These utility columns are the targets for the neural network.
+
+### [preprocessing](data_preprocessing/preprocessing.py):
+Takes in a synthetic dataset. Xp is cut out, X and Xu are multilabel binarized. PCA is run on X. Returns a preprocessed dataset.
+
+```python
+from pandas import pd
+from config import load_config
+from preprocessing import PreProcessing
+
+# Import synthetic dataset CSV as a pandas dataframe
+synthetic_dataset = pd.readcsv('path_to_synthetic_dataset.csv')
+
+# Create preprocessor class
+preprocesser = PreProcessing(config)
+
+# Returns preprocessed dataset
+privatizer.privatize_dataset(preprocesser.preprocess_dataset)
+```
+
+### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
+100 principle components and the utility (Xu) columns.
+
+### [explained_variance_plot](data_preprocessing/explained_variance_plot.png):
+Graph of the explained variance ratio of each principle component.
+
+## Data Privatization
 
 ### [privatization](data_privatization/privatization.py):
-Generates the privatized dataset based on the synthetic dataset using multilabel binarization, normalization, noise addition, and shuffling. You can choose the noise addition from: Laplace, Uniform, Randomized Response. Also generates the cleaned dataset based on the synthetic dataset using multilabel binarization and normalization.
+Generates the privatized dataset based on the preprocessed dataset using various methods including: basic differential privacy (using laplace noise addition), uniform noise addition, randomized response, and random shuffling.
+
+```python
+from pandas import pd
+from config import load_config
+from privatization import Privatizer
+
+# Import preprocessed dataset CSV as a pandas dataframe
+preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
+
+# Create privatizer class
+privatizer = Privatizer(config)
+
+# Returns privatized dataset
+privatizer.privatize_dataset(preprocessed_dataset, utility_cols)
+```
 
 ### [Privatized_Dataset](data_privatization/Privatized_Dataset.csv)
-Privatized version of the synthetic dataset. GPA and student semester are normalized. All other elements are multilabel binarized. Either add noise from one of the methods, or shuffle the data.
-
-### [Cleaned_Dataset](data_privatization/Cleaned_Dataset.csv)
-Cleaned version of the synthetic dataset. GPA and student semester are normalized. All other elements are multilabel binarized.
+Xp is cut out, X and Xu are multilabel binarized. PCA is run on X.
 
 ### [privacy_metrics](data_privatization/privacy_metrics.py):
-Calculates the level of data privatization using various metrics. Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
+Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
+
+```python
+from pandas import pd
+from privacy_metrics import PrivacyMetrics
+
+# Import preprocessed and privatized dataset CSVs as pandas dataframes
+preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
+privatized_dataset = pd.readcsv('path_to_privatized_dataset.csv')
+
+# Create privacy metrics class
+metrics = PrivacyMetrics
+
+# Returns the privacy method and its parameters
+# Saves the statistical comparison to 'Stats_Comparison_Dataset.csv'
+metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
+```
 
 ### [Stats_Comparison_Dataset](data_privatization/Stats_Comparison_Dataset.csv)
-Each row is a column from 'Privatized_Dataset'. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
+Each row is a column from 'Privatized_Dataset' with the utility columns removed. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
 
 ## Neural Network​:
 
 ### [neural_network - Under Construction](neural_network/neural_network.py):
-Creates and runs a neural network on the privatized dataset. PCA is done to reduce the dimensionality of the problem. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count. The NeuralNetwork class can also run a cross validation of the model, extract the feature importance for the model, and tune the model hyperparameters.
+Creates and runs a neural network on the privatized dataset. The target is 'future topics' and the features are the PCA columns. The NeuralNetwork class can also run a cross validation of the model, extract the feature importance for the model, and tune the model hyperparameters.
 
-### [Feature_Importance](neural_network/Feature_Importance.csv)
+### [Feature_Importance - Under Construction](neural_network/Feature_Importance.csv)
 Columns are features, mean feature importance, and standard deviation feature importance.
 
 ## Sources and Acknowlegments:

@@ -31,6 +31,7 @@ class PrivacyMetrics:
             statistics_comparison_df = self.compare_statistics(o_dataset, p_dataset)
 
             statistics_comparison_df.to_csv(config["running_model"]["statistics comparison path"], index=False)
+            logging.info("Privatization comparison data saved to 'Stats_Comparison_Dataset.csv'")
 
             calculated_metrics = {
                 "privatization method": self.style
@@ -47,9 +48,9 @@ class PrivacyMetrics:
     def compare_statistics(self, original: pd.DataFrame, anonymized: pd.DataFrame) -> Dict:
         """
         Compare statistical properties between the original and anonymized datasets.
+        Input: preprocessed dataset, privatized dataset
+        Output: statistical comparison dataset
         """
-
-
 
         try:
             # Intialize the lists
@@ -59,6 +60,18 @@ class PrivacyMetrics:
             anonymized_stds = []
             original_sums = []
             anonymized_sums = []
+
+            # Find the utility columns
+            suffixes = ['_career aspirations', '_future topics']
+
+            # Find columns that end with any of the specified suffixes
+            utility_cols = [col for col in original.columns if col.endswith(tuple(suffixes))]
+
+            # Cut out the utility columns
+            original = original.drop(columns=utility_cols)
+            anonymized = anonymized.drop(columns=utility_cols)
+
+            # Get the column names
             column_names = original.columns.tolist()
 
             # Iterate through each column

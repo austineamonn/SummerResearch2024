@@ -17,6 +17,9 @@ def load_config():
             "socioeconomic_status": "real",
             "learning_style": "real"
         },
+        "preprocessing": {
+            "n_components": 100
+        },
         # A variety of parameters used in the privatization methods.
         "privacy": {
             # Data Columns: first name,last name,ethnoracial group,gender,
@@ -44,11 +47,11 @@ def load_config():
             # Normalization Parameters
             "normalize_type": 'Zscore',
 
-            # Style Options: laplace, uniform, randomized, shuffle
+            # Style Options: basic differential privacy, uniform, randomized, shuffle
             "style": "shuffle",
 
             # Sensitivity Options: mean, sum
-            "laplace": {
+            "basic differential privacy": {
                 "sensitivity": 'mean',
                 "epsilon": 0.1
             },
@@ -65,13 +68,15 @@ def load_config():
         },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
-            # Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network, Simulate Data Attack
-            "parts_to_run": ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics'],
-            # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
+            # Preprocess Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network, Simulate Data Attack
+            "parts_to_run": ['Calculate Privacy Metrics'],
+            # ['Generate Dataset', 'Preprocess Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
+            "analyze_PCA": True,
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',
             "statistics comparison path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Stats_Comparison_Dataset.csv',
-            "cleaned data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Cleaned_Dataset.csv',
+            "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
+            "PCA explained variance path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/explained_variance_plot.png',
             "directory": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024'
         },
         "neural_network": {
