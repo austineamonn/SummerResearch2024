@@ -45,7 +45,7 @@ def load_config():
             "normalize_type": 'Zscore',
 
             # Style Options: laplace, uniform, randomized, shuffle
-            "style": "laplace",
+            "style": "shuffle",
 
             # Sensitivity Options: mean, sum
             "laplace": {
@@ -69,9 +69,9 @@ def load_config():
         },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
-            # Privatize Dataset, Calculate Privacy Metrics, Clean Privatized Dataset, Run Neural Network, Test Neural Network, Simulate Data Attack
+            # Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network, Simulate Data Attack
             "parts_to_run": ['Privatize Dataset'],
-            # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Clean Privatized Dataset', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
+            # ['Generate Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',
             "cleaned data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_ml_preprocessing/Cleaned_Dataset.csv',

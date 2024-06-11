@@ -3,9 +3,8 @@ import pandas as pd
 from config import load_config
 from data_generation.data_generation import DataGenerator
 from data_privatization.privatization import Privatizer
-from privacy_metrics import calculate_privacy_metrics
-#from data_ml_preprocessing.preprocessing import PreProcessing
-#from neural_network.neural_network import NeuralNetwork
+from data_privatization.privacy_metrics import calculate_privacy_metrics
+from neural_network.neural_network import NeuralNetwork
 
 # Load configuration
 config = load_config()
@@ -62,29 +61,11 @@ def main():
             logging.info("Privacy metrics calculated: %s", privacy_metrics)
         else:
             logging.debug("Privacy metrics not run")
-
-        if 'Clean Privatized Dataset' in config["running_model"]["parts_to_run"]:
-            # Drop the columns that should not impact recommendations for future topics
-            columns_to_drop = config["preprocessing"]["remove_columns"]
-            cleaned_dataset = private_dataset.drop(columns=columns_to_drop)
-            logging.info("Removed senstitive information from privatized dataset")
-
-            # Preprocess the cleaned dataset
-            processor = PreProcessing(config)
-            cleaned_dataset = processor.preprocessor(cleaned_dataset)
-            logging.info("Preprocessing of cleaned dataset completed")
-
-            # Save the cleaned dataset to a CSV
-            cleaned_dataset.to_csv(config["running_model"]["cleaned data path"], index=False)
-            logging.info("Cleaned dataset saved to Cleaned_Dataset.csv")
-        else:
-            cleaned_dataset = pd.read_csv(config["running_model"]["cleaned data path"])
-            logging.debug("New cleaned dataset not generated")
         
         if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
             # Run a neural network on the cleaned dataset
             network = NeuralNetwork(config)
-            X_train, y_train, X_test, y_test = network.test_train_split(cleaned_dataset)
+            X_train, y_train, X_test, y_test = network.test_train_split(private_dataset)
             
             # Tune hyperparameters of the Neural Network
             if 'Tune Neural Network' in config["running_model"]["parts_to_run"]:
@@ -98,7 +79,7 @@ def main():
 
             # Test the Neural Network
             if 'Test Neural Network' in config["running_model"]["parts_to_run"]:
-                ave_loss, ave_accuracy = network.cross_validate(cleaned_dataset)
+                ave_loss, ave_accuracy = network.cross_validate(private_dataset)
                 logging.info("Neural network average loss from cross validation: %s", ave_loss)
                 logging.info("Neural network average accuracy from cross validation: %s", ave_accuracy)
                 feature_importance = network.get_feature_importance(model, X_test, y_test)

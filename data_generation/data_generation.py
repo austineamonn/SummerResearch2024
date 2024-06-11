@@ -20,49 +20,82 @@ class DataGenerator:
         # First Names
         first_names_data = data.first_name()
         self.first_names = first_names_data['first_name']
-        # Subjects of Interest
-        self.subjects_of_interest = combined_data['subjects_of_interest']
-        self.course_to_subject = combined_data['course_to_subject']
-        self.related_topics = combined_data['related_topics']
-        self.course_subject_to_major = combined_data['course_subject_to_major']
 
-        # Career Aspirations
-        self.careers = combined_data['careers']
-        self.related_career_aspirations = combined_data['subject_to_career']
-        self.career_to_subject = combined_data['career_to_subject']
-        self.careers_to_topics = combined_data['careers_to_topics']
+        # Last Names
+        last_names_data = data.last_name()
+        self.last_names = last_names_data['last_name']
 
-        # Extracurriculars
-        self.extracurricular_list = combined_data['extracurricular_list']
-        self.activity_to_subject = combined_data['extracurricular_to_subject']
-        self.activity_to_future_topics = combined_data['extracurricular_to_topics']
-        self.identity_org = combined_data['identity_to_org']
-        self.identity_org_for_all = combined_data['identity_organizations_open_to_all']
-        
-        # Learning Style
-        self.learning_style = combined_data['learning_style']
-        self.course_type_to_learning_styles = combined_data['course_type_to_learning_styles']
-        
-        # Demographics
-        self.race_ethnicity = combined_data['race_ethnicity']
-        self.gender = combined_data['gender']
-        self.international = combined_data['international']
-        self.socioeconomic = combined_data['socioeconomic']
-        
+        # Ethnoracial Group
+        ethnoracial_data = data.ethnoracial_group()
+        self.ethnoracial_stats = ethnoracial_data['ethnoracial_stats']
+        self.ethnoracial_to_activities = ethnoracial_data['ethnoracial_to_activities']
+
+        # Gender
+        gender_data = data.gender()
+        self.gender_stats = gender_data['gender']
+        self.gender_to_activities = gender_data['gender_to_activities']
+
+        # International Student Status
+        international_data = data.international_status()
+        self.international_stats = international_data['international']
+        self.international_to_activities = international_data['student_status_to_activities']
+
+        # Socioeconomic Status
+        SES_data = data.socioeconomics_status()
+        self.socioeconomic_stats = SES_data['socioeconomic']
+
+        # Learning Styles
+        LS_data = data.learning_style()
+        self.learning_style_stats = LS_data['learning_style']
+
         # Majors
-        self.majors = combined_data['majors']
-        self.majors_to_subjects = combined_data['majors_to_subjects']
-        self.majors_to_careers = combined_data['majors_to_careers']
+        major_data = data.major()
+        self.major_tuples = major_data['major_tuples']
+        self.major_list = major_data['majors_list']
+        self.major_to_activities = major_data['major_to_activities']
+        self.major_to_course_subject = major_data['major_to_course_subject']
 
-        logging.debug("Combined data loaded.")
+        # Courses
+        course_data = data.course()
+        self.course_tuples = course_data['course_tuples']
+        self.course_subject_list = course_data['course_subject']
+        self.course_subject_to_unabbreviated_subject = course_data['course_subject_to_unabbreviated_subject']
+        self.course_subject_to_major = course_data['course_subject_to_major']
+        self.course_type_to_learning_styles = course_data['course_type_to_learning_styles']
 
-        self.course_tuples = course_loader.course_tuples
-        self.course_year_mapping = {course[0]: self.map_course_to_year(course) for course in self.course_tuples}
-        logging.debug("Course information loaded.")
+        # Subjects of Interest
+        subject_data = data.subjects()
+        self.subjects_list = subject_data['subjects_list']
+        self.subjects_to_future_topics = subject_data['subjects_to_future_topics']
+        self.subjects_to_careers = subject_data['subjects_to_careers']
 
-        self.first_names_list = fn_loader.first_names
-        self.last_names_list = ln_loader.last_names
-        logging.debug("First and last names loaded.")
+        # Careers
+        career_data = data.careers()
+        self.careers_list = career_data['careers_list']
+        self.career_to_activities = career_data['career_to_activities']
+        self.careers_to_subjects = career_data['careers_to_subjects']
+        self.careers_to_future_topics = career_data['careers_to_future_topics']
+
+        # Extracurricular Activities
+        activities_data = data.extracurricular_actitivites()
+        self.activity_list = activities_data['activity_list']
+        self.career_based_activities = activities_data['career_based']
+        self.identity_based_activities = activities_data['identity_based']
+        self.academic_and_honors_actitivities = activities_data['academic_and_honors']
+        self.service_and_philanthropy_activities = activities_data['service_and_philanthropy']
+        self.arts_and_culture_activities = activities_data['arts_and_culture']
+        self.sports_and_recreation_actitivities = activities_data['sports_and_recreation']
+        self.special_interest_activities = activities_data['special_interest']
+        self.political_and_advocacy_activities = activities_data['political_and_advocacy']
+        self.religious_and_spiritual_activities = activities_data['religious_and_spiritual']
+        self.activities_to_future_topics = activities_data['activities_to_future_topics']
+        self.activities_to_subjects = activities_data['activities_to_subjects']
+        
+        # Future Topics
+        future_topics_data = data.future_topics()
+        self.future_topics_list = future_topics_data['future_topics']
+
+        logging.debug("Data loaded.")
 
     def most_common_class_subject(self, previous_courses=[]):
         # Extract the 'Type' elements from the tuples

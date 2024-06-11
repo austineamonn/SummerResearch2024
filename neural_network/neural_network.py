@@ -14,7 +14,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint # type: ig
 from tensorflow.keras.regularizers import l2 # type: ignore
 from kerastuner.tuners import RandomSearch
 from config import load_config
-from saved_research_files.dictionary import Data
+from datafiles_for_data_construction.data import Data
 
 # Load configuration
 config = load_config()
@@ -25,13 +25,12 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 class NeuralNetwork:
     def __init__(self, config):
         self.config = config
-        data = Data(config)
+        data = Data()
+        self.future_topics = data.future_topics()["future_topics"]
         self.optimizer = config["neural_network"]["optimizer"]
         self.optimizer_params = config["neural_network"]["optimizer_params"]
         self.loss = config["neural_network"]["loss"]
         self.metrics = config["neural_network"]["metrics"]
-        combined_data = data.get_data()
-        self.future_topics = [col for col in combined_data['future_topics']]
         self.best_hps = None
 
     def test_train_split(self, df, n_components=100):
