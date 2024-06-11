@@ -12,9 +12,15 @@ logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["
 class PrivacyMetrics:
     def __init__(self, config):
         self.config = config
-        self.mechanism = self.config["privacy"]["mechanism"]
 
-    def calculate_privacy_metrics(self, o_dataset: pd.DataFrame, p_dataset: pd.DataFrame, parameters: list) -> Dict:
+        # Privatization Method and its associated parameters
+        self.style = config["privacy"]["style"]
+        self.parameters = config["privacy"][self.style]
+
+        # Numerical Columns
+        self.numerical_cols = config["privacy"]["numerical_columns"]
+
+    def calculate_privacy_metrics(self, o_dataset: pd.DataFrame, p_dataset: pd.DataFrame) -> Dict:
         """
         Calculate various privacy metrics for the privatized dataset.
         """
@@ -22,145 +28,15 @@ class PrivacyMetrics:
 
         try:
             # Compare statistics for the 'student semester' column
-            statistics_comparison = self.compare_statistics(o_dataset, p_dataset, 'student semester')
+            statistics_comparison_df = self.compare_statistics(o_dataset, p_dataset)
 
-            # Define quasi-identifiers and sensitive attributes for the dataset
-            quasi_identifiers = ['race_ethnicity', 'gender', 'international']
-            sensitive_attribute = 'student semester'
+            statistics_comparison_df.to_csv(config["running_model"]["statistics comparison path"], index=False)
 
-            # Calculate k-anonymity and l-diversity of the privatized dataset
-            k_anonymity = self.calculate_k_anonymity(p_dataset, quasi_identifiers)
-            l_diversity = self.calculate_l_diversity(p_dataset, quasi_identifiers, sensitive_attribute)
-
-            if self.mechanism == 'Random':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "noise level": parameters[1]
-                }
-            elif self.mechanism == 'Gaussian':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "epsilon": parameters[1],
-                "delta": parameters[2],
-                "sensitivity": parameters[3]
-                }
-            elif self.mechanism == 'Laplace':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "epsilon": parameters[1],
-                "sensitivity": parameters[2]
-                }
-            elif self.mechanism == 'Exponential':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "epsilon": parameters[1],
-                "scale": parameters[2]
-                }
-            elif self.mechanism == 'Gamma':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "shape": parameters[1],
-                "scale": parameters[2]
-                }
-            elif self.mechanism == 'Uniform':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "low": parameters[1],
-                "high": parameters[2]
-                }
-            elif self.mechanism == 'CBA':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "noise level": parameters[1]
-                }
-            elif self.mechanism == 'DDP':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "epsilon": parameters[1]
-                }
-            elif self.mechanism == 'Pufferfish':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "noise level": parameters[1]
-                }
-            elif self.mechanism == 'Poisson':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "noise level": parameters[1]
-                }
-            elif self.mechanism == 'SaltAndPepper':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "salt probability": parameters[0],
-                "pepper probability": parameters[1]
-                }
-            elif self.mechanism == 'Speckle':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "variance": parameters[1]
-                }
-            elif self.mechanism == 'BitFlip':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "flip probability": parameters[1]
-                }
-            elif self.mechanism == 'AWGN':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "signal-to-noise ratio": parameters[1]
-                }
-            elif self.mechanism == 'Multiplicative':
-                privacy_metrics = {
-                "k-anonymity": k_anonymity,
-                "l-diversity": l_diversity,
-                "statistics": statistics_comparison,
-                "noise addition method": parameters[0],
-                "variance": parameters[1]
-                }
-            else:
-                logging.error("Unknown privacy mechanism")
+            calculated_metrics = {
+                "privatization method": self.style
+            }
+            # Demographics to Extracurriculars - combine the 3 dictionaries into one
+            privacy_metrics = {k: v for d in (calculated_metrics, self.parameters) for k, v in d.items()}
             
             return privacy_metrics
 
@@ -168,57 +44,78 @@ class PrivacyMetrics:
             logging.error("Error during calculating privacy metrics: %s", e)
             raise
 
-    def compare_statistics(self, original: pd.DataFrame, anonymized: pd.DataFrame, column: str) -> Dict:
+    def compare_statistics(self, original: pd.DataFrame, anonymized: pd.DataFrame) -> Dict:
         """
         Compare statistical properties between the original and anonymized datasets.
         """
-        logging.debug("Comparing statistics for column: %s", column)
+
+
+
         try:
-            original_mean = original[column].mean()
-            anonymized_mean = anonymized[column].mean()
-            original_std = original[column].std()
-            anonymized_std = anonymized[column].std()
-            return {
-                "original_mean": original_mean,
-                "anonymized_mean": anonymized_mean,
-                "original_std": original_std,
-                "anonymized_std": anonymized_std
+            # Intialize the lists
+            original_means = []
+            anonymized_means = []
+            original_stds = []
+            anonymized_stds = []
+            original_sums = []
+            anonymized_sums = []
+            column_names = original.columns.tolist()
+
+            # Iterate through each column
+            for col in column_names:
+                print(col)
+                logging.debug("Comparing statistics for column: %s", col)
+                # Numerical Columns
+                if col in self.numerical_cols:
+                    # Mean
+                    original_mean = original[col].mean()
+                    original_means.append(original_mean)
+                    anonymized_mean = anonymized[col].mean()
+                    anonymized_means.append(anonymized_mean)
+
+                    # Standard Deviation
+                    original_std = original[col].std()
+                    original_stds.append(original_std)
+                    anonymized_std = anonymized[col].std()
+                    anonymized_stds.append(anonymized_std)
+
+                    # Sum - empty as it makes no sense for the numerical columns
+                    original_sums.append(None)
+                    anonymized_sums.append(None)
+
+                # Nonnumerical Columns
+                else:
+                    # Mean
+                    original_mean = original[col].mean()
+                    original_means.append(original_mean)
+                    anonymized_mean = anonymized[col].mean()
+                    anonymized_means.append(anonymized_mean)
+
+                    # Standard Deviation - empty because it makes no sense for binarized data
+                    original_stds.append(None)
+                    anonymized_stds.append(None)
+
+                    # Sum
+                    original_sum = original[col].sum()
+                    original_sums.append(original_sum)
+                    anonymized_sum = anonymized[col].sum()
+                    anonymized_sums.append(anonymized_sum)
+
+            # Creating a DataFrame
+            data = {
+                'Column': column_names,
+                'Original Mean': original_means,
+                'Anonymized Mean': anonymized_means,
+                'Original Std': original_stds,
+                'Anonymized Std': anonymized_stds,
+                'Original Sum': original_sums,
+                'Anonymized Sum': anonymized_sums
             }
 
-        except Exception as e:
-            logging.error("Error during comparing statistics for %s: %s", column, e)
-            raise
+            df = pd.DataFrame(data)
 
-    def calculate_k_anonymity(self, df: pd.DataFrame, quasi_identifiers: list) -> int:
-        """
-        Calculate k-anonymity for the given quasi-identifiers.
-        """
-        logging.debug("Calculating k-anonymity for quasi-identifiers: %s", quasi_identifiers)
-        try:
-            equivalence_classes = df.groupby(quasi_identifiers).size()
-            k_anonymity = equivalence_classes.min()
-            return k_anonymity
+            return df
 
         except Exception as e:
-            logging.error("Error during calculating k-anonymity: %s", e)
+            logging.error("Error during comparing statistics for %s: %s", col, e)
             raise
-
-    def calculate_l_diversity(self, df: pd.DataFrame, quasi_identifiers: list, sensitive_attribute: str) -> int:
-        """
-        Calculate l-diversity for the given quasi-identifiers and sensitive attribute.
-        """
-        logging.debug("Calculating l-diversity for quasi-identifiers: %s and sensitive attribute: %s", quasi_identifiers, sensitive_attribute)
-        try:
-            equivalence_classes = df.groupby(quasi_identifiers)
-            l_diversity_list = [len(group[sensitive_attribute].value_counts()) for _, group in equivalence_classes]
-            l_diversity = min(l_diversity_list)
-            return l_diversity
-
-        except Exception as e:
-            logging.error("Error during calculating l-diversity: %s", e)
-            raise
-
-# Export the function for external use
-def calculate_privacy_metrics(o_dataset: pd.DataFrame, p_dataset: pd.DataFrame, parameters: list) -> Dict:
-    privacy_metrics_calculator = PrivacyMetrics(config)
-    return privacy_metrics_calculator.calculate_privacy_metrics(o_dataset, p_dataset, parameters)

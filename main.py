@@ -3,7 +3,7 @@ import pandas as pd
 from config import load_config
 from data_generation.data_generation import DataGenerator
 from data_privatization.privatization import Privatizer
-from data_privatization.privacy_metrics import calculate_privacy_metrics
+from data_privatization.privacy_metrics import PrivacyMetrics
 from neural_network.neural_network import NeuralNetwork
 
 # Load configuration
@@ -54,10 +54,20 @@ def main():
             logging.debug("New privatized dataset not generated")
 
         if 'Calculate Privacy Metrics' in config["running_model"]["parts_to_run"]:
+            # Cleaning the dataset
+            style = config["privacy"]["style"]
+            privatizer = Privatizer(config)
+            clean_dataset = privatizer.clean_dataset(synthetic_dataset)
+            logging.info("Privatization completed using %s", style)
+
+            # Save the cleaned dataset to a new CSV file
+            clean_dataset.to_csv(config["running_model"]["cleaned data path"], index=False)
+            logging.info("Cleaned dataset saved to Cleaned_Dataset.csv")
+
             # Calculate the privacy level of the privatized dataset
             logging.info("Calculating privacy metrics...")
-            parameters = privatizer.parameters
-            privacy_metrics = calculate_privacy_metrics(synthetic_dataset, private_dataset, parameters)
+            metrics_privatizer = PrivacyMetrics(config)
+            privacy_metrics = metrics_privatizer.calculate_privacy_metrics(clean_dataset, private_dataset)
             logging.info("Privacy metrics calculated: %s", privacy_metrics)
         else:
             logging.debug("Privacy metrics not run")

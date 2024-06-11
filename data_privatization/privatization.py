@@ -35,11 +35,10 @@ class Privatizer:
 
         # Privatization Method and its associated parameters
         self.style = config["privacy"]["style"]
-        self.parameters = config["privacy"][self.style]
         
     def normalize_features(self, df, col, type='Zscore'):
         """
-        Input: dataset, column to nomalize, normalization type
+        Input: dataset, column to normalize, normalization type
         Output: dataset with the column normalized
         """
         if type == 'min_max':
@@ -231,6 +230,40 @@ class Privatizer:
                     # Privatize the column
                     df = self.privatization_style(df, new_cols, 'nonnumerical', self.style)
                     logging.debug(f"{col} was privatized using {self.style}")
+
+        # Binarize the Xu columns
+        for col in self.Xu:
+            output = self.transform_target_variable(df, col)
+            df = output[0]
+            logging.debug(f"{col} was binarized")
+
+        return df
+    
+    def clean_dataset(self, df):
+        """
+        Input: dataset
+        Output: privatized dataset
+        """
+
+        # Drop the Xp columns
+        df = df.drop(columns=self.Xp)
+        logging.debug(f"{self.Xp} were dropped")
+
+        # Privatize the X columns
+        for col in self.X:
+            suffix = '_' + col
+            # Only privatize the numerical columns
+            if col in self.numerical_cols:
+                logging.debug(f"{col} is numerical")
+                # Normalize the column
+                df = self.normalize_features(df, col, self.normalize_type)
+            # Privatize and binarize the nonnumerical columns
+            else:
+                logging.debug(f"{col} is not numerical")
+                # Binarize the column
+                output = self.transform_target_variable(df, col, suffix)
+                logging.debug(f"{col} was binarized")
+                df = output[0]
 
         # Binarize the Xu columns
         for col in self.Xu:

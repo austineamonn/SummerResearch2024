@@ -14,10 +14,10 @@ Take student input data and build a privatized version. From the privatized vers
 ## Main Functions:
 
 ### [main](main.py):
-The main file of the framework. Generates a synthetic dataset using 'data_generation', privatizes the dataset using 'privatization', calculates the privacy metrics using 'privacy_metrics', cleans the data for machine learning with 'preprocessing', and trains a neural network on the data using 'neural_network'.
+The main file of the framework. Generates a synthetic dataset using 'data_generation', privatizes the dataset using 'privatization', calculates the privacy metrics using 'privacy_metrics', and trains a neural network on the data using 'neural_network'.
 
 ### [config](config.py):
-Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics, Clean Privatized Dataset, Run Neural Network, and Test Neural Network.
+Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, and Test Neural Network.
 
 ## Data Generation:
 
@@ -29,6 +29,9 @@ Dictionary that containts demographic information, lists of features, feature tu
 
 ### [data_generation](data_generation/data_generation.py):
 Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
+
+### [Dataset](data_generation/Dataset.csv)
+Synthetic dataset. 1,000 'students'.
 
 ## Data Privatization:
 
@@ -46,15 +49,27 @@ Xu = [career aspirations, future topics]
 Xu columns are left alone. These are the targets for the neural network.
 
 ### [privatization](data_privatization/privatization.py):
-Generates the privatized dataset based on the synthetic dataset using multilabel binarization, normalization, noise addition, and shuffling. You can choose the noise addition from: Laplace, Uniform, Randomized Response.
+Generates the privatized dataset based on the synthetic dataset using multilabel binarization, normalization, noise addition, and shuffling. You can choose the noise addition from: Laplace, Uniform, Randomized Response. Also generates the cleaned dataset based on the synthetic dataset using multilabel binarization and normalization.
 
-### [privacy_metrics - Under Construction](data_privatization/privacy_metrics.py):
-Calculates the level of data privatization using various metrics. K-anonymity, L-diversity, Epsilon, Delta, Noise level, Generalization level, Mean comparison, and STD comparison.
+### [Privatized_Dataset](data_privatization/Privatized_Dataset.csv)
+Privatized version of the synthetic dataset. GPA and student semester are normalized. All other elements are multilabel binarized. Either add noise from one of the methods, or shuffle the data.
+
+### [Cleaned_Dataset](data_privatization/Cleaned_Dataset.csv)
+Cleaned version of the synthetic dataset. GPA and student semester are normalized. All other elements are multilabel binarized.
+
+### [privacy_metrics](data_privatization/privacy_metrics.py):
+Calculates the level of data privatization using various metrics. Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
+
+### [Stats_Comparison_Dataset](data_privatization/Stats_Comparison_Dataset.csv)
+Each row is a column from 'Privatized_Dataset'. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
 
 ## Neural Network​:
 
 ### [neural_network - Under Construction](neural_network/neural_network.py):
 Creates and runs a neural network on the privatized dataset. PCA is done to reduce the dimensionality of the problem. The target is 'future topics' and the features are learning style, gpa, student semester, previous courses, previous course type, previous courses count, course subjects, unique subjects in courses, subjects of interest, subjects of interest diversity, career aspirations, extracurricular activities, and activities involvement count. The NeuralNetwork class can also run a cross validation of the model, extract the feature importance for the model, and tune the model hyperparameters.
+
+### [Feature_Importance](neural_network/Feature_Importance.csv)
+Columns are features, mean feature importance, and standard deviation feature importance.
 
 ## Sources and Acknowlegments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
