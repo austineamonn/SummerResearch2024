@@ -37,7 +37,7 @@ from data_generation import DataGenerator
 generator = DataGenerator
 
 # Returns a synthetic dataset with 1,000
-generator.generate_synthetic_dataset(1,000)
+generator.generate_synthetic_dataset(1000)
 ```
 
 ### [Dataset](data_generation/Dataset.csv)
@@ -77,10 +77,10 @@ privatizer.privatize_dataset(preprocesser.preprocess_dataset)
 ```
 
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
-100 principle components and the utility (Xu) columns.
+100 principal components and the utility (Xu) columns.
 
 ### [explained_variance_plot](data_preprocessing/explained_variance_plot.png):
-Graph of the explained variance ratio of each principle component.
+Graph of the explained variance ratio of each principal component.
 
 ## Data Privatization
 
@@ -110,6 +110,7 @@ Calculates the level of data privatization using various metrics: Mean compariso
 
 ```python
 from pandas import pd
+from config import load_config
 from privacy_metrics import PrivacyMetrics
 
 # Import preprocessed and privatized dataset CSVs as pandas dataframes
@@ -117,7 +118,7 @@ preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
 privatized_dataset = pd.readcsv('path_to_privatized_dataset.csv')
 
 # Create privacy metrics class
-metrics = PrivacyMetrics
+metrics = PrivacyMetrics(config)
 
 # Returns the privacy method and its parameters
 # Saves the statistical comparison to 'Stats_Comparison_Dataset.csv'

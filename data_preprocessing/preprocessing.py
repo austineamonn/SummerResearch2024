@@ -139,12 +139,13 @@ class PreProcessing:
                     utility_cols.extend(new_cols)
         
         # Standardize the data and run PCA
-        PCA_df = df.drop(columns = utility_cols)
+        PCA_df = df.drop(columns = utility_cols + self.numerical_cols)
         PCA_df, pca = self.PCA(PCA_df, self.n_components)
 
-        # Recombine the PCA columns with Xu
+        # Recombine the principal components with Xu and the numerical columns
         Xu_df = df[utility_cols]
-        df = pd.concat([PCA_df, Xu_df], axis=1)
+        Xn_df = df[self.numerical_cols]
+        df = pd.concat([Xn_df, PCA_df, Xu_df], axis=1)
 
         # Analyze the PCA
         if analyze_PCA:

@@ -25,7 +25,7 @@ def main():
     try:
         if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
             # Build the synthetic dataset and save it to a CSV file
-            dataset_builder = DataGenerator()
+            dataset_builder = DataGenerator(config)
             logging.debug("DataGenerator instance created")
 
             synthetic_dataset = dataset_builder.generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
