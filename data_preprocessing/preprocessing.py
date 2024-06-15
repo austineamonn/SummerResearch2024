@@ -1,22 +1,21 @@
-import pandas as pd
+import logging
 import numpy as np
-from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
+import pandas as pd
+import sys
+import os
+import ast
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
-import logging
-from config import load_config
-import ast
+from sklearn.preprocessing import StandardScaler
 
-# Load configuration
-config = load_config()
-
-# Set up logging
-logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+# Add the SummerResearch2024 directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class PreProcessing:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config, data) -> None:
+        # Set up logging
+        logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
         # Privatized - Utility split
         self.Xp = config["privacy"]["Xp_list"]
@@ -24,42 +23,78 @@ class PreProcessing:
         self.Xu = config["privacy"]["Xu_list"]
         self.numerical_cols = config["privacy"]["numerical_columns"]
 
-        # PCA
-        self.n_components = config["preprocessing"]["n_components"]
+        # Data
+        self.data = data
 
-    def transform_target_variable(self, df, column, suffix=''):
-        """
-        Input: dataset, column to transform, suffix to add to differentiate column names
-        Outputs: dataset with binarized column, binary label names
-        """
+    def stringlist_to_binarylist(self, stringlist, col):
+        binarylist = []
 
-        # Initialize multilabel binarizer
-        mlb = MultiLabelBinarizer()
+        for rowlist in col:
+            # Ensure rowlist is a list of strings
+            if isinstance(rowlist, str):
+                if isinstance(rowlist, str):
+                    try:
+                        rowlist = ast.literal_eval(rowlist)
+                        if not isinstance(rowlist, list):
+                            raise ValueError
+                    except (ValueError, SyntaxError):
+                        # Handle the case where the string cannot be converted to a list
+                        rowlist = rowlist.strip("[]").replace("'", "").split(", ")
 
-        # If the input is a string convert it to a list
-        def parse_list(x):
-            if isinstance(x, str):
+            logging.debug(f"Processing row: {rowlist}")
+            # Create a list of zeroes the length of the stringlist
+            zeros_list = np.zeros(len(stringlist), dtype=int).tolist()
+
+            # Iterate through each item in the list
+            for item in rowlist:
+                item = item.strip()
+                logging.debug(f"Processing item: {item}")
+                if item in stringlist:
+                    item_spot = stringlist.index(item)
+                    zeros_list[item_spot] = 1
+                else:
+                    logging.debug(f"Error: '{item}' is not in list")
+
+            # Add the list to the binary list
+            binarylist.append(zeros_list)
+
+        return binarylist
+
+    def string_list_to_numberedlist(self, stringlist, col):
+        numberedlist = []
+        unknown_item_list = []
+
+        for rowlist in col:
+            # Ensure rowlist is a list of strings
+            if isinstance(rowlist, str):
                 try:
-                    return ast.literal_eval(x)
-                # Return an empty list if this is not possible
+                    rowlist = ast.literal_eval(rowlist)
+                    if not isinstance(rowlist, list):
+                        raise ValueError
                 except (ValueError, SyntaxError):
-                    return []
-            return x
+                    # Handle the case where the string cannot be converted to a list
+                    rowlist = rowlist.strip("[]").replace("'", "").split(", ")
 
-        # Apply parse_list to the columns
-        df[column] = df[column].apply(parse_list)
-        df[column] = df[column].apply(lambda x: x if isinstance(x, list) else [])
+            logging.debug(f"Processing row: {rowlist}")
+            # Initialize a new list
+            newlist = []
+            for item in rowlist:
+                item = item.strip()
+                logging.debug(f"Processing item: {item}")
+                if item in stringlist:
+                    # For each item in the list add its index to the new list
+                    newlist.append(stringlist.index(item))
+                else:
+                    unknown_item_list.append(item)
+                    logging.debug(f"Error: '{item}' is not in list")
+            
+            # Add the list to the numbered list
+            numberedlist.append(newlist)
 
-        # Transform the column using the MLB
-        binary_labels = mlb.fit_transform(df[column])
+            unknown_item_list = list(set(unknown_item_list))
 
-        #Create a dataframe with the binarized feature
-        new_col_names = [col + suffix for col in mlb.classes_]
-        binary_df = pd.DataFrame(binary_labels, columns=new_col_names)
-
-        # Drop the original column and return the altered dataset
-        return df.drop(column, axis=1).join(binary_df), new_col_names
-        
+        return numberedlist, unknown_item_list
+    
     def PCA(self, df, n_components=100):
         """
         Input: dataframe (columns to run PCA analysis on), number of components
@@ -115,40 +150,99 @@ class PreProcessing:
         # Save the plot as a file
         plt.savefig(self.config["running_model"]["PCA explained variance path"])
         logging.info("PCA explained variance graph saved to 'explained_variance_plot.png'")
-
-    def preprocess_dataset(self, df, analyze_PCA=True):
+    
+    def preprocess_dataset(self, df):
         """
-        Input: dataset, show_PCA (boolean)
+        Input: dataset
         Output: preprocessed dataset
         """
-        utility_cols = []
+        list_data = {}
 
         # Drop the Xp columns
         df = df.drop(columns=self.Xp)
         logging.debug(f"{self.Xp} were dropped")
 
+        # Iterate through the columns
         for col in self.X + self.Xu:
-            suffix = '_' + col
-
             if col not in self.numerical_cols:
-                # Binarize the column
-                df, new_cols = self.transform_target_variable(df, col, suffix)
-                logging.debug(f"{col} was binarized")
-                
-                if col in self.Xu:
-                    utility_cols.extend(new_cols)
-        
-        # Standardize the data and run PCA
-        PCA_df = df.drop(columns = utility_cols + self.numerical_cols)
-        PCA_df, pca = self.PCA(PCA_df, self.n_components)
-
-        # Recombine the principal components with Xu and the numerical columns
-        Xu_df = df[utility_cols]
-        Xn_df = df[self.numerical_cols]
-        df = pd.concat([Xn_df, PCA_df, Xu_df], axis=1)
-
-        # Analyze the PCA
-        if analyze_PCA:
-            self.analyze_PCA(pca)
+                # X
+                if col == 'learning style':
+                    stringlist = self.data.learning_style()['learning_style_list']
+                    df[col] = self.stringlist_to_binarylist(stringlist, df[col])
+                elif col == 'major':
+                    stringlist = self.data.major()['majors_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in majors.")
+                    else:
+                        logging.error('majors: %s', unknown_list)
+                elif col == 'previous courses':
+                    stringlist = self.data.course()['course_names_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in previous courses.")
+                    else:
+                        logging.error('previous courses: %s', unknown_list)
+                elif col == 'course types':
+                    stringlist = self.data.course()['course_type_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in course types.")
+                    else:
+                        logging.error('course types: %s', unknown_list)
+                elif col == 'course subjects':
+                    stringlist = self.data.course()['course_subject']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in course subjects.")
+                    else:
+                        logging.error('course subjects: %s', unknown_list)
+                elif col == 'subjects of interest':
+                    stringlist = self.data.subjects()['subjects_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in subjects of interest.")
+                    else:
+                        logging.error('subjects of interest: %s', unknown_list)
+                elif col == 'extracurricular activities':
+                    stringlist = self.data.extracurricular_activities()['complete_activity_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in extracurricular activities.")
+                    else:
+                        logging.error('extracurricular activities: %s', unknown_list)
+                # Xu
+                elif col == 'career aspirations':
+                    stringlist = self.data.careers()['careers_list']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in career aspirations.")
+                    else:
+                        logging.error('career aspirations: %s', unknown_list)
+                elif col == 'future topics':
+                    stringlist = self.data.future_topics()['future_topics']
+                    df[col], unknown_list = self.string_list_to_numberedlist(stringlist, df[col])
+                    if not unknown_list:
+                        logging.debug("No unknown elements in future topics.")
+                    else:
+                        logging.error('future topics: %s', unknown_list)
+                else:
+                    logging.error(f"{col} is not a known column name")
 
         return df
+
+# Main execution
+if __name__ == "__main__":
+    # Import necessary dependencies
+    from datafiles_for_data_construction.data import Data
+    from config import load_config
+
+    # Load configuration and data
+    config = load_config()
+    data = Data()
+
+    # Import synthetic dataset and preprocess it
+    df = pd.read_csv(config["running_model"]["data path"])
+    preprocessor = PreProcessing(config, data)
+    df = preprocessor.preprocess_dataset(df)
+    df.to_csv(config["running_model"]["preprocessed data path"], index=False)

@@ -34,7 +34,7 @@ Generates the synthetic dataset. The dataset contains the following elements: fi
 from data_generation import DataGenerator
 
 # Create generator class
-generator = DataGenerator
+generator = DataGenerator()
 
 # Returns a synthetic dataset with 1,000
 generator.generate_synthetic_dataset(1000)

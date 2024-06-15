@@ -2,7 +2,7 @@ import pandas as pd
 import time
 import sys
 import os
-from data_generation import DataGenerator
+from SummerResearch2024.data_generation.data_generation import DataGenerator
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -34,7 +34,7 @@ def main():
     final_df = pd.concat(processed_results, ignore_index=True)
 
     # Output the final DataFrame
-    final_df.to_csv(config["running_model"]["data path"], index=False)
+    final_df.to_csv(config["running_model"]["data path 2"], index=False)
 
 if __name__ == "__main__":
     main()

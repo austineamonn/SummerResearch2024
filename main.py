@@ -1,8 +1,9 @@
 import logging
 import pandas as pd
 from config import load_config
-from data_generation.data_generation import DataGenerator
-from data_preprocessing.preprocessing import PreProcessing
+from datafiles_for_data_construction.data import Data
+from SummerResearch2024.data_generation.data_generation import DataGenerator
+from data_preprocessing.preprocessing2 import PreProcessing
 from data_privatization.privatization import Privatizer
 from data_privatization.privacy_metrics import PrivacyMetrics
 from neural_network.neural_network import NeuralNetwork
@@ -23,18 +24,21 @@ def main():
     logging.info("Loading data and generating synthetic dataset...")
 
     try:
+        # Access the Datafiles
+        data = Data()
+        
         if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
             # Build the synthetic dataset and save it to a CSV file
-            dataset_builder = DataGenerator(config)
+            dataset_builder = DataGenerator() #config
             logging.debug("DataGenerator instance created")
 
             synthetic_dataset = dataset_builder.generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
             logging.info("Synthetic dataset generated with %d samples.", len(synthetic_dataset))
             logging.info("First few rows of the synthetic dataset:\n%s", synthetic_dataset.head())
-            synthetic_dataset.to_csv(config["running_model"]["data path"], index=False)
+            synthetic_dataset.to_csv(config["running_model"]["data path 2"], index=False)
             logging.info("Synthetic dataset saved to Dataset.csv")
         else:
-            synthetic_dataset = pd.read_csv(config["running_model"]["data path"])
+            synthetic_dataset = pd.read_csv(config["running_model"]["data path 2"])
             logging.debug("New synthetic dataset not generated")
 
         if'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
@@ -42,8 +46,8 @@ def main():
             logging.info("Preprocessing the dataset...")
 
             # Privatizing the dataset
-            preprocesser = PreProcessing(config)
-            preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset, config["running_model"]["analyze_PCA"])
+            preprocesser = PreProcessing(config, data)
+            preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
             logging.info("Preprocessing completed")
 
             # Save the preprocessed dataset to a new CSV file
