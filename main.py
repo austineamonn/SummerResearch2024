@@ -2,8 +2,8 @@ import logging
 import pandas as pd
 from config import load_config
 from datafiles_for_data_construction.data import Data
-from SummerResearch2024.data_generation.data_generation import DataGenerator
-from data_preprocessing.preprocessing2 import PreProcessing
+from data_generation.data_generation import DataGenerator
+from data_preprocessing.preprocessing import PreProcessing
 from data_privatization.privatization import Privatizer
 from data_privatization.privacy_metrics import PrivacyMetrics
 from neural_network.neural_network import NeuralNetwork
@@ -29,16 +29,16 @@ def main():
         
         if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
             # Build the synthetic dataset and save it to a CSV file
-            dataset_builder = DataGenerator() #config
+            dataset_builder = DataGenerator(config, data) #config
             logging.debug("DataGenerator instance created")
 
             synthetic_dataset = dataset_builder.generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
             logging.info("Synthetic dataset generated with %d samples.", len(synthetic_dataset))
             logging.info("First few rows of the synthetic dataset:\n%s", synthetic_dataset.head())
-            synthetic_dataset.to_csv(config["running_model"]["data path 2"], index=False)
+            synthetic_dataset.to_csv(config["running_model"]["data path"], index=False)
             logging.info("Synthetic dataset saved to Dataset.csv")
         else:
-            synthetic_dataset = pd.read_csv(config["running_model"]["data path 2"])
+            synthetic_dataset = pd.read_csv(config["running_model"]["data path"])
             logging.debug("New synthetic dataset not generated")
 
         if'Preprocess Dataset' in config["running_model"]["parts_to_run"]:

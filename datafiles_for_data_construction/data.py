@@ -1282,7 +1282,9 @@ class Data:
                 # Urban Planning
                 "UP": "Urban Planning",
                 # Women's Studies
-                "WST": "Women's Studies"
+                "WST": "Women's Studies",
+                # Rhetoric and Composition
+                "RHET": "Rhetoric and Composition"
             },
             'course_subject_to_major': {
                 'ACCY': ['Accounting'],
@@ -1461,7 +1463,8 @@ class Data:
                 'Humanities', 'Graphic Design', 'Architecture', 'Public Health', 'Theatre', 'Nursing',
                 'Speech and Hearing Science', 'Earth Sciences', 'Religion', 'International Relations',
                 'Public Administration', 'Plant Biology', 'Geography', 'Art History', 'Military Science',
-                'Recreation, Sport and Tourism', 'Fine Arts', 'Latin American Studies'
+                'Recreation, Sport and Tourism', 'Fine Arts', 'Latin American Studies',
+                "Rhetoric and Composition"
             ],
             'subjects_to_future_topics': {
                 "Physics": ["Biophysics", "Astrophysics", "Quantum Mechanics", "Relativity", "Thermodynamics", "Engineering"],
@@ -1813,6 +1816,10 @@ class Data:
                         'Criminology Club'],
                 'Liberal Arts and Sciences': ['Liberal Arts Club'],
                 'Linguistics': ['Linguistics Club'],
+                'Literature': ['Literary Magazine',
+                            'Creative Writing Club',
+                            'Poetry Slam Team',
+                            'Book Club'],
                 'Mathematics': ['Mathematics Club',
                                 'Mathematics Society',
                                 'Chess Club',
@@ -3083,8 +3090,7 @@ class Data:
                                             'Personal Care Aide',
                                             'Recreation and Fitness Worker'],
                 'Hospitality Management Club': ['Bartender',
-                                                'Combined Food Preparation and Serving '
-                                                'Worker,Including Fast Food',
+                                                'Combined Food Preparation and Serving Worker, Including Fast Food',
                                                 'First-Line Supervisor of Food Preparation and Serving Worker',
                                                 'Food Service and Lodging Manager',
                                                 'Meeting and Convention Planner',
@@ -3195,7 +3201,8 @@ class Data:
                 'Marine Biology', 'Writing', 'Human Resources', 'Engineering Technologies', 'Counseling', 'Fine Arts', 'Logistics',
                 'Latin American Studies', 'Therapy', 'Medical Technologies', 'Aerospace Engineering', 'Nursing', 'Civil Engineering',
                 'Interdisciplinary Studies', 'Drama Education', 'American Studies', 'Teacher Education', 'General Science',
-                'Public Relations', 'Legal Studies', 'Child Development', 'Military Studies', 'Computer Engineering', 'Secondary Education'
+                'Public Relations', 'Legal Studies', 'Child Development', 'Military Studies', 'Computer Engineering', 'Secondary Education',
+                'Operations Research'
             ]
         }
 

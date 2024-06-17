@@ -1,0 +1,414 @@
+         39365548 function calls (39331711 primitive calls) in 172.578 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.001    0.001  172.578  172.578 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:812(generate_synthetic_dataset)
+       10    0.001    0.000  172.553   17.255 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:796(generate_batch_samples)
+      100    0.017    0.000  159.620    1.596 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:686(generate_single_sample)
+      703    1.156    0.002   77.866    0.111 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:186(generate_previous_courses)
+    16243    0.065    0.000   72.311    0.004 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:121(get_random_value)
+     1868   68.119    0.036   69.456    0.037 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:302(pick_classes)
+26118/21603    0.035    0.000   67.738    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/traceback_utils.py:138(error_handler)
+25928/21603    0.049    0.000   67.667    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/dispatch.py:1246(op_dispatch_handler)
+    19583    0.167    0.000   66.432    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/random_ops.py:211(random_uniform)
+    22493   65.951    0.003   65.951    0.003 {built-in method tensorflow.python._pywrap_tfe.TFE_Py_FastPathExecute}
+    17032    0.020    0.000   62.695    0.004 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_random_ops.py:717(random_uniform)
+      703    0.044    0.000   38.180    0.054 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:556(generate_subjects_of_interest)
+      703    0.096    0.000   31.407    0.045 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:476(generate_extracurricular_activities)
+      100    0.000    0.000   12.911    0.129 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/random_seed.py:210(set_seed)
+      100    0.000    0.000   12.911    0.129 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/random_seed.py:96(set_random_seed)
+      100    0.000    0.000   12.911    0.129 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2315(set_global_seed)
+      100    0.001    0.000   12.910    0.129 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:520(_set_global_seed)
+       99   12.909    0.130   12.909    0.130 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextClearCaches}
+    20088    0.012    0.000   11.334    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:371(_numpy)
+    20088   11.322    0.001   11.322    0.001 {method '_numpy_internal' of 'tensorflow.python.framework.ops.EagerTensor' objects}
+    19988    0.020    0.000   11.300    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:383(numpy)
+     1666    0.006    0.000    5.572    0.003 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:283(filter_courses_by_number)
+     1666    3.191    0.002    4.524    0.003 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:293(<listcomp>)
+      703    0.022    0.000    3.539    0.005 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:448(generate_career_aspirations)
+      505    0.006    0.000    3.102    0.006 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:340(assign_demographic)
+      505    0.001    0.000    1.914    0.004 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/weak_tensor_ops.py:86(wrapper)
+      505    0.003    0.000    1.913    0.004 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:5650(log)
+      505    0.002    0.000    1.896    0.004 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:5729(log_eager_fallback)
+    30620    0.132    0.000    1.873    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor_conversion_registry.py:164(convert)
+    28695    0.029    0.000    1.853    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/weak_tensor_ops.py:140(wrapper)
+      100    0.007    0.000    1.760    0.018 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:513(generate_identity_org)
+      505    0.001    0.000    1.578    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/execute.py:28(quick_execute)
+      505    1.577    0.003    1.577    0.003 {built-in method tensorflow.python._pywrap_tfe.TFE_Py_Execute}
+     2351    0.008    0.000    1.397    0.001 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:128(get_random_integer)
+ 19830589    1.334    0.000    1.334    0.000 {method 'startswith' of 'str' objects}
+    29610    0.023    0.000    1.325    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/profiler/trace.py:178(wrapped)
+    29610    0.018    0.000    1.302    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:698(convert_to_tensor)
+      100    0.001    0.000    1.262    0.013 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:390(generate_gpa)
+      100    0.001    0.000    1.202    0.012 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:368(generate_learning_style)
+     2551    0.003    0.000    1.166    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_random_ops.py:804(random_uniform_int)
+    28410    0.049    0.000    1.077    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/constant_tensor_conversion.py:23(_constant_tensor_conversion_function)
+    19583    0.024    0.000    1.074    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/shape_util.py:23(shape_tensor)
+     1666    0.649    0.000    1.041    0.001 {method 'sort' of 'list' objects}
+    28410    0.015    0.000    0.960    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/constant_op.py:177(constant)
+    28410    0.032    0.000    0.945    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/constant_op.py:280(_constant_impl)
+     1529    0.736    0.000    0.919    0.001 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:168(filter_course_by_major)
+    28410    0.013    0.000    0.892    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/constant_op.py:297(_constant_eager_impl)
+    28410    0.839    0.000    0.879    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/constant_op.py:75(convert_to_eager_tensor)
+      100    0.003    0.000    0.828    0.008 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:638(generate_future_topics)
+      100    0.002    0.000    0.821    0.008 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:409(choose_major)
+     1529    0.685    0.000    0.756    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:150(filter_course_by_learning_style)
+     1868    0.604    0.000    0.738    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:312(<listcomp>)
+      505    0.002    0.000    0.581    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/random_ops.py:394(categorical)
+      505    0.002    0.000    0.578    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/random_ops.py:424(multinomial_categorical_impl)
+      190    0.001    0.000    0.572    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/override_binary_operator.py:105(binary_op_wrapper)
+      505    0.001    0.000    0.565    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_random_ops.py:28(multinomial)
+    23623    0.012    0.000    0.437    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1292(_autopacking_conversion_function)
+     2354    0.005    0.000    0.394    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/collections/__init__.py:587(__init__)
+  3645403    0.392    0.000    0.392    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:297(<lambda>)
+     2354    0.003    0.000    0.389    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/collections/__init__.py:660(update)
+     2354    0.382    0.000    0.382    0.000 {built-in method _collections._count_elements}
+      100    0.000    0.000    0.320    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/tensor_math_operator_overrides.py:148(wrapper)
+      100    0.000    0.000    0.320    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:5278(less)
+      505    0.003    0.000    0.315    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/execute.py:222(args_to_matching_eager)
+     1010    0.015    0.000    0.302    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/tensor_getitem_override.py:65(_slice_helper)
+      505    0.001    0.000    0.299    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1197(_autopacking_helper)
+      505    0.001    0.000    0.297    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_array_ops.py:6676(pack)
+       95    0.000    0.000    0.288    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/tensor_math_operator_overrides.py:79(_subtract_factory)
+       95    0.000    0.000    0.287    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/math_ops.py:539(subtract)
+       95    0.000    0.000    0.287    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:12212(sub)
+       95    0.000    0.000    0.282    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/tensor_math_operator_overrides.py:61(_mul_dispatch_factory)
+      505    0.000    0.000    0.282    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor_conversion.py:96(convert_to_tensor_v2_with_dispatch)
+       95    0.000    0.000    0.282    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/math_ops.py:1698(_mul_dispatch)
+       95    0.001    0.000    0.282    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/math_ops.py:3835(add)
+      505    0.000    0.000    0.282    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor_conversion.py:166(convert_to_tensor_v2)
+       95    0.000    0.000    0.281    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/math_ops.py:475(multiply)
+       95    0.000    0.000    0.281    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:6806(mul)
+       95    0.000    0.000    0.280    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_math_ops.py:459(add_v2)
+  5570902    0.219    0.000    0.219    0.000 {method 'append' of 'list' objects}
+    20088    0.050    0.000    0.211    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/random_seed.py:38(get_seed)
+  4049298    0.185    0.000    0.199    0.000 {built-in method builtins.isinstance}
+  3693127    0.187    0.000    0.187    0.000 {method 'get' of 'dict' objects}
+     3030    0.002    0.000    0.165    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops_stack.py:24(stack)
+   112167    0.064    0.000    0.153    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2330(executing_eagerly)
+    23623    0.029    0.000    0.124    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1282(_should_not_autopack)
+    20088    0.009    0.000    0.096    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2325(internal_operation_seed)
+   141588    0.096    0.000    0.096    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1025(executing_eagerly)
+    20088    0.010    0.000    0.085    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:536(_internal_operation_seed)
+    25380    0.038    0.000    0.080    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/dtypes.py:194(is_compatible_with)
+    20791    0.014    0.000    0.079    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:358(randint)
+    23623    0.020    0.000    0.079    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/nest.py:198(flatten)
+    30620    0.035    0.000    0.078    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:596(__tf_tensor__)
+     1010    0.001    0.000    0.077    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:994(strided_slice)
+     1010    0.001    0.000    0.076    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/gen_array_ops.py:10788(strided_slice)
+    70438    0.066    0.000    0.071    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/dtypes.py:793(as_dtype)
+     1476    0.062    0.000    0.067    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:480(choices)
+      100    0.000    0.000    0.066    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:312(__bool__)
+    20791    0.029    0.000    0.066    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:284(randrange)
+      100    0.000    0.000    0.062    0.001 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:380(generate_student_semester)
+    23623    0.012    0.000    0.058    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/nest_util.py:615(flatten)
+    21383    0.025    0.000    0.055    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5493(name_scope)
+    85776    0.048    0.000    0.048    0.000 {built-in method builtins.getattr}
+    19583    0.012    0.000    0.047    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/shape_util.py:42(maybe_set_static_shape)
+    23623    0.013    0.000    0.046    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/nest_util.py:721(_tf_core_flatten)
+    26118    0.008    0.000    0.046    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/traceback_utils.py:32(is_traceback_filtering_enabled)
+    49918    0.044    0.000    0.044    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/dtypes.py:264(__eq__)
+    26910    0.027    0.000    0.037    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:235(_randbelow_with_getrandbits)
+    23623    0.033    0.000    0.033    0.000 {built-in method tensorflow.python.util._pywrap_utils.Flatten}
+    26433    0.029    0.000    0.030    0.000 {built-in method tensorflow.python.framework._pywrap_python_api_dispatcher.Dispatch}
+      828    0.003    0.000    0.028    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/ast.py:54(literal_eval)
+19992/200    0.011    0.000    0.028    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:781(convert_to_native)
+    31630    0.022    0.000    0.028    0.000 <frozen importlib._bootstrap>:1207(_handle_fromlist)
+      200    0.001    0.000    0.027    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:788(<dictcomp>)
+     2495    0.014    0.000    0.025    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:385(sample)
+    20088    0.014    0.000    0.024    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5098(get_default_graph)
+     1800    0.003    0.000    0.021    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:790(<listcomp>)
+      828    0.001    0.000    0.021    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/ast.py:33(parse)
+    31125    0.016    0.000    0.020    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:377(dtype)
+      828    0.020    0.000    0.020    0.000 {built-in method builtins.compile}
+    25980    0.009    0.000    0.020    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/dtypes.py:96(base_dtype)
+    24133    0.012    0.000    0.017    0.000 {built-in method builtins.all}
+       10    0.000    0.000    0.016    0.002 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:830(<listcomp>)
+    28915    0.012    0.000    0.016    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor_conversion_registry.py:134(get)
+    28915    0.005    0.000    0.015    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:580(ensure_initialized)
+    25971    0.005    0.000    0.015    0.000 <frozen abc>:117(__instancecheck__)
+    28915    0.014    0.000    0.014    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1047(device_name)
+    29490    0.014    0.000    0.014    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:6078(is_auto_dtype_conversion_enabled)
+      703    0.002    0.000    0.013    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:135(most_common_class_subject)
+    38049    0.011    0.000    0.011    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/logging/__init__.py:1734(isEnabledFor)
+   112167    0.011    0.000    0.011    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2300(context_safe)
+    25980    0.010    0.000    0.010    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/dtypes.py:83(_is_ref_dtype)
+    25971    0.007    0.000    0.010    0.000 {built-in method _abc._abc_instancecheck}
+    20088    0.009    0.000    0.009    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:4631(get_default)
+    20088    0.007    0.000    0.009    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2320(global_seed)
+    52228    0.008    0.000    0.009    0.000 {built-in method builtins.hasattr}
+    40176    0.009    0.000    0.009    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/random_seed.py:34(_truncate_seed)
+    69696    0.009    0.000    0.009    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:2293(context)
+        1    0.009    0.009    0.009    0.009 {built-in method tensorflow.python._pywrap_tfe.TFE_NewContext}
+    35628    0.008    0.000    0.008    0.000 {method 'extend' of 'list' objects}
+        1    0.002    0.002    0.007    0.007 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/frame.py:694(__init__)
+    50402    0.007    0.000    0.007    0.000 {method 'getrandbits' of '_random.Random' objects}
+    29278    0.006    0.000    0.006    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1288(<genexpr>)
+    37939    0.006    0.000    0.006    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/logging/__init__.py:2074(getLogger)
+      100    0.006    0.000    0.006    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:417(<listcomp>)
+    28915    0.005    0.000    0.005    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:983(_handle)
+      603    0.003    0.000    0.005    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/collections/__init__.py:610(most_common)
+    62373    0.005    0.000    0.005    0.000 {built-in method _operator.index}
+     1476    0.002    0.000    0.004    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:514(<listcomp>)
+     1010    0.002    0.000    0.004    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5748(__enter__)
+    31125    0.004    0.000    0.004    0.000 {method '_datatype_enum' of 'tensorflow.python.framework.ops.EagerTensor' objects}
+    30620    0.004    0.000    0.004    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor.py:757(__tf_tensor__)
+      200    0.001    0.000    0.004    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:128(seed)
+ 4594/828    0.003    0.000    0.004    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/ast.py:84(_convert)
+        1    0.000    0.000    0.004    0.004 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:506(nested_data_to_arrays)
+     1010    0.001    0.000    0.003    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/tensor_getitem_override.py:49(_check_index)
+1789/1080    0.000    0.000    0.003    0.000 <frozen abc>:121(__subclasscheck__)
+      200    0.003    0.000    0.003    0.000 {function Random.seed at 0x1042d49a0}
+1789/1080    0.003    0.000    0.003    0.000 {built-in method _abc._abc_subclasscheck}
+      266    0.002    0.000    0.003    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:367(choice)
+        1    0.000    0.000    0.003    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:793(to_arrays)
+     1010    0.000    0.000    0.003    0.000 {built-in method builtins.next}
+     1010    0.001    0.000    0.003    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5782(__exit__)
+      100    0.000    0.000    0.003    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/__init__.py:183(dumps)
+    26910    0.003    0.000    0.003    0.000 {method 'bit_length' of 'int' objects}
+      100    0.000    0.000    0.003    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/encoder.py:183(encode)
+        1    0.000    0.000    0.003    0.003 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:891(_list_of_dict_to_arrays)
+      505    0.000    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/execute.py:271(<listcomp>)
+      100    0.002    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/encoder.py:205(iterencode)
+     1010    0.001    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5531(<genexpr>)
+      603    0.001    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/heapq.py:523(nlargest)
+     2520    0.002    0.000    0.002    0.000 {built-in method _bisect.bisect_right}
+      300    0.001    0.000    0.002    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:621(create_weighted_list)
+     3858    0.002    0.000    0.002    0.000 {built-in method builtins.min}
+      505    0.000    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/execute.py:328(_is_keras_symbolic_tensor)
+        4    0.000    0.000    0.002    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:7593(ensure_index)
+    20373    0.002    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:176(__init__)
+    20373    0.002    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:182(__exit__)
+14533/14512    0.002    0.000    0.002    0.000 {built-in method builtins.len}
+    20373    0.002    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:179(__enter__)
+        1    0.000    0.000    0.002    0.002 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:475(__new__)
+      505    0.001    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1246(_get_dtype_from_nested_lists)
+    10659    0.002    0.000    0.002    0.000 {method 'keys' of 'dict' objects}
+        1    0.000    0.000    0.002    0.002 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:96(arrays_to_mgr)
+       10    0.000    0.000    0.002    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:832(<listcomp>)
+     2020    0.002    0.000    0.002    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1042(scope_name)
+      100    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/__init__.py:299(loads)
+     1010    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5772(_restore_name_scope)
+       18    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:517(sanitize_array)
+      603    0.001    0.000    0.001    0.000 {built-in method builtins.max}
+      100    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/decoder.py:332(decode)
+     4040    0.001    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:6178(is_symbolic_tensor)
+      703    0.001    0.000    0.001    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:141(<listcomp>)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2121(create_block_manager_from_column_arrays)
+      100    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/random.py:119(__init__)
+        1    0.001    0.001    0.001    0.001 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextOptionsSetConfig}
+      104    0.001    0.000    0.001    0.000 {built-in method builtins.sorted}
+      100    0.001    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/json/decoder.py:343(raw_decode)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/cast.py:124(maybe_convert_platform)
+      100    0.001    0.000    0.001    0.000 {built-in method _warnings.warn}
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:1782(_consolidate_inplace)
+      505    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/backprop.py:156(_must_record_gradient)
+      505    0.001    0.000    0.001    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:349(<listcomp>)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2259(_consolidate)
+      290    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/override_binary_operator.py:46(maybe_promote_tensors)
+     1010    0.001    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:5730(__init__)
+        1    0.001    0.001    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/cast.py:1580(construct_1d_object_array_from_listlike)
+     1476    0.001    0.000    0.001    0.000 {built-in method math.isfinite}
+        2    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2276(_merge_blocks)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/inference.py:306(is_named_tuple)
+      505    0.000    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor.py:251(__getattr__)
+     1010    0.001    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:560(graph)
+     3913    0.001    0.000    0.001    0.000 {method 'add' of 'set' objects}
+      100    0.001    0.000    0.001    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:738(<listcomp>)
+     1010    0.001    0.000    0.001    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1037(scope_name)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/fromnumeric.py:1025(argsort)
+        1    0.000    0.000    0.001    0.001 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/fromnumeric.py:53(_wrapfunc)
+        1    0.001    0.001    0.001    0.001 {built-in method tensorflow.python._pywrap_tfe.TFE_NewContextOptions}
+        1    0.001    0.001    0.001    0.001 {method 'argsort' of 'numpy.ndarray' objects}
+      828    0.000    0.000    0.000    0.000 {method 'lstrip' of 'str' objects}
+      110    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/logging/__init__.py:2143(debug)
+      505    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_Py_TapeSetIsEmpty}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:649(_simple_new)
+     2520    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+     1010    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/ops/array_ops.py:1211(<genexpr>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:596(_homogenize)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2190(_form_blocks)
+      100    0.000    0.000    0.000    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:739(<listcomp>)
+     3032    0.000    0.000    0.000    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:661(<lambda>)
+      108    0.000    0.000    0.000    0.000 {built-in method builtins.issubclass}
+     1010    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+      100    0.000    0.000    0.000    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:740(<listcomp>)
+      603    0.000    0.000    0.000    0.000 {built-in method builtins.iter}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:928(_finalize_columns_and_data)
+       33    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/cast.py:1157(maybe_infer_to_datetimelike)
+      806    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+       19    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/tensor_conversion_registry.py:152(<genexpr>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:1006(convert_object_array)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:1070(<listcomp>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:548(_initialize_logical_devices)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:2009(__instancecheck__)
+       17    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:1028(convert)
+       51    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/numeric.py:274(full)
+      110    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/logging/__init__.py:1467(debug)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:1974(__init__)
+      200    0.000    0.000    0.000    0.000 {method 'match' of 're.Pattern' objects}
+      290    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:6085(is_numpy_style_type_promotion)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1136(config)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/common.py:1331(is_ea_or_datetimelike_dtype)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:145(_get_option)
+        7    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:1930(_get_protocol_attrs)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:145(from_string)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:2079(_proto_hook)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:1947(_is_callable_members_only)
+       61    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/generic.py:42(_instancecheck)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device.py:45(canonical_name)
+        6    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2264(<lambda>)
+      101    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:915(<genexpr>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:1764(is_consolidated)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:1772(_consolidate_check)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/api.py:386(default_index)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:225(_consolidate_key)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:1778(<listcomp>)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/_asarray.py:27(require)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/generic.py:278(__init__)
+      100    0.000    0.000    0.000    0.000 /Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/data_generation.py:704(<listcomp>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/inference.py:404(is_dataclass)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/lock_util.py:52(__init__)
+      283    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+       55    0.000    0.000    0.000    0.000 {built-in method numpy.empty}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:127(_get_single_key)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2246(_stack_arrays)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:315(_string_to_components)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/_dtype.py:346(_name_get)
+       61    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/generic.py:37(_check)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:696(_sanitize_ndim)
+        6    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:107(__init__)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:532(treat_as_nested)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/threading.py:243(__init__)
+       17    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/common.py:568(require_length_match)
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextListDevices}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:676(_translate_key)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/base.py:836(__iter__)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/range.py:201(_simple_new)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1255(_compute_gpu_options)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/shape_base.py:219(vstack)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:416(extract_array)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:2674(get_block_type)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:2703(new_block_2d)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:219(_can_consolidate)
+       51    0.000    0.000    0.000    0.000 {built-in method numpy.asarray}
+      105    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+      171    0.000    0.000    0.000    0.000 <frozen _collections_abc>:262(__subclasshook__)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:239(replace)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/flags.py:51(__init__)
+       17    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2177(_grouping_func)
+      107    0.000    0.000    0.000    0.000 {built-in method builtins.hash}
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:306(_get_valid_device_types)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:735(_sanitize_str_dtypes)
+       59    0.000    0.000    0.000    0.000 <frozen _collections_abc>:315(__subclasshook__)
+      200    0.000    0.000    0.000    0.000 {method 'end' of 're.Match' objects}
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/_dtype.py:330(_name_includes_bit_suffix)
+      174    0.000    0.000    0.000    0.000 <frozen _collections_abc>:409(__subclasshook__)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/shape_base.py:215(_vhstack_dispatcher)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/__init__.py:34(using_copy_on_write)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:922(<listcomp>)
+        6    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:369(_components_to_string)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/numerictypes.py:357(issubdtype)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:758(_maybe_repeat)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:635(_get_root)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:591(_ensure_array)
+       17    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/common.py:1270(is_1d_only_ea_dtype)
+       13    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/__init__.py:55(using_pyarrow_string_dtype)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:481(ensure_wrapped_if_datetimelike)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:609(_dtype_to_subclass)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:214(is_extension)
+        3    0.000    0.000    0.000    0.000 {built-in method numpy.array}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/dataclasses.py:1258(is_dataclass)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/shape_base.py:81(atleast_2d)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:909(__len__)
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_DeleteContextOptions}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:649(_get_deprecated_option)
+       15    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/object_identity.py:182(__init__)
+        4    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x102e915f8}
+        8    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:1949(<genexpr>)
+       51    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/multiarray.py:1080(copyto)
+       16    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1176(rewriter_toggle)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/range.py:999(__len__)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:335(<listcomp>)
+        1    0.000    0.000    0.000    0.000 {method 'SerializeToString' of 'google._upb._message.Message' objects}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:2645(maybe_coerce_values)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/base.py:82(shape)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/tf2.py:35(enabled)
+       20    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:2287(cast)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:831(_reset_identity)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/_config/config.py:617(_select_options)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1610(list_physical_devices)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:7688(maybe_extract_name)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:196(mgr_to_mgr)
+        2    0.000    0.000    0.000    0.000 <string>:1(<lambda>)
+        2    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_ListPluggablePhysicalDevices}
+        6    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:38(_as_device_str_or_none)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1565(_initialize_physical_devices)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/_asarray.py:108(<setcomp>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:207(uid)
+       18    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:34(_as_int_or_none)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/numerictypes.py:283(issubclass_)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:2795(extend_blocks)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/base.py:84(<genexpr>)
+       12    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:30(_as_str_or_none)
+        7    0.000    0.000    0.000    0.000 {method 'keys' of 'mappingproxy' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_DeviceListName}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2285(<listcomp>)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:950(_validate_or_indexify_columns)
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python.platform._pywrap_tf2.is_enabled}
+        1    0.000    0.000    0.000    0.000 {method 'MergeFrom' of 'google._upb._message.Message' objects}
+        1    0.000    0.000    0.000    0.000 {method 'format' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextOptionsSetDevicePlacementPolicy}
+       12    0.000    0.000    0.000    0.000 <frozen _collections_abc>:283(__subclasshook__)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device.py:40(is_device_spec)
+        2    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_DeviceListType}
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.any}
+        6    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.lock' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_IsMlirBridgeEnabled}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_DeleteDeviceList}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/threading.py:90(RLock)
+        5    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_Py_UID}
+       10    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:136(to_string)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/_dtype.py:24(_kind_name)
+        2    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/shape_base.py:207(_arrays_for_stack_dispatcher)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/construction.py:916(<genexpr>)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/typing.py:2025(<genexpr>)
+        2    0.000    0.000    0.000    0.000 {method 'decode' of 'bytes' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TF_DeviceListCount}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextOptionsSetTfrt}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/dtypes/inference.py:334(is_hashable)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1628(<listcomp>)
+        4    0.000    0.000    0.000    0.000 <frozen _collections_abc>:381(__subclasshook__)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:266(mgr_locs)
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_Py_SetCEagerContext}
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/traceable_stack.py:88(__init__)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/construction.py:688(_sanitize_non_ordered)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/blocks.py:718(dtype)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/eager/context.py:1185(rewriter_bool)
+        1    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:2294(<listcomp>)
+        4    0.000    0.000    0.000    0.000 {built-in method builtins.callable}
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/indexes/base.py:5144(_values)
+        5    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:266(job)
+        4    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:278(device_type)
+        3    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:274(task)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/ops.py:4197(switch_to_thread_local)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/util/object_identity.py:183(<genexpr>)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextOptionsSetRunEagerOpAsFunction}
+        1    0.000    0.000    0.000    0.000 {built-in method tensorflow.python._pywrap_tfe.TFE_ContextOptionsSetJitCompileRewrite}
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:282(device_index)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/multiarray.py:153(concatenate)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/pandas/core/internals/managers.py:913(__init__)
+        2    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/tensorflow/python/framework/device_spec.py:270(replica)
+        2    0.000    0.000    0.000    0.000 {built-in method numpy.asanyarray}
+        1    0.000    0.000    0.000    0.000 {method 'pop' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/shape_base.py:77(_atleast_2d_dispatcher)
+        1    0.000    0.000    0.000    0.000 /opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/numpy/core/fromnumeric.py:1021(_argsort_dispatcher)
+
+

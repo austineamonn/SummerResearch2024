@@ -8,6 +8,8 @@ def load_config():
         # How large of a dataset should be generated
         "synthetic_data": {
             "num_samples": 1000,
+            "batch_size": 100,
+            "rewrite": True,
 
             # "real" uses the real statistical distributions
             # "uniform" uses uniform distributions
@@ -25,8 +27,8 @@ def load_config():
             # Data Columns: first name,last name,ethnoracial group,gender,
             # international status,socioeconomic status,learning_style,gpa,
             # student semester,major,previous courses,course types,course subjects,
-            # subjects of interest,career aspirations,extracurricular activities,
-            # future topics
+            # subjects of interest, extracurricular activities,
+            # career aspirations, future topics
             # Split them into Xp, X and Xu
             "Xp_list": [
                 'first name','last name','ethnoracial group','gender',
