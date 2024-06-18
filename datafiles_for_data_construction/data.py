@@ -1464,7 +1464,8 @@ class Data:
                 'Speech and Hearing Science', 'Earth Sciences', 'Religion', 'International Relations',
                 'Public Administration', 'Plant Biology', 'Geography', 'Art History', 'Military Science',
                 'Recreation, Sport and Tourism', 'Fine Arts', 'Latin American Studies',
-                "Rhetoric and Composition"
+                "Rhetoric and Composition", "Veterinary Clinical Medicine", "Russian, East European, and Eurasian Studies",
+
             ],
             'subjects_to_future_topics': {
                 "Physics": ["Biophysics", "Astrophysics", "Quantum Mechanics", "Relativity", "Thermodynamics", "Engineering"],
@@ -3202,7 +3203,7 @@ class Data:
                 'Latin American Studies', 'Therapy', 'Medical Technologies', 'Aerospace Engineering', 'Nursing', 'Civil Engineering',
                 'Interdisciplinary Studies', 'Drama Education', 'American Studies', 'Teacher Education', 'General Science',
                 'Public Relations', 'Legal Studies', 'Child Development', 'Military Studies', 'Computer Engineering', 'Secondary Education',
-                'Operations Research'
+                'Operations Research', 'Human Resource, Training, and Labor Relation Specialist'
             ]
         }
 

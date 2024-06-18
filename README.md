@@ -27,17 +27,42 @@ Various JSON files that have lists of data and feature tuples. This folder also 
 ### [data](datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
-### [data_generation](data_generation/data_generation.py):
-Generates the synthetic dataset. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
+### [data_generation_CPU](data_generation/data_generation_CPU.py):
+Generates the synthetic dataset on the computers CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
-from data_generation import DataGenerator
+from data import Data
+from config import load_config
+from data_generation_CPU import DataGenerator
 
 # Create generator class
-generator = DataGenerator()
+generator = DataGenerator(config, data)
 
-# Returns a synthetic dataset with 1,000
-generator.generate_synthetic_dataset(1000)
+# Set generation levels
+num_samples = 1000
+batch_size = 100
+
+# Returns a synthetic dataset with num_samples many rows ('students')
+generator.generate_synthetic_dataset(num_samples, batch_size)
+```
+
+### [data_generation_GPU](data_generation/data_generation_GPU.py):
+Generates the synthetic dataset on the computers GPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
+
+```python
+from data import Data
+from config import load_config
+from data_generation_GPU import DataGenerator
+
+# Create generator class
+generator = DataGenerator(config, data)
+
+# Set generation levels
+num_samples = 1000
+batch_size = 100
+
+# Returns a synthetic dataset with num_samples many rows ('students')
+generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
 ### [Dataset](data_generation/Dataset.csv)
@@ -59,25 +84,33 @@ Xu = [career aspirations, future topics]
 Xu columns are left alone. These utility columns are the targets for the neural network.
 
 ### [preprocessing](data_preprocessing/preprocessing.py):
-Takes in a synthetic dataset. Xp is cut out, X and Xu are multilabel binarized. PCA is run on X. Returns a preprocessed dataset.
+Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional.
 
 ```python
 from pandas import pd
 from config import load_config
+from data import Data
 from preprocessing import PreProcessing
 
 # Import synthetic dataset CSV as a pandas dataframe
 synthetic_dataset = pd.readcsv('path_to_synthetic_dataset.csv')
 
+# Load configuration and data
+config = load_config()
+data = Data()
+
 # Create preprocessor class
-preprocesser = PreProcessing(config)
+preprocesser = PreProcessing(config, data)
 
 # Returns preprocessed dataset
-privatizer.privatize_dataset(preprocesser.preprocess_dataset)
+preprocesser.preprocess_dataset(synthetic_dataset)
 ```
 
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
-100 principal components and the utility (Xu) columns.
+All feature columns and utility columns are 1 dimensional.
+
+### [feature_importance](data_preprocessing/feature_importance.py):
+Calculate the feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
 
 ### [explained_variance_plot](data_preprocessing/explained_variance_plot.png):
 Graph of the explained variance ratio of each principal component.

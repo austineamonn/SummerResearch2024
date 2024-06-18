@@ -904,7 +904,7 @@ if __name__ == "__main__":
     num_samples = config["synthetic_data"]["num_samples"]
     batch_size = config["synthetic_data"]["batch_size"]
     rewrite = config["synthetic_data"]["rewrite"]
-    data_path = config["running_model"]["data path 2"]
+    data_path = config["running_model"]["data path"]
 
     # Check if GPU is available
     logging.info("Num GPUs Available: %d", len(tf.config.experimental.list_physical_devices('GPU')))
