@@ -7,8 +7,8 @@ def load_config():
         },
         # How large of a dataset should be generated
         "synthetic_data": {
-            "num_samples": 1000,
-            "batch_size": 100,
+            "num_samples": 10,
+            "batch_size": 10,
             "rewrite": True,
 
             # "real" uses the real statistical distributions

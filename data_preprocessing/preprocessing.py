@@ -8,6 +8,10 @@ from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+import tensorflow as tf
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import Embedding, SimpleRNN, Dense # type: ignore
+from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -151,6 +155,24 @@ class PreProcessing:
         plt.savefig(self.config["running_model"]["PCA explained variance path"])
         logging.info("PCA explained variance graph saved to 'explained_variance_plot.png'")
     
+    def preprocess_columns(self, df, col):
+        sequences = df[col].apply(lambda x: str(x)).tolist()
+        # Ensure all sequences are lists of integers
+        sequences = [[int(item) for item in seq.strip('[]').split(',') if item] for seq in sequences]
+        # Determine the maximum length of the sequences in this column
+        max_len = max(len(seq) for seq in sequences)
+        # Pad the sequences
+        padded_sequences = pad_sequences(sequences, maxlen=max_len, padding='post', truncating='post')
+        return padded_sequences
+    
+    def create_rnn_model(input_length, output_dim=5):
+        model = Sequential()
+        model.add(Embedding(input_dim=5000, output_dim=64, input_length=input_length))
+        model.add(SimpleRNN(50, return_sequences=False))
+        model.add(Dense(output_dim, activation='linear'))
+        model.compile(optimizer='adam', loss='mse')
+        return model
+
     def preprocess_dataset(self, df):
         """
         Input: dataset
@@ -228,6 +250,20 @@ class PreProcessing:
                         logging.error('future topics: %s', unknown_list)
                 else:
                     logging.error(f"{col} is not a known column name")
+                
+                preprocessed_col = self.preprocess_columns(df, col)
+
+                # Create and train the model
+                input_length = preprocessed_col.shape[1]
+                rnn_model = self.create_rnn_model(input_length)
+                
+                # Normally, you would train the model with appropriate labels, but for this example, we'll use dummy data
+                dummy_labels = np.random.rand(len(preprocessed_col), 5)  # Dummy target vectors of length 5
+                rnn_model.fit(preprocessed_col, dummy_labels, epochs=10, batch_size=32)
+                
+                # Transform the sequences
+                transformed_sequences = rnn_model.predict(preprocessed_col)
+                df[col] = transformed_sequences
 
         return df
 

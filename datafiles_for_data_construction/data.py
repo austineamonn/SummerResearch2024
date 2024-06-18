@@ -831,7 +831,7 @@ class Data:
     def course(self):
         # Reading from a JSON file
         with open('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/datafiles_for_data_construction/courses.json', 'r') as f:
-            # Tuple structure: ['Name', 'Number', 'Type', 'Subject']
+            # Tuple structure: ['Name', 'Number', 'Type(s)', 'Subject', 'Count']
             course_tuples = json.load(f)
         
         # Pull out the course names

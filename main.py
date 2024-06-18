@@ -2,7 +2,7 @@ import logging
 import pandas as pd
 from config import load_config
 from datafiles_for_data_construction.data import Data
-from data_generation.data_generation import DataGenerator
+from SummerResearch2024.data_generation.data_generation_GPU import DataGenerator
 from data_preprocessing.preprocessing import PreProcessing
 from data_privatization.privatization import Privatizer
 from data_privatization.privacy_metrics import PrivacyMetrics
