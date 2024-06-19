@@ -4,6 +4,7 @@ from sklearn.preprocessing import MultiLabelBinarizer
 import os
 import sys
 import textwrap
+import seaborn as sns
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -19,6 +20,7 @@ class DataAnalysis:
         self.string_cols = config["data_analysis"]["string_cols"]
         self.list_cols = config["data_analysis"]["list_cols"]
         self.total_cols = self.string_cols + self.list_cols
+        self.numerical_columns = self.data.select_dtypes(include=['float64', 'int64'])
     
     def wrap_labels(self, labels, width):
         return ['\n'.join(textwrap.wrap(label, width)) for label in labels]
@@ -27,15 +29,14 @@ class DataAnalysis:
         return label.strip("[]").replace("'", "")
     
     def analyze_numerical_columns(self):
-        numerical_columns = self.data.select_dtypes(include=['float64', 'int64'])
-        summary_stats_numerical = numerical_columns.describe()
+        summary_stats_numerical = self.numerical_columns.describe()
         
         summary_stats_numerical.to_csv(os.path.join(self.output_dir, 'numerical_summary_statistics.csv'))
         
-        for column in numerical_columns.columns:
+        for column in self.numerical_columns.columns:
             plt.figure(figsize=(10, 6))
-            if numerical_columns[column].dtype == 'int64':
-                value_counts = numerical_columns[column].dropna().value_counts().sort_index()
+            if self.numerical_columns[column].dtype == 'int64':
+                value_counts = self.numerical_columns[column].dropna().value_counts().sort_index()
                 value_counts.plot(kind='bar')
                 plt.title(f'Distribution of {column}')
                 plt.xlabel(column)
@@ -43,7 +44,7 @@ class DataAnalysis:
                 for idx, count in enumerate(value_counts):
                     plt.text(idx, count, str(count), ha='center', va='bottom', fontsize=8)
             else:
-                plt.hist(numerical_columns[column].dropna(), bins=30, edgecolor='k')
+                plt.hist(self.numerical_columns[column].dropna(), bins=30, edgecolor='k')
                 plt.title(f'Distribution of {column}')
                 plt.xlabel(column)
                 plt.ylabel('Frequency')
@@ -132,11 +133,39 @@ class DataAnalysis:
         
         missing_percentage_df.to_csv(os.path.join(self.output_dir, 'missing_percentage.csv'), index=False)
 
+    # Eventually change this to be run on the lower dimensional stuff (RNNs)
+    def correlation_analysis(self):
+        # Convert categorical columns to numerical using one-hot encoding
+        data_encoded = pd.get_dummies(self.data, drop_first=True)
+        
+        # Compute the correlation matrix
+        correlation_matrix = data_encoded.corr()
+        
+        # Visualize the correlation matrix using a heatmap
+        plt.figure(figsize=(20, 16))
+        sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', vmin=-1, vmax=1)
+        plt.title('Correlation Matrix')
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.output_dir, 'correlation_matrix.png'))
+        plt.close()
+
+    def outlier_detection(self):
+        for column in self.numerical_columns.columns:
+            plt.figure(figsize=(10, 6))
+            sns.boxplot(x=self.numerical_columns[column])
+            plt.title(f'Boxplot of {column}')
+            plt.xlabel(column)
+            plt.tight_layout()
+            plt.savefig(os.path.join(self.output_dir, f'boxplot_{column}.png'))
+            plt.close()
+
     def analyze_data(self):
         self.analyze_numerical_columns()
         self.analyze_columns()
         self.analyze_special_columns()
         self.calculate_missing_percentage()
+        #self.correlation_analysis()
+        self.outlier_detection()
 
 if __name__ == "__main__":
     # Import necessary dependencies

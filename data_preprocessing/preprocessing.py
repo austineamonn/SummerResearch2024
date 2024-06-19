@@ -224,13 +224,13 @@ class PreProcessing:
     
     def create_RNN_models(self, df):
         for layer in range(1, 4):
-            result = self.run_RNN_models(self, df, 'Simple', layer)
+            result = self.run_RNN_models(df, 'Simple', layer)
             name = '/RNN_models/Simple'+str(layer)+'.csv'
             result.to_csv(name, index=False)
-            self.run_RNN_models(self, df, 'LSTM', layer)
+            self.run_RNN_models(df, 'LSTM', layer)
             name = '/RNN_models/LSTM'+str(layer)+'.csv'
             result.to_csv(name, index=False)
-            self.run_RNN_models(self, df, 'GRU', layer)
+            self.run_RNN_models(df, 'GRU', layer)
             name = '/RNN_models/GRU'+str(layer)+'.csv'
             result.to_csv(name, index=False)
 

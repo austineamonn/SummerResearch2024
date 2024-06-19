@@ -1465,7 +1465,6 @@ class Data:
                 'Public Administration', 'Plant Biology', 'Geography', 'Art History', 'Military Science',
                 'Recreation, Sport and Tourism', 'Fine Arts', 'Latin American Studies',
                 "Rhetoric and Composition", "Veterinary Clinical Medicine", "Russian, East European, and Eurasian Studies",
-
             ],
             'subjects_to_future_topics': {
                 "Physics": ["Biophysics", "Astrophysics", "Quantum Mechanics", "Relativity", "Thermodynamics", "Engineering"],

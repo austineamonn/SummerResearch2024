@@ -66,11 +66,35 @@ generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
 ### [data_analysis](data_generation/data_analysis.py):
+Takes the synthetic dataset and produces various graphs about the data. For the numerical columns boxplots, distributions, and summary statistics are produced. For all the other columns the top ten highest count items are displayed. Calculates the percentage of empty of NaN values in each column.
+
+```python
+from pandas import pd
+from config import load_config
+
+# Import synthetic dataset CSV as a pandas dataframe
+synthetic_dataset = pd.readcsv('path_to_synthetic_dataset.csv')
+
+# Load configuration
+config = load_config()
+
+# Create generator class
+analyzer = DataAnalysis(config, synthetic_dataset)
+analyzer.analyze_data()
+
+# Saves data analysis graphs to the data_analysis_graphs folder
+analyzer.analyze_data()
+```
 
 ### [data_analysis_graphs](data_generation/data_analysis_graphs):
+This folder contains all the graphs produced by data_analysis.
 
 ### [Dataset](data_generation/Dataset.csv)
 Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
+
+<p align="center">
+  <img src="SummerResearch2024/extra_files/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+</p>
 
 ## Data Preprocessing:
 
@@ -88,7 +112,9 @@ Xu = [career aspirations, future topics]
 Xu columns are left alone. These utility columns are the targets for the neural network.
 
 ### [preprocessing](data_preprocessing/preprocessing.py):
-Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional.
+preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.
+
+run_RNN_models() - Takes in a preprocessed dataset. For each list in each column, the lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional.
 
 ```python
 from pandas import pd
@@ -108,17 +134,42 @@ preprocesser = PreProcessing(config, data)
 
 # Returns preprocessed dataset
 preprocesser.preprocess_dataset(synthetic_dataset)
+
+# Create the RNN models and save them to their files
+# Use one of these models to reduce the dimensionality
+# of the preprocessed dataset
+preprocessor.create_RNN_models(synthetic_dataset)
 ```
 
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns are 1 dimensional.
 
 ### [feature_importance](data_preprocessing/feature_importance.py):
-Calculate the feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
+Run a random forest model and analyze feature importance using SHAP. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
+
+```python
+from pandas import pd
+from config import load_config
+from feature_importance import FeatureImportanceAnalyzer
+
+# Import preprocessed dataset (with RNN dimensionality reduction) CSV as a pandas dataframe
+preprocessed_dataset = pd.readcsv('RNN_model.csv')
+
+# Load configuration and data
+config = load_config()
+
+# Create preprocessor class
+feature_analyzer = FeatureImportanceAnalyzer(config, preprocessed_dataset)
+
+# Returns preprocessed dataset
+feature_analyzer.calculate_feature_importance()
+```
 
 ### ![shap_summary_career_aspirations](data_preprocessing/shap_summary_career_aspirations.png):
+SHAP values for X columns based on predictive power for career aspirations.
 
 ### ![shap_summary_future_topics](data_preprocessing/shap_summary_future_topics.png):
+SHAP values for X columns based on predictive power for future topics.
 
 ### [explained_variance_plot - Under Construction](data_preprocessing/explained_variance_plot.png):
 Graph of the explained variance ratio of each principal component.

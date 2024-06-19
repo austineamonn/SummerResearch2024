@@ -16,33 +16,15 @@ class FeatureImportanceAnalyzer:
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
-        self.config = self.load_config(config_path)
-        self.data = None
-        self.features = None
-        self.target_career = None
-        self.target_future = None
-        self.feature_names = None
+        self.features = data.drop(columns=['career aspirations', 'future topics'])
+        self.target_career = data['career aspirations']
+        self.target_future = data['future topics']
+        self.feature_names = self.features.columns
         self.imputer = SimpleImputer(strategy='mean')
         self.model_career = RandomForestRegressor(random_state=42)
         self.model_future = RandomForestRegressor(random_state=42)
         self.shap_values_career = None
         self.shap_values_future = None
-
-    def load_config(self, config_path):
-        # Mocked load_config function, replace with actual implementation
-        return {
-            "running_model": {
-                "preprocessed data path": config_path
-            }
-        }
-
-    def load_data(self):
-        file_path = self.config["running_model"]["preprocessed data path"]
-        self.data = pd.read_csv(file_path)
-        self.features = self.data.drop(columns=['career aspirations', 'future topics'])
-        self.target_career = self.data['career aspirations']
-        self.target_future = self.data['future topics']
-        self.feature_names = self.features.columns
 
     def impute_data(self):
         self.features_imputed = self.imputer.fit_transform(self.features)
@@ -80,11 +62,20 @@ class FeatureImportanceAnalyzer:
                                     'Career Aspirations', 'shap_summary_career_aspirations.png')
         self.save_shap_summary_plot(self.shap_values_future, X_test_future, self.feature_names,
                                     'Future Topics', 'shap_summary_future_topics.png')
+        
+    def calculate_feature_importance(self):
+        self.load_data()
+        self.impute_data()
+        self.train_models()
+        self.save_all_shap_plots()
 
 if __name__ == "__main__":
-    config_path = 'path_to_config_file'
-    analyzer = FeatureImportanceAnalyzer(config_path)
-    analyzer.load_data()
-    analyzer.impute_data()
-    analyzer.train_models()
-    analyzer.save_all_shap_plots()
+    # Import necessary dependencies
+    from config import load_config
+
+    # Load configuration and data
+    config = load_config()
+    data = pd.readcsv('RNN_model.csv')
+
+    analyzer = FeatureImportanceAnalyzer(config, data)
+    analyzer.calculate_feature_importance()

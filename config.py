@@ -82,12 +82,13 @@ def load_config():
         },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
-            # Analyze Dataset, Preprocess Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network
-            "parts_to_run": ['Analyze Dataset'],
+            # Analyze Dataset, Preprocess Dataset, Create RNNs, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network
+            "parts_to_run": ['Create RNNs'],
             "processing_unit": 'CPU',
             "analyze_PCA": True,
             # Add your data file paths here:
-            "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
+            #"data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
+            "data path": '/Users/austinnicolas/Documents/SummerREU2024/saved_research_files/Dataset.csv',
             "data path 2": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset2.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',
             "statistics comparison path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Stats_Comparison_Dataset.csv',

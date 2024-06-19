@@ -21,7 +21,7 @@ if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
         raise ValueError("Did not choose a proper processing unit. Pick CPU or GPU")
 if 'Analyze Dataset' in config["running_model"]["parts_to_run"]:
     from data_generation.data_analysis import DataAnalysis
-if 'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
+if 'Preprocess Dataset' in config["running_model"]["parts_to_run"] or 'Create RNNs' in config["running_model"]["parts_to_run"]:
     from data_preprocessing.preprocessing import PreProcessing
 if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
     from data_privatization.privatization import Privatizer
@@ -67,20 +67,33 @@ def main():
         else:
             logging.debug("Synthetic dataset not analyzed")  
 
-        if 'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
-            logging.info("Preprocessing the dataset...")
-
-            # Privatizing the dataset
+        if 'Preprocess Dataset' in config["running_model"]["parts_to_run"] or 'Create RNNs' in config["running_model"]["parts_to_run"]:
+            # Initialize the preprocessor class
             preprocesser = PreProcessing(config, data)
-            preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
-            logging.info("Preprocessing completed")
 
-            # Save the preprocessed dataset to a new CSV file
-            preprocessed_dataset.to_csv(config["running_model"]["preprocessed data path"], index=False)
-            logging.info("Preprocessed dataset saved to Preprocessed_Dataset.csv")
+            if 'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
+                logging.info("Preprocessing the dataset...")
+
+                # Preprocessing the dataset
+                preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
+                logging.info("Preprocessing completed")
+
+                # Save the preprocessed dataset to a new CSV file
+                preprocessed_dataset.to_csv(config["running_model"]["preprocessed data path"], index=False)
+                logging.info("Preprocessed dataset saved to Preprocessed_Dataset.csv")
+            else:
+                preprocessed_dataset = pd.read_csv(config["running_model"]["preprocessed data path"])            
+                logging.debug("New preprocessed dataset not generated")  
+
+            if 'Create RNNs'  in config["running_model"]["parts_to_run"]:
+                logging.info("Creating the RNNs...")
+
+                # Create the RNNs
+                preprocesser.create_RNN_models(preprocessed_dataset)
+                logging.info("RNNs created and the results are saved in RNN_models")
         else:
-            preprocessed_dataset = pd.read_csv(config["running_model"]["preprocessed data path"])            
-            logging.debug("New preprocessed dataset not generated")    
+                preprocessed_dataset = pd.read_csv(config["running_model"]["preprocessed data path"])            
+                logging.debug("New preprocessed dataset not generated")  
         
         if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
             # Choose privacy style
