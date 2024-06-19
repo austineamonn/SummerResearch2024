@@ -19,6 +19,18 @@ def load_config():
             "socioeconomic_status": "real",
             "learning_style": "real"
         },
+        "data_analysis":{
+            "output_dir": 'data_generation/data_analysis_graphs',
+            "string_cols": [
+                'first name', 'last name', 'ethnoracial group', 'gender', 
+                'international status', 'socioeconomic status'
+            ],
+            "list_cols": [
+                'learning style', 'major', 'previous courses', 'course types', 
+                'course subjects', 'subjects of interest', 'extracurricular activities', 
+                'career aspirations', 'future topics'
+            ]
+        },
         "preprocessing": {
             "n_components": 100
         },
@@ -70,9 +82,9 @@ def load_config():
         },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
-            # Preprocess Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network, Simulate Data Attack
-            "parts_to_run": ['Generate Dataset', 'Preprocess Dataset'],
-            # ['Generate Dataset', 'Preprocess Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
+            # Analyze Dataset, Preprocess Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, Test Neural Network
+            "parts_to_run": ['Analyze Dataset'],
+            "processing_unit": 'CPU',
             "analyze_PCA": True,
             # Add your data file paths here:
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',

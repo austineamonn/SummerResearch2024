@@ -28,7 +28,7 @@ Various JSON files that have lists of data and feature tuples. This folder also 
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
 ### [data_generation_CPU](data_generation/data_generation_CPU.py):
-Generates the synthetic dataset on the computers CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
+Generates the synthetic dataset on the computer's CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
 from data import Data
@@ -47,7 +47,7 @@ generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
 ### [data_generation_GPU](data_generation/data_generation_GPU.py):
-Generates the synthetic dataset on the computers GPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
+Generates the synthetic dataset on the computer's GPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
 from data import Data
@@ -65,8 +65,12 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
+### [data_analysis](data_generation/data_analysis.py):
+
+### [data_analysis_graphs](data_generation/data_analysis_graphs):
+
 ### [Dataset](data_generation/Dataset.csv)
-Synthetic dataset. 30,000 'students'.
+Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
 
 ## Data Preprocessing:
 
@@ -112,12 +116,16 @@ All feature columns and utility columns are 1 dimensional.
 ### [feature_importance](data_preprocessing/feature_importance.py):
 Calculate the feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
 
-### [explained_variance_plot](data_preprocessing/explained_variance_plot.png):
+### ![shap_summary_career_aspirations](data_preprocessing/shap_summary_career_aspirations.png):
+
+### ![shap_summary_future_topics](data_preprocessing/shap_summary_future_topics.png):
+
+### [explained_variance_plot - Under Construction](data_preprocessing/explained_variance_plot.png):
 Graph of the explained variance ratio of each principal component.
 
 ## Data Privatization
 
-### [privatization](data_privatization/privatization.py):
+### [privatization - Under Construction](data_privatization/privatization.py):
 Generates the privatized dataset based on the preprocessed dataset using various methods including: basic differential privacy (using laplace noise addition), uniform noise addition, randomized response, and random shuffling.
 
 ```python
@@ -135,10 +143,10 @@ privatizer = Privatizer(config)
 privatizer.privatize_dataset(preprocessed_dataset, utility_cols)
 ```
 
-### [Privatized_Dataset](data_privatization/Privatized_Dataset.csv)
+### [Privatized_Dataset - Under Construction](data_privatization/Privatized_Dataset.csv)
 Xp is cut out, X and Xu are multilabel binarized. PCA is run on X.
 
-### [privacy_metrics](data_privatization/privacy_metrics.py):
+### [privacy_metrics - Under Construction](data_privatization/privacy_metrics.py):
 Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
 
 ```python
@@ -158,7 +166,7 @@ metrics = PrivacyMetrics(config)
 metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 ```
 
-### [Stats_Comparison_Dataset](data_privatization/Stats_Comparison_Dataset.csv)
+### [Stats_Comparison_Dataset - Under Construction](data_privatization/Stats_Comparison_Dataset.csv)
 Each row is a column from 'Privatized_Dataset' with the utility columns removed. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
 
 ## Neural Network​:

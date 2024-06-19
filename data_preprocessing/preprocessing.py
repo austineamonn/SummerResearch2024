@@ -96,63 +96,7 @@ class PreProcessing:
             numberedlist.append(newlist)
 
         return numberedlist
-
-    def PCA(self, df, n_components=100):
-        """
-        Input: dataframe (columns to run PCA analysis on), number of components
-        Output: PCA analyzed dataframe, PCA
-        """
-        # Save the locations of NaNs
-        nan_mask = df.isna()
-
-        # Impute NaNs with the mean for PCA
-        imputer = SimpleImputer(strategy='mean')
-        df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
-
-        # Standardizing the features
-        features = df_imputed.columns
-        df = StandardScaler().fit_transform(df_imputed)
-
-        # Convert standardized data back to a DataFrame
-        df_standardized = pd.DataFrame(data=df, columns=features)
-
-        # Initialize PCA
-        pca = PCA(n_components=n_components)
-
-        # Fit and transform the standardized data
-        principal_components = pca.fit_transform(df_standardized)
-
-        # Create a DataFrame with the principal components
-        principal_df = pd.DataFrame(data=principal_components, columns=[f'PC{i+1}' for i in range(n_components)])
-
-        # Restore NaNs to the PCA results where they originally were
-        for col in principal_df.columns:
-            principal_df[col] = principal_df[col].where(~nan_mask.any(axis=1), np.nan)
-
-        return principal_df, pca
-    
-    def analyze_PCA(self, pca):
-        """
-        Input: PCA
-        Output: none
-        """
-        # Explained variance
-        explained_variance = pca.explained_variance_ratio_
-        logging.debug(f'Explained variance by each component: {explained_variance}')
-
-        # Plotting the explained variance
-        plt.figure(figsize=(8, 5))
-        plt.bar(range(1, len(explained_variance) + 1), explained_variance, alpha=0.5, align='center', label='individual explained variance')
-        plt.step(range(1, len(explained_variance) + 1), explained_variance.cumsum(), where='mid', label='cumulative explained variance')
-        plt.ylabel('Explained variance ratio')
-        plt.xlabel('Principal components')
-        plt.legend(loc='best')
-        plt.tight_layout()
-        
-        # Save the plot as a file
-        plt.savefig(self.config["running_model"]["PCA explained variance path"])
-        logging.info("PCA explained variance graph saved to 'explained_variance_plot.png'")
-    
+  
     def preprocess_columns(self, df, col):
         sequences = df[col].apply(lambda x: str(x)).tolist()
         # Ensure all sequences are lists of integers
@@ -247,14 +191,16 @@ class PreProcessing:
                 else:
                     logging.error(f"{col} is not a known column name")
 
-                df[col] = self.preprocess_columns(df, col)
-
         return df
     
     def run_RNN_models(self, df, model, layers=2):
+        # Copy of dataframe
+        df_copy = df.copy()
+
         # Iterate through the columns
         for col in self.X + self.Xu:
             if col not in self.numerical_cols:
+                preprocessed_col = self.preprocess_columns(df_copy, col)
 
                 # Create and train the model
                 if model == 'Simple':
@@ -264,17 +210,17 @@ class PreProcessing:
                 elif model == 'GRU':
                     rnn_model = self.create_gru_model(num_layers=layers)
                 else:
-                    raise ValueError("Did not choose an RNN model type.")
+                    raise ValueError("Did not choose an RNN model type")
                 
                 # Normally, you would train the model with appropriate labels, but for this example, we'll use dummy data
-                dummy_labels = np.random.rand(len(col), 1)  # Dummy target vectors of length 1
-                rnn_model.fit(col, dummy_labels, epochs=10, batch_size=32)
+                dummy_labels = np.random.rand(len(preprocessed_col), 1)  # Dummy target vectors of length 1
+                rnn_model.fit(preprocessed_col, dummy_labels, epochs=10, batch_size=32)
             
                 # Transform the sequences
-                transformed_sequences = rnn_model.predict(col)
-                df[col] = transformed_sequences
+                transformed_sequences = rnn_model.predict(preprocessed_col)
+                df_copy[col] = transformed_sequences
         
-        return df
+        return df_copy
     
     def create_RNN_models(self, df):
         for layer in range(1, 4):

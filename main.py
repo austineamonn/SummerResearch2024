@@ -2,17 +2,33 @@ import logging
 import pandas as pd
 from config import load_config
 from datafiles_for_data_construction.data import Data
-from SummerResearch2024.data_generation.data_generation_GPU import DataGenerator
-from data_preprocessing.preprocessing import PreProcessing
-from data_privatization.privatization import Privatizer
-from data_privatization.privacy_metrics import PrivacyMetrics
-from neural_network.neural_network import NeuralNetwork
 
 # Load configuration
 config = load_config()
 
 # Set up logging
 logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+
+# Only import classes that will be used
+if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
+    processing_unit = config["running_model"]["processing_unit"]
+    # Pick GPU vs CPU
+    if processing_unit == 'CPU':
+        from data_generation.data_generation_CPU import DataGenerator
+    elif processing_unit == 'GPU':
+        from data_generation.data_generation_GPU import DataGenerator
+    else:
+        raise ValueError("Did not choose a proper processing unit. Pick CPU or GPU")
+if 'Analyze Dataset' in config["running_model"]["parts_to_run"]:
+    from data_generation.data_analysis import DataAnalysis
+if 'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
+    from data_preprocessing.preprocessing import PreProcessing
+if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
+    from data_privatization.privatization import Privatizer
+if 'Calculate Privacy Metrics' in config["running_model"]["parts_to_run"]:
+    from data_privatization.privacy_metrics import PrivacyMetrics
+if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
+    from neural_network.neural_network import NeuralNetwork
 
 def main():
     """
@@ -21,7 +37,7 @@ def main():
     Third the function calculates the level of privacy of the privatized dataset through various privacy metrics.
     """
 
-    logging.info("Loading data and generating synthetic dataset...")
+    logging.info("Loading data and running model...")
 
     try:
         # Access the Datafiles
@@ -29,7 +45,7 @@ def main():
         
         if 'Generate Dataset' in config["running_model"]["parts_to_run"]:
             # Build the synthetic dataset and save it to a CSV file
-            dataset_builder = DataGenerator(config, data) #config
+            dataset_builder = DataGenerator(config, data)
             logging.debug("DataGenerator instance created")
 
             synthetic_dataset = dataset_builder.generate_synthetic_dataset(config["synthetic_data"]["num_samples"])
@@ -41,8 +57,17 @@ def main():
             synthetic_dataset = pd.read_csv(config["running_model"]["data path"])
             logging.debug("New synthetic dataset not generated")
 
-        if'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
-            # Choose privacy style
+        if 'Analyze Dataset' in config["running_model"]["parts_to_run"]:
+            logging.info("Analyzing the dataset...")
+
+            # Analyze the dataset
+            analyzer = DataAnalysis(config, synthetic_dataset)
+            analyzer.analyze_data()
+            logging.info("Synthetic dataset analyzed and results are saved to data_analysis_graphs")
+        else:
+            logging.debug("Synthetic dataset not analyzed")  
+
+        if 'Preprocess Dataset' in config["running_model"]["parts_to_run"]:
             logging.info("Preprocessing the dataset...")
 
             # Privatizing the dataset
@@ -57,7 +82,7 @@ def main():
             preprocessed_dataset = pd.read_csv(config["running_model"]["preprocessed data path"])            
             logging.debug("New preprocessed dataset not generated")    
         
-        if'Privatize Dataset' in config["running_model"]["parts_to_run"]:
+        if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
             # Choose privacy style
             logging.info("Privatizing the dataset...")
             style = config["privacy"]["style"]
@@ -114,12 +139,6 @@ def main():
                 logging.debug("Neural network testing not run")
         else:
             logging.debug("Neural network not run")
-
-        if 'Simulate Data Attack' in config["running_model"]["parts_to_run"]:
-            # Run a simulated data attack on the privatized dataset
-            logging.info("Simulated data attacks are still under construction")
-        else:
-            logging.debug("Simulated data attacks not run")
                
     except Exception as e:
         logging.error("Error in main execution: %s", e)
