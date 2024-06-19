@@ -93,7 +93,7 @@ This folder contains all the graphs produced by data_analysis.
 Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
 
 <p align="center">
-  <img src="SummerResearch2024/extra_files/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/extra_files/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
 </p>
 
 ## Data Preprocessing:
