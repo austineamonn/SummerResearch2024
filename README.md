@@ -114,7 +114,7 @@ Xu columns are left alone. These utility columns are the targets for the neural 
 ### [preprocessing](data_preprocessing/preprocessing.py):
 preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.
 
-run_RNN_models() - Takes in a preprocessed dataset. For each list in each column, the lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional.
+run_RNN_models() - Takes in a preprocessed dataset. For each list in each column, the lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional. There are 3 RNN types (Simple, GRU, ans LSTM) and they can run with different numbers of layers (1-4).
 
 ```python
 from pandas import pd
@@ -164,15 +164,6 @@ feature_analyzer = FeatureImportanceAnalyzer(config, preprocessed_dataset)
 # Returns preprocessed dataset
 feature_analyzer.calculate_feature_importance()
 ```
-
-### ![shap_summary_career_aspirations](data_preprocessing/shap_summary_career_aspirations.png):
-SHAP values for X columns based on predictive power for career aspirations.
-
-### ![shap_summary_future_topics](data_preprocessing/shap_summary_future_topics.png):
-SHAP values for X columns based on predictive power for future topics.
-
-### [explained_variance_plot - Under Construction](data_preprocessing/explained_variance_plot.png):
-Graph of the explained variance ratio of each principal component.
 
 ## Data Privatization
 

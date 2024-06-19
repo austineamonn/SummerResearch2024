@@ -227,10 +227,10 @@ class PreProcessing:
             result = self.run_RNN_models(df, 'Simple', layer)
             name = '/RNN_models/Simple'+str(layer)+'.csv'
             result.to_csv(name, index=False)
-            self.run_RNN_models(df, 'LSTM', layer)
+            result = self.run_RNN_models(df, 'LSTM', layer)
             name = '/RNN_models/LSTM'+str(layer)+'.csv'
             result.to_csv(name, index=False)
-            self.run_RNN_models(df, 'GRU', layer)
+            result = self.run_RNN_models(df, 'GRU', layer)
             name = '/RNN_models/GRU'+str(layer)+'.csv'
             result.to_csv(name, index=False)
 

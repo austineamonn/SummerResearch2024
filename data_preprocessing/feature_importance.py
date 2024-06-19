@@ -12,14 +12,15 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class FeatureImportanceAnalyzer:
-    def __init__(self, config, data):
+    def __init__(self, config, data, name):
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
+        self.dir_path = '/feature_importance_' + name
         self.features = data.drop(columns=['career aspirations', 'future topics'])
         self.target_career = data['career aspirations']
         self.target_future = data['future topics']
-        self.feature_names = self.features.columns
+        self.feature_names = config["privacy"]["X_list"]
         self.imputer = SimpleImputer(strategy='mean')
         self.model_career = RandomForestRegressor(random_state=42)
         self.model_future = RandomForestRegressor(random_state=42)
@@ -58,13 +59,14 @@ class FeatureImportanceAnalyzer:
         X_train_future, X_test_future, y_train_future, y_test_future = train_test_split(
             self.features_imputed, self.target_future, test_size=0.2, random_state=42)
 
+        career_path = self.dir_path + '/shap_summary_career_aspirations.png'
         self.save_shap_summary_plot(self.shap_values_career, X_test_career, self.feature_names,
-                                    'Career Aspirations', 'shap_summary_career_aspirations.png')
+                                    'Career Aspirations', career_path)
+        future_topics_path = self.dir_path + '/shap_summary_future_topics.png'
         self.save_shap_summary_plot(self.shap_values_future, X_test_future, self.feature_names,
-                                    'Future Topics', 'shap_summary_future_topics.png')
+                                    'Future Topics', future_topics_path)
         
     def calculate_feature_importance(self):
-        self.load_data()
         self.impute_data()
         self.train_models()
         self.save_all_shap_plots()
@@ -75,7 +77,7 @@ if __name__ == "__main__":
 
     # Load configuration and data
     config = load_config()
-    data = pd.readcsv('RNN_model.csv')
+    data1 = pd.read_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv')
 
-    analyzer = FeatureImportanceAnalyzer(config, data)
+    analyzer = FeatureImportanceAnalyzer(config, data1, 'GRU1')
     analyzer.calculate_feature_importance()
