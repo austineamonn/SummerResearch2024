@@ -74,6 +74,7 @@ def load_config():
             "parts_to_run": ['Generate Dataset', 'Preprocess Dataset'],
             # ['Generate Dataset', 'Preprocess Dataset', 'Privatize Dataset', 'Calculate Privacy Metrics', 'Run Neural Network', 'Tune Neural Network', 'Test Neural Network'],
             "analyze_PCA": True,
+            # Add your data file paths here:
             "data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
             "data path 2": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset2.csv',
             "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',

@@ -23,6 +23,7 @@ data = pd.read_csv(file_path)
 features = data.drop(columns=['career aspirations', 'future topics'])
 target_career = data['career aspirations']
 target_future = data['future topics']
+feature_names = features.columns
 
 # Impute missing values with the mean strategy
 imputer = SimpleImputer(strategy='mean')
@@ -47,13 +48,15 @@ shap_values_career = explainer_career(X_test_career)
 explainer_future = shap.Explainer(model_future, X_train_future)
 shap_values_future = explainer_future(X_test_future)
 
-# Function to save SHAP summary plots
-def save_shap_summary_plot(shap_values, features, filename):
-    plt.figure()
-    shap.summary_plot(shap_values, features, plot_type="bar", show=False)
+# Function to save SHAP summary plots with feature names and titles
+def save_shap_summary_plot(shap_values, features, feature_names, target, filename):
+    plt.figure(figsize=(10, 8))  # Increase the figure size
+    shap.summary_plot(shap_values, features, feature_names=feature_names, plot_type="bar", show=False)
+    plt.title(f'SHAP Summary Plot for {target}')
+    plt.subplots_adjust(left=0.3, right=0.9, top=0.9)  # Adjust the layout to prevent cutting off feature names and title
     plt.savefig(filename)
     plt.close()
 
-# Save the SHAP summary plots to PNG files
-save_shap_summary_plot(shap_values_career, X_test_career, 'shap_summary_career_aspirations.png')
-save_shap_summary_plot(shap_values_future, X_test_future, 'shap_summary_future_topics.png')
+# Save the SHAP summary plots to PNG files with feature names and titles
+save_shap_summary_plot(shap_values_career, X_test_career, feature_names, 'Career Aspirations', 'shap_summary_career_aspirations.png')
+save_shap_summary_plot(shap_values_future, X_test_future, feature_names, 'Future Topics', 'shap_summary_future_topics.png')

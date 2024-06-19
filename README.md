@@ -66,7 +66,7 @@ generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
 ### [Dataset](data_generation/Dataset.csv)
-Synthetic dataset. 1,000 'students'.
+Synthetic dataset. 30,000 'students'.
 
 ## Data Preprocessing:
 
