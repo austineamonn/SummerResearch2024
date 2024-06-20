@@ -11,6 +11,16 @@ To build a framework that will take various inputs from college student users, p
 ### Goal:
 Take student input data and build a privatized version. From the privatized version a machine learning model will provide students with topics for future study. Then the students take these topics to advisors, professors, counselors, peers, and others. These people will help the student pick what courses to take the upcoming semester based on the topics given and the courses offered at the student’s school.
 
+### Table of Contents:
+<ol>
+  <li>Main Functions</li>
+  <li>Data Generation</li>
+  <li>Data Preprocessing</li>
+  <li>Data Privatization - Under Construction</li>
+  <li>Neural Network - Under Construction</li>
+  <li>Sources and Acknowledgments</li>
+</ol>
+
 ## Main Functions:
 
 ### [main](main.py):
@@ -142,7 +152,7 @@ preprocessor.create_RNN_models(synthetic_dataset)
 ```
 
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
-All feature columns and utility columns are 1 dimensional.
+All feature columns and utility columns are 1 dimensional. Contains 100,000 'students'.
 
 ### [feature_importance](data_preprocessing/feature_importance.py):
 Run a random forest model and analyze feature importance using SHAP. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.

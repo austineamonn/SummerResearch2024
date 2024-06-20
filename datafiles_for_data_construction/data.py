@@ -51,7 +51,10 @@ class Data:
                 'Multiracial': ['Multiracial Student Association', 'Multicultural Student Association'],
                 'American Indian or Alaska Native': ['Native American Student Association'],
                 'Pacific Islander': ['Pacific Islander Student Association']
-            }
+            },
+            'ethnoracial_list': [
+                'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
+            ]
 
         }
 
@@ -68,7 +71,10 @@ class Data:
                 'Male': ["Men's Club", 'Fraternity Council'],
                 'Female': ["Women's Student Association", 'Sorority Council'],
                 'Non-binary': ['LGBTQ+ Alliance', 'Gender and Sexuality Alliance', 'Transgender Student Association'],
-            }
+            },
+            'gender_list': [
+                'Female', "Male", 'Nonbinary'
+            ]
         }
 
         return gender
@@ -82,7 +88,10 @@ class Data:
             'student_status_to_activities': {
                 'Domestic': ['Multicultural Student Association', 'Student Government Association'],
                 'International': ['International Students Club', 'Global Student Association']
-            }
+            },
+            'international_status_list': [
+                'Domestic', 'International'
+            ]
 
         }
 

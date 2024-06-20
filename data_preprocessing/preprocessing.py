@@ -4,10 +4,6 @@ import pandas as pd
 import sys
 import os
 import ast
-from sklearn.decomposition import PCA
-from sklearn.impute import SimpleImputer
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Embedding, SimpleRNN, Dense, Bidirectional, LSTM, GRU, Dropout # type: ignore
 from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
@@ -233,6 +229,41 @@ class PreProcessing:
             result = self.run_RNN_models(df, 'GRU', layer)
             name = '/RNN_models/GRU'+str(layer)+'.csv'
             result.to_csv(name, index=False)
+
+# Functions for Exporting
+def string_list_to_numberedlist(stringlist, col):
+    numberedlist = []
+
+    for rowlist in col:
+        # Ensure rowlist is a list of strings
+        if isinstance(rowlist, str):
+            try:
+                rowlist = ast.literal_eval(rowlist)
+                if not isinstance(rowlist, list):
+                    raise ValueError
+            except (ValueError, SyntaxError):
+                # Handle the case where the string cannot be converted to a list
+                rowlist = rowlist.strip("[]").replace("'", "").split(", ")
+
+        logging.debug(f"Processing row: {rowlist}")
+        # Initialize a new list
+        newlist = []
+        for item in rowlist:
+            # Only strip if item is a string
+            if isinstance(item, str):
+                item = item.strip()
+            logging.debug(f"Processing item: {item}")
+            if item in stringlist:
+                # For each item in the list add its index to the new list
+                newlist.append(stringlist.index(item))
+            else:
+                logging.debug(f"Error: '{item}' is not in list")
+                logging.debug(f"Current stringlist: {stringlist}")
+        
+        # Add the list to the numbered list
+        numberedlist.append(newlist)
+
+    return numberedlist
 
 # Main execution
 if __name__ == "__main__":
