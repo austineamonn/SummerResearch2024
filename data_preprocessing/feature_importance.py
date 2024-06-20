@@ -17,7 +17,7 @@ class FeatureImportanceAnalyzer:
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
-        self.dir_path = '/feature_importance_' + name
+        self.dir_path = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/feature_importance_' + name
         self.features = data.drop(columns=['career aspirations', 'future topics'])
         self.target_career = data['career aspirations']
         self.target_future = data['future topics']
