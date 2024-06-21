@@ -6,10 +6,10 @@ Project Lead: Austin Nicolas.
 Project Mentor: Dr. Shahnewaz Sakib.
 
 ## General Outline of Summer Research Project:
-To build a framework that will take various inputs from college student users, protect their data by privatizing the dataset, and build a machine learning model trained on the privatized data that will solve a multilabel classification problem and output recommendations for topics that a student should consider for future study based on their inputs.
+First a synthetic dataset was generated based on both real life data and synthetic mappings. Within the mapping there are three column types: Xp are private data that should not be leaked, X are the data being used to calculate Xu the utility data that the machine learning model is trying to predict. Then the feature importance for the dataset was calculated based on how much each X column impacted the target Xu column. Then the data was privatized using a variety of techniques including differential privacy, random shuffling, and noise addition. Then the privacy loss - utility gain tradeoff was calculated across machine learning models and privatization techniques.
 
 ### Goal:
-Take student input data and build a privatized version. From the privatized version a machine learning model will provide students with topics for future study. Then the students take these topics to advisors, professors, counselors, peers, and others. These people will help the student pick what courses to take the upcoming semester based on the topics given and the courses offered at the student’s school.
+Take student input data and build a privatized version to train a machine learning model. The machine learning model will provide students with topics for future study and possible career paths. Then the students take these topics and paths to advisors, professors, counselors, peers, and others. These people will help the student consider next steps (picking classes, career fairs, etc.) based on the results.
 
 ### Table of Contents:
 <ol>
@@ -17,6 +17,7 @@ Take student input data and build a privatized version. From the privatized vers
   <li>Data Generation</li>
   <li>Data Preprocessing</li>
   <li>Data Privatization - Under Construction</li>
+  <li>Calculating Tradeoffs</li>
   <li>Neural Network - Under Construction</li>
   <li>Sources and Acknowledgments</li>
 </ol>
@@ -151,11 +152,14 @@ preprocesser.preprocess_dataset(synthetic_dataset)
 preprocessor.create_RNN_models(synthetic_dataset)
 ```
 
+### [RNN Model Files](data_preprocessing/RNN_models):
+In this folder, the different RNN models for dimensionality reduction can be found. Currently I have run Simple with 1 and 2 layers, GRU with 1 layer and LSTM with 1 and 2 layers. So only these five can be found here.
+
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns are 1 dimensional. Contains 100,000 'students'.
 
 ### [feature_importance](data_preprocessing/feature_importance.py):
-Run a random forest model and analyze feature importance using SHAP. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
+Run a random forest model and analyze feature importance using the built in RandomForest feature importance calculator. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
 
 ```python
 from pandas import pd
@@ -174,6 +178,11 @@ feature_analyzer = FeatureImportanceAnalyzer(config, preprocessed_dataset)
 # Returns preprocessed dataset
 feature_analyzer.calculate_feature_importance()
 ```
+
+### Feature Importance Files:
+There are several folders in data_processing with the feature importance files for specific RNN dimensionality reduction methods. These are summarized in the following table which averages feature importance for both 'career aspirations' and 'future topics' across the RNN methods.
+
+### ![average_feature_importance_comparison](data_preprocessing/average_feature_importance_comparison.png)
 
 ## Data Privatization
 
@@ -221,6 +230,45 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 ### [Stats_Comparison_Dataset - Under Construction](data_privatization/Stats_Comparison_Dataset.csv)
 Each row is a column from 'Privatized_Dataset' with the utility columns removed. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
 
+## Calculating Tradeoffs:
+
+### [processing_private_columns](calculating_tradeoffs/processing_private_columns.py):
+The private data are converted into numbered lists. This currently only converts ethnoracial group, gender, and international status.
+
+```python
+from pandas import pd
+from config import load_config
+from datafiles_for_data_construction.data import Data
+from processing_private_columns import PrivateColumns
+
+# Import the synthetic dataset CSV as a pandas dataframes
+synthetic_dataset = pd.read_csv(path_to_synthetic_dataset.csv')
+
+# Create a private columns class
+private_cols = PrivateColumns(config, data)
+
+# Returns the processed private columns (ethnoracial group, gender, international student status)
+private_cols.get_private_cols(synthetic_dataset)
+```
+
+### [tradeoffs](calculating_tradeoffs/tradeoffs.py):
+Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics).
+
+```python
+from pandas import pd
+from config import load_config
+from tradeoffs import CalculateTradeoffs
+
+# Import the synthetic dataset CSV as a pandas dataframes
+RNN_preprocessed_dataset = pd.read_csv('path_to_RNN_preprocessed_dataset.csv')
+
+# Create a private columns class
+predictor = CalculateTradeoffs(config, RNN_preprocessed_dataset)
+
+# Returns the processed private columns (ethnoracial group, gender, international student status)
+predictor.train_and_evaluate()
+```
+
 ## Neural Network​:
 
 ### [neural_network - Under Construction](neural_network/neural_network.py):
@@ -229,7 +277,7 @@ Creates and runs a neural network on the privatized dataset. The target is 'futu
 ### [Feature_Importance - Under Construction](neural_network/Feature_Importance.csv)
 Columns are features, mean feature importance, and standard deviation feature importance.
 
-## Sources and Acknowlegments:
+## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
 
 https://educationdata.org/college-enrollment-statistics - College Demographic Statistics

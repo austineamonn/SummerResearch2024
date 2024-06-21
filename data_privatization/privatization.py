@@ -1,20 +1,16 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MultiLabelBinarizer, StandardScaler
-import ast
 import logging
+import sys
+import os
 
-from config import load_config
-
-# Load configuration
-config = load_config()
-
-# Set up logging
-logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+# Add the SummerResearch2024 directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class Privatizer:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, config, style=None):
+        # Set up logging
+        logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
         # Privatized - Utility split
         self.Xp = config["privacy"]["Xp_list"]
@@ -33,8 +29,11 @@ class Privatizer:
         self.p = config["privacy"]["randomized"]["p"]
         self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
 
-        # Privatization Method and its associated parameters
-        self.style = config["privacy"]["style"]
+        # Privatization Method
+        if style:
+            self.style = style
+        else:
+            self.style = config["privacy"]["style"]
         
     def normalize_features(self, df, col, type='Zscore'):
         """
@@ -74,7 +73,8 @@ class Privatizer:
         noised_data = data + noise
 
         # Use modulus to keep data insude
-        noised_data = self.modulus(noised_data, data.max())
+        noised_data = noised_data % data.max()
+        #noised_data = self.modulus(noised_data, data.max())
 
         logging.debug("Laplacian noise added")
         return noised_data
@@ -111,21 +111,13 @@ class Privatizer:
         noised_data = data + noise
 
         # Use modulus to keep data insude
-        noised_data = self.modulus(noised_data, data.max())
-        return noised_data
-    
-    def add_randomized_response(self, data, p=0.1):
-        """
-        Input: data column(s) to randomly flip, probability of flipping a value
-        Output: data column(s) with random flips
-        """
-        flip = np.random.choice([0, 1], size=data.shape, p=[1 - p, p])
-        noised_data = np.abs(data - flip)  # Flipping the values
+        noised_data = noised_data % data.max()
+        #noised_data = self.modulus(noised_data, data.max())
         return noised_data
 
     def random_shuffle(self, df, cols, num_shuffle):
         """
-        Input: dataset, column(s) to shuffle, the number or elements to shuffle
+        Input: dataset, name of the column(s) to shuffle, the number or elements to shuffle
         Output: shuffled dataset
         """
         # Randomly pick the indices to shuffle
@@ -153,8 +145,6 @@ class Privatizer:
             df[col] = self.basic_differential_privacy(df[col], sensitivity, self.epsilon)
         elif type == 'uniform':
             df[col] = self.add_uniform_noise(df[col], self.low, self.high)
-        elif type == 'randomized':
-            df[col] = self.add_randomized_response(df[col], self.p)
         elif type == 'shuffle':
             # The number to shuffle depends on the number of rows
             # and the ratio of rows shuffled
@@ -168,36 +158,49 @@ class Privatizer:
         Input: preprocessed dataset
         Output: privatized dataset
         """
-        # Find the utility columns
-        suffixes = ['_career aspirations', '_future topics']
 
-        # Find columns that end with any of the specified suffixes
-        utility_cols = [col for col in df.columns if col.endswith(tuple(suffixes))]
-
-        df_X = df.drop(columns=utility_cols)
+        df_X = df.loc[:, self.X]
 
         # Privatize the X columns
         if self.style == 'shuffle':
-            df = self.privatization_style(df, utility_cols, self.style)
+            # Shuffle the X columns
+            df = self.privatization_style(df, self.X, self.style)
         else:
             for col in df_X:
-                # Numerical columns
-                if col in self.numerical_cols:
-                    logging.debug(f"{col} is numerical")
-                    # Privatize the column
-                    # note that since numerical columns cannot use randomized
-                    # response the type gets set to basic differential privacy instead
-                    if self.style == 'randomized':
-                        df = self.privatization_style(df, col, 'basic differential privacy')
-                    else:
-                        df = self.privatization_style(df, col, self.style)
-                    logging.debug(f"{col} was privatized using {self.style}")
-                # Nonnumerical columns
-                else:
-                    logging.debug(f"{col} is not numerical")
-                    # Privatize the column
-                    df = self.privatization_style(df, col, self.style)
-                    logging.debug(f"{col} was privatized using {self.style}")
+                df = self.privatization_style(df, col, self.style)
+                logging.debug(f"{col} was privatized using {self.style}")
 
         return df
- 
+
+
+# Main execution
+if __name__ == "__main__":
+    # Import necessary dependencies
+    from config import load_config
+
+    # Load configuration and data
+    config = load_config()
+
+    # Import synthetic dataset and preprocess it
+    df = pd.read_csv(config["running_model"]["preprocessed data path"])
+
+    # Basic Differential Privacy
+    privatizer = Privatizer(config, 'basic differential privacy')
+    bdp_df = privatizer.privatize_dataset(df)
+    bdp_df.to_csv(config["running_model"]["basic differential privacy privatized data path"], index=False)
+
+    logging.info("Basic Differential Privacy Run")
+
+    # Uniform Noise Addition
+    privatizer = Privatizer(config, 'uniform')
+    un_df = privatizer.privatize_dataset(df)
+    un_df.to_csv(config["running_model"]["uniform noise privatized data path"], index=False)
+
+    logging.info("Uniform Noise Privacy Run")
+
+    # Random Shuffling
+    privatizer = Privatizer(config, 'shuffle')
+    rs_df = privatizer.privatize_dataset(df)
+    rs_df.to_csv(config["running_model"]["random shuffling privatized data path"], index=False)
+
+    logging.info("Random Shuffling Privacy Run")

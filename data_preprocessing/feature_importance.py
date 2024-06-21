@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-#import shap
+from sklearn.metrics import mean_squared_error
 import os
 import sys
 import logging
@@ -62,14 +62,13 @@ class FeatureImportanceAnalyzer:
     def calculate_feature_importance(self):
         self.impute_data()
         self.train_models()
-        #self.save_all_shap_plots()
         self.save_all_feature_importance_plots()
 
 if __name__ == "__main__":
     # Import necessary dependencies
     from config import load_config
 
-    # Load configuration and data
+    # Load configuration
     config = load_config()
 
     # File paths for the RNN model data
@@ -117,3 +116,24 @@ if __name__ == "__main__":
     # Save plot to file
     avg_plot_file_path = "/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/average_feature_importance_comparison.png"
     plt.savefig(avg_plot_file_path)
+
+    # Calculate the MSE for each model's feature importances compared to the average
+    career_mse = {}
+    future_mse = {}
+
+    for path, career_importance, future_importance in zip(file_paths, career_importances, future_importances):
+        model_name = os.path.basename(path).split('.')[0]
+        career_mse[model_name] = mean_squared_error(avg_career_importances, career_importance)
+        future_mse[model_name] = mean_squared_error(avg_future_importances, future_importance)
+
+    # Sort models by MSE
+    sorted_career_mse = sorted(career_mse.items(), key=lambda x: x[1])
+    sorted_future_mse = sorted(future_mse.items(), key=lambda x: x[1])
+
+    # Convert to DataFrame
+    career_df = pd.DataFrame(sorted_career_mse, columns=['Model', 'Career MSE'])
+    future_df = pd.DataFrame(sorted_future_mse, columns=['Model', 'Future MSE'])
+
+    # Save to CSV
+    career_df.to_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/career_mse_ranking.csv', index=False)
+    future_df.to_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/future_mse_ranking.csv', index=False)
