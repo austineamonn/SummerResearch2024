@@ -1,0 +1,26 @@
+file,target,mse
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv,career aspirations,0.00042809008337263324
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv,future topics,0.0005435758170432021
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv,ethnoracial group,1.29419997004892
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv,gender,0.2789152843583809
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv,international status,0.045821845004835556
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv,career aspirations,0.0002916970659983976
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv,future topics,0.0006538739469677333
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv,ethnoracial group,1.2965246765015663
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv,gender,0.2944634563277084
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv,international status,0.04343174496709192
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM2_combined.csv,career aspirations,0.0004043129351342105
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM2_combined.csv,future topics,0.00034982480747637314
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM2_combined.csv,ethnoracial group,1.2759120995988347
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM2_combined.csv,gender,0.3006217387146702
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM2_combined.csv,international status,0.05117061163200881
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv,career aspirations,5.185068324414237e-06
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv,future topics,0.00022016620525358975
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv,ethnoracial group,1.262192621720684
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv,gender,0.2753392738226599
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv,international status,0.051064302290509914
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2_combined.csv,career aspirations,0.0006886936714913641
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2_combined.csv,future topics,6.0128618255554145e-05
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2_combined.csv,ethnoracial group,1.2592109186212819
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2_combined.csv,gender,0.2746829733567298
+/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2_combined.csv,international status,0.043924346830673804

@@ -2,7 +2,7 @@ def load_config():
     return {
         # Logging Level
         "logging": {
-            "level": "DEBUG",
+            "level": "INFO",
             "format": "%(asctime)s - %(levelname)s - %(message)s"
         },
         "running_model": {
@@ -28,6 +28,8 @@ def load_config():
             "uniform noise privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Uniform_Privatized_Dataset.csv',
 
             "random shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Shuffling_Privatized_Dataset.csv',
+
+            "complete shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Complete_Shuffling_Privatized_Dataset.csv',
 
             "statistics comparison path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Stats_Comparison_Dataset.csv',
 

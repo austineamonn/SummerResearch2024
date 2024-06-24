@@ -8,6 +8,7 @@ import sys
 import logging
 import matplotlib.pyplot as plt
 import numpy as np
+import shap
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -17,52 +18,106 @@ class FeatureImportanceAnalyzer:
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
-        self.dir_path = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/feature_importance_' + name
-        self.features = data.drop(columns=['career aspirations', 'future topics'])
-        self.target_career = data['career aspirations']
-        self.target_future = data['future topics']
+        self.dir_path = f'/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/feature_importance_{name}'
+        self.features = data.drop(columns=['career aspirations', 'future topics', 'ethnoracial group', 'gender', 'international status'])
+        self.targets = {
+            'career aspirations': data['career aspirations'],
+            'future topics': data['future topics'],
+            'ethnoracial group': data['ethnoracial group'],
+            'gender': data['gender'],
+            'international status': data['international status']
+        }
         self.feature_names = config["privacy"]["X_list"]
         self.imputer = SimpleImputer(strategy='mean')
-        self.model_career = RandomForestRegressor(random_state=42)
-        self.model_future = RandomForestRegressor(random_state=42)
-        self.feature_importances_career = None
-        self.feature_importances_future = None
+        self.models = {target: RandomForestRegressor(random_state=42) for target in self.targets}
+        self.feature_importances = {target: None for target in self.targets}
+        self.shap_values = {target: None for target in self.targets}
 
     def impute_data(self):
         self.features_imputed = self.imputer.fit_transform(self.features)
+        self.targets_imputed = {target: self.imputer.fit_transform(values.values.reshape(-1, 1)).ravel() for target, values in self.targets.items()}
+
 
     def train_models(self):
-        X_train_career, X_test_career, y_train_career, y_test_career = train_test_split(
-            self.features_imputed, self.target_career, test_size=0.2, random_state=42)
-        X_train_future, X_test_future, y_train_future, y_test_future = train_test_split(
-            self.features_imputed, self.target_future, test_size=0.2, random_state=42)
-        
-        self.model_career.fit(X_train_career, y_train_career)
-        self.model_future.fit(X_train_future, y_train_future)
+        self.splits = {}
+        for target, values in self.targets_imputed.items():
+            X_train, X_test, y_train, y_test = train_test_split(
+                self.features_imputed, values, test_size=0.2, random_state=42)
+            self.models[target].fit(X_train, y_train)
+            self.splits[target] = (X_train, X_test, y_train, y_test)
+    
+    def calculate_feature_importance(self, method='built-in'):
+        for target in self.targets:
+            if method == 'built-in':
+                self.feature_importances[target] = self.models[target].feature_importances_
+            elif method == 'shap':
+                explainer = shap.TreeExplainer(self.models[target])
+                self.shap_values[target] = explainer.shap_values(self.features_imputed)
+                self.feature_importances[target] = np.abs(self.shap_values[target]).mean(axis=0)
 
-        self.feature_importances_career = self.model_career.feature_importances_
-        self.feature_importances_future = self.model_future.feature_importances_
+    def average_feature_importance(self, files, method='built-in'):
+        total_importance = {target: np.zeros(len(self.feature_names)) for target in self.targets}
         
-    def save_feature_importance_plot(self, importances, feature_names, target, filename):
-        plt.figure(figsize=(10, 8))
-        indices = np.argsort(importances)[::-1]
-        plt.title(f'Feature Importances for {target}')
-        plt.bar(range(len(importances)), importances[indices], align='center')
-        plt.xticks(range(len(importances)), [feature_names[i] for i in indices], rotation=90)
-        plt.tight_layout()
-        plt.savefig(filename)
-        plt.close()
+        for file in files:
+            data = pd.read_csv(file)
+            self.features = data.drop(columns=['career aspirations', 'future topics', 'ethnoracial group', 'gender', 'international status'])
+            for target in self.targets:
+                self.targets[target] = data[target]
+            self.impute_data()
+            self.train_models()
+            self.calculate_feature_importance(method)
+            for target in self.targets:
+                total_importance[target] += self.feature_importances[target]
+        
+        average_importance = {target: total_importance[target] / len(files) for target in self.targets}
+        
+        return average_importance
 
-    def save_all_feature_importance_plots(self):
-        career_path = self.dir_path + '/feature_importance_career_aspirations.png'
-        self.save_feature_importance_plot(self.feature_importances_career, self.feature_names, "career aspirations", career_path)
-        future_topics_path = self.dir_path + '/feature_importance_future_topics.png'
-        self.save_feature_importance_plot(self.feature_importances_future, self.feature_names, "future topics", future_topics_path)
+    def plot_feature_importance(self, importance, title):
+        plt.figure(figsize=(10, 6))  # Adjusted figure size for small display
+        indices = np.argsort(importance)
+        bars = plt.barh(range(len(indices)), importance[indices], align='center', color='skyblue')  # Changed bar color
+        plt.yticks(range(len(indices)), [self.feature_names[i] for i in indices], fontsize=14, weight='bold')  # Smaller and bold font for y-ticks
+        plt.xticks(fontsize=14, weight='bold')  # Smaller and bold font for x-ticks
+        plt.title(title, fontsize=18, fontweight='bold')  # Smaller and bolded title font size
+        plt.xlabel('Feature Importance', fontsize=16, weight='bold')  # Smaller and bold font size for x-label
+
+        # Adding value labels inside the bars
+        for bar, value in zip(bars, importance[indices]):
+            plt.text(bar.get_width() - 0.05, bar.get_y() + bar.get_height() / 2, f'{value:.2f}', 
+                     ha='center', va='center', fontsize=14, weight='bold', color='black')  # Value labels inside bars
+
+        plt.tight_layout(pad=2.0)  # Adjusted layout with padding
+        plt.show()
+
+    def save_mse_differences(self, files):
+        mse_differences = []
         
-    def calculate_feature_importance(self):
-        self.impute_data()
-        self.train_models()
-        self.save_all_feature_importance_plots()
+        for file in files:
+            data = pd.read_csv(file)
+            self.features = data.drop(columns=['career aspirations', 'future topics', 'ethnoracial group', 'gender', 'international status'])
+            for target in self.targets:
+                self.targets[target] = data[target]
+            self.impute_data()
+            self.train_models()
+            
+            for target in self.targets:
+                X_train, X_test, y_train, y_test = self.splits[target]
+                preds = self.models[target].predict(X_test)
+                mse = mean_squared_error(y_test, preds)
+                mse_differences.append({'file': file, 'target': target, 'mse': mse})
+        
+        mse_df = pd.DataFrame(mse_differences)
+        mse_df.to_csv(os.path.join(self.dir_path, 'mse_differences.csv'), index=False)
+    
+    def process_files(self, files, method='built-in'):
+        average_importance = self.average_feature_importance(files, method)
+        
+        for target in average_importance:
+            self.plot_feature_importance(average_importance[target], f'Average Feature Importance for {target}')
+        
+        self.save_mse_differences(files)
+        
 
 if __name__ == "__main__":
     # Import necessary dependencies
@@ -80,60 +135,73 @@ if __name__ == "__main__":
         '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple2.csv'
     ]
 
-    career_importances = []
-    future_importances = []
+    # Path to the private columns file
+    private_columns_path = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/Private_Columns.csv'
 
-    for path in file_paths:
-        data = pd.read_csv(path)
-        analyzer = FeatureImportanceAnalyzer(config, data, os.path.basename(path).split('.')[0])
-        analyzer.calculate_feature_importance()
-        career_importances.append(analyzer.feature_importances_career)
-        future_importances.append(analyzer.feature_importances_future)
+    # Path to save feature importance results
+    feature_importance_dir = '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/feature_importance/'
 
-    # Compute average feature importances
-    avg_career_importances = np.mean(career_importances, axis=0)
-    avg_future_importances = np.mean(future_importances, axis=0)
+    # Ensure the feature importance directory exists
+    os.makedirs(feature_importance_dir, exist_ok=True)
 
-    # Create DataFrame for average importances
-    feature_names = config["privacy"]["X_list"]
-    avg_importance_data = {
-        'Feature': feature_names,
-        'Career Aspirations Importance': avg_career_importances,
-        'Future Topics Importance': avg_future_importances
-    }
-    avg_importance_df = pd.DataFrame(avg_importance_data)
+    # Load the private columns data
+    private_columns_data = pd.read_csv(private_columns_path)
 
-    # Plot average importances
-    fig, ax = plt.subplots(figsize=(12, 8))
+    # Process each file individually
+    combined_file_paths = []
 
-    avg_importance_df.plot(kind='bar', x='Feature', ax=ax)
+    for file_path in file_paths:
+        # Load RNN model data
+        rnn_data = pd.read_csv(file_path)
+        
+        # Combine with private columns data
+        combined_data = pd.concat([rnn_data, private_columns_data], axis=1)
+        final_data = combined_data.sample(frac=0.1)
+        
+        # Save the combined data to a new file
+        combined_file_path = file_path.replace('.csv', '_combined.csv')
+        final_data.to_csv(combined_file_path, index=False)
+        combined_file_paths.append(combined_file_path)
 
-    plt.title('Average Feature Importances for Career Aspirations and Future Topics')
-    plt.ylabel('Importance')
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
+        # Set feature names in config
+        config["privacy"]["X_list"] = list(final_data.drop(columns=['career aspirations', 'future topics', 'ethnoracial group', 'gender', 'international status']).columns)
 
-    # Save plot to file
-    avg_plot_file_path = "/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/average_feature_importance_comparison.png"
-    plt.savefig(avg_plot_file_path)
+        # Create instances of FeatureImportanceAnalyzer for built-in and SHAP methods
+        name = os.path.basename(file_path).replace('.csv', '')
+        
+        analyzer_built_in = FeatureImportanceAnalyzer(config, final_data, f'{name}_built_in')
+        analyzer_shap = FeatureImportanceAnalyzer(config, final_data, f'{name}_shap')
+        
+        # Impute data and train models before calculating feature importance
+        analyzer_built_in.impute_data()
+        analyzer_built_in.train_models()
+        analyzer_built_in.calculate_feature_importance(method='built-in')
 
-    # Calculate the MSE for each model's feature importances compared to the average
-    career_mse = {}
-    future_mse = {}
+        analyzer_shap.impute_data()
+        analyzer_shap.train_models()
+        analyzer_shap.calculate_feature_importance(method='shap')
 
-    for path, career_importance, future_importance in zip(file_paths, career_importances, future_importances):
-        model_name = os.path.basename(path).split('.')[0]
-        career_mse[model_name] = mean_squared_error(avg_career_importances, career_importance)
-        future_mse[model_name] = mean_squared_error(avg_future_importances, future_importance)
+        # Save results to the feature importance directory
+        analyzer_built_in.dir_path = os.path.join(feature_importance_dir, f'{name}_built_in')
+        analyzer_shap.dir_path = os.path.join(feature_importance_dir, f'{name}_shap')
 
-    # Sort models by MSE
-    sorted_career_mse = sorted(career_mse.items(), key=lambda x: x[1])
-    sorted_future_mse = sorted(future_mse.items(), key=lambda x: x[1])
+        os.makedirs(analyzer_built_in.dir_path, exist_ok=True)
+        os.makedirs(analyzer_shap.dir_path, exist_ok=True)
 
-    # Convert to DataFrame
-    career_df = pd.DataFrame(sorted_career_mse, columns=['Model', 'Career MSE'])
-    future_df = pd.DataFrame(sorted_future_mse, columns=['Model', 'Future MSE'])
+    # Initialize analyzers for averaging and MSE calculations using the first combined dataset as an example
+    example_combined_data = pd.read_csv(combined_file_paths[0])
+    analyzer_built_in = FeatureImportanceAnalyzer(config, example_combined_data, 'average_built_in')
+    analyzer_shap = FeatureImportanceAnalyzer(config, example_combined_data, 'average_shap')
 
-    # Save to CSV
-    career_df.to_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/career_mse_ranking.csv', index=False)
-    future_df.to_csv('/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/future_mse_ranking.csv', index=False)
+    # Set the directory path for saving average results
+    analyzer_built_in.dir_path = os.path.join(feature_importance_dir, 'average_built_in')
+    analyzer_shap.dir_path = os.path.join(feature_importance_dir, 'average_shap')
+
+    os.makedirs(analyzer_built_in.dir_path, exist_ok=True)
+    os.makedirs(analyzer_shap.dir_path, exist_ok=True)
+
+    # Process all combined files to calculate and save average feature importance and MSE differences for both methods
+    analyzer_built_in.process_files(combined_file_paths, method='built-in')
+    analyzer_shap.process_files(combined_file_paths, method='shap')
+
+    print("Feature importance and MSE differences have been calculated and saved using both methods.")

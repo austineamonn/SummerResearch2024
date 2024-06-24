@@ -26,7 +26,6 @@ class Privatizer:
         self.epsilon = config["privacy"]["basic differential privacy"]["epsilon"]
         self.low = config["privacy"]["uniform"]["low"]
         self.high = config["privacy"]["uniform"]["high"]
-        self.p = config["privacy"]["randomized"]["p"]
         self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
 
         # Privatization Method
@@ -84,6 +83,10 @@ class Privatizer:
         Input: dataset, column to measure sensitivity, type of sensitivity (mean vs sum)
         Output: sensitivity of the column
         """
+        # Check if the column contains numerical data
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            raise TypeError(f"Column '{col}' contains non-numerical data.")
+    
         if type == 'mean':
             # Calculate the sensitivity for the mean query
             # better for average distribution of labels
@@ -150,6 +153,10 @@ class Privatizer:
             # and the ratio of rows shuffled
             num_shuffle = round(df.shape[0] * self.shuffle_ratio)
             df = self.random_shuffle(df, col, num_shuffle)
+        elif type == 'full shuffle':
+            # Completely shuffles all values
+            num_shuffle = df.shape[0]
+            df = self.random_shuffle(df, col, num_shuffle)
 
         return df
 
@@ -182,7 +189,7 @@ if __name__ == "__main__":
     config = load_config()
 
     # Import synthetic dataset and preprocess it
-    df = pd.read_csv(config["running_model"]["preprocessed data path"])
+    df = pd.read_csv(config["running_model"]["preprocessed with RNN data path"])
 
     # Basic Differential Privacy
     privatizer = Privatizer(config, 'basic differential privacy')
@@ -202,5 +209,12 @@ if __name__ == "__main__":
     privatizer = Privatizer(config, 'shuffle')
     rs_df = privatizer.privatize_dataset(df)
     rs_df.to_csv(config["running_model"]["random shuffling privatized data path"], index=False)
+
+    logging.info("Random Shuffling Privacy Run")
+
+    # Complete Shuffling
+    privatizer = Privatizer(config, 'full shuffle')
+    fs_df = privatizer.privatize_dataset(df)
+    fs_df.to_csv(config["running_model"]["complete shuffling privatized data path"], index=False)
 
     logging.info("Random Shuffling Privacy Run")
