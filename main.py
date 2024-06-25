@@ -24,7 +24,7 @@ if 'Analyze Dataset' in config["running_model"]["parts_to_run"]:
 if 'Preprocess Dataset' in config["running_model"]["parts_to_run"] or 'Create RNNs' in config["running_model"]["parts_to_run"]:
     from data_preprocessing.preprocessing import PreProcessing
 if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
-    from data_privatization.privatization import Privatizer
+    from SummerResearch2024.data_privatization.privatization import Privatizer
 if 'Calculate Privacy Metrics' in config["running_model"]["parts_to_run"]:
     from data_privatization.privacy_metrics import PrivacyMetrics
 if 'Run Neural Network' in config["running_model"]["parts_to_run"]:

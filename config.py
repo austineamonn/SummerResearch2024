@@ -25,6 +25,8 @@ def load_config():
 
             "basic differential privacy privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Basic_DP_Privatized_Dataset.csv',
 
+            "basic differential privacy LLC privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Basic_DP_LLC_Privatized_Dataset.csv',
+
             "uniform noise privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Uniform_Privatized_Dataset.csv',
 
             "random shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Shuffling_Privatized_Dataset.csv',
@@ -103,8 +105,9 @@ def load_config():
             # Normalization Parameters
             "normalize_type": 'Zscore',
 
-            # Style Options: basic differential privacy, uniform, shuffle
-            #"style": "shuffle",
+            # Style Options: basic differential privacy, uniform, shuffle,
+            # basic differential privacy list length change, uniform list length change
+            "style": "shuffle",
 
             # Sensitivity Options: mean, sum
             "basic differential privacy": {
