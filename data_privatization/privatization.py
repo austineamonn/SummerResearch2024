@@ -243,6 +243,25 @@ class Privatizer:
 
         return noisy_df
 
+    def random_shuffle(self, df, cols, num_shuffle):
+        """
+        Input: dataset, name of the column(s) to shuffle, the number or elements to shuffle
+        Output: shuffled dataset
+        """
+        # Randomly pick the indices to shuffle
+        indices = np.random.choice(df.index, num_shuffle, replace=False)
+
+        # Get a copy of the DataFrame subset to shuffle
+        sub_df = df.loc[indices, cols].copy()
+
+        # Shuffle the DataFrame subset rows
+        shuffled_sub_df = sub_df.sample(frac=1).reset_index(drop=True)
+
+        # Assign the shuffled rows back to the original DataFrame positions
+        df.loc[indices, cols] = shuffled_sub_df.values
+
+        return df    
+
     def privatize_dataset(self, df):
         """
         Input: preprocessed dataset
@@ -261,11 +280,11 @@ class Privatizer:
             # The number to shuffle depends on the number of rows
             # and the ratio of rows shuffled
             num_shuffle = round(df.shape[0] * self.shuffle_ratio)
-            df = self.random_shuffle(df, num_shuffle)
+            df_X = self.random_shuffle(df, self.X, num_shuffle)
         elif self.style == 'full shuffle':
             # Completely shuffles all values
             num_shuffle = df.shape[0]
-            df = self.random_shuffle(df, num_shuffle)
+            df_X = self.random_shuffle(df, self.X, num_shuffle)
 
         return df_X
 
@@ -293,7 +312,7 @@ if __name__ == "__main__":
     bdp_df.to_csv(config["running_model"]["basic differential privacy LLC privatized data path"], index=False)
 
     logging.info("Basic Differential Privacy completed")
-    """
+
     # Uniform Noise Addition
     privatizer = Privatizer(config, data, 'uniform')
     un_df = privatizer.privatize_dataset(df)
@@ -305,7 +324,7 @@ if __name__ == "__main__":
     un_df.to_csv(config["running_model"]["uniform noise LLC privatized data path"], index=False)
 
     logging.info("Uniform Noise Privacy completed")
-"""
+    """
     # Random Shuffling
     privatizer = Privatizer(config, data, 'shuffle')
     rs_df = privatizer.privatize_dataset(df)
@@ -319,4 +338,3 @@ if __name__ == "__main__":
     fs_df.to_csv(config["running_model"]["complete shuffling privatized data path"], index=False)
 
     logging.info("Complete Shuffling Privacy completed")
-"""
