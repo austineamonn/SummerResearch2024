@@ -104,7 +104,7 @@ This folder contains all the graphs produced by data_analysis.
 Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
 
 <p align="center">
-  <img src="/extra_files/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/graphics/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
 </p>
 
 ## Data Preprocessing:
@@ -158,7 +158,7 @@ In this folder, the different RNN models for dimensionality reduction can be fou
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns are 1 dimensional. Contains 100,000 'students'.
 
-### [feature_importance](data_preprocessing/feature_importance.py):
+### [feature_importance - Under Construction](data_preprocessing/feature_importance.py):
 Run a random forest model and analyze feature importance using the built in RandomForest feature importance calculator. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
 
 ```python
@@ -179,15 +179,28 @@ feature_analyzer = FeatureImportanceAnalyzer(config, preprocessed_dataset)
 feature_analyzer.calculate_feature_importance()
 ```
 
-### Feature Importance Files:
+### Feature Importance Files - Under Construction:
 There are several folders in data_processing with the feature importance files for specific RNN dimensionality reduction methods. These are summarized in the following table which averages feature importance for both 'career aspirations' and 'future topics' across the RNN methods.
 
-### ![average_feature_importance_comparison](data_preprocessing/average_feature_importance_comparison.png)
+### average_feature_importance_comparison - Under Construction
 
 ## Data Privatization
 
-### [privatization - Under Construction](data_privatization/privatization.py):
-Generates the privatized dataset based on the preprocessed dataset using various methods including: basic differential privacy (using laplace noise addition), uniform noise addition, and random shuffling.
+### Privatization Methods
+There are two main methods:
+<ol>
+  <li>Differential Privacy which adds noise to the data to reach a privatization level specified by epsilon. Epsilon is set to 0.1 and the noise type is set to 'laplace'. The list lengths can be changed based on the noise type though this is set to False.</li>
+  <li>Random Shuffling which shuffles a set ratio of the data rows. The shuffle ratio is set to 10% but can be automatically set o 100% using the 'full shuffle' privatization method.</li>
+</ol>
+Overall, there is wide flexibility in the options for privatization method. The sensitivity for the differential privacy is calculated using the mean method.
+
+
+<p align="center">
+  <img src="/graphics/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
+</p>
+
+### [privatization](data_privatization/privatization.py):
+Generates the privatized dataset based on the preprocessed dataset using one of the various methods listed above.
 
 ```python
 from pandas import pd
@@ -197,15 +210,15 @@ from privatization import Privatizer
 # Import preprocessed dataset CSV as a pandas dataframe
 preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
 
-# Create privatizer class
-privatizer = Privatizer(config)
+# Create privatizer class using differential privacy with laplace noise addition, epsilon of 0.1 and no list length changing
+privatizer = Privatizer(config, data, 'basic differential privacy', True)
 
 # Returns privatized dataset
-privatizer.privatize_dataset(preprocessed_dataset, utility_cols)
+privatizer.privatize_dataset(preprocessed_dataset)
 ```
 
-### [Privatized_Dataset - Under Construction](data_privatization/Privatized_Dataset.csv)
-Xp is cut out, X and Xu are multilabel binarized. PCA is run on X.
+### Privatized Datasets
+There are a variety of privatized datasets including differential privacy with laplace and uniform noise addition and with and without list length changing (LLC) as well as the random shuffling at 10% and 100%.
 
 ### [privacy_metrics - Under Construction](data_privatization/privacy_metrics.py):
 Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
