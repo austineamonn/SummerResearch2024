@@ -31,14 +31,13 @@ class PreProcessing:
         for rowlist in col:
             # Ensure rowlist is a list of strings
             if isinstance(rowlist, str):
-                if isinstance(rowlist, str):
-                    try:
-                        rowlist = ast.literal_eval(rowlist)
-                        if not isinstance(rowlist, list):
-                            raise ValueError
-                    except (ValueError, SyntaxError):
-                        # Handle the case where the string cannot be converted to a list
-                        rowlist = rowlist.strip("[]").replace("'", "").split(", ")
+                try:
+                    rowlist = ast.literal_eval(rowlist)
+                    if not isinstance(rowlist, list):
+                        raise ValueError
+                except (ValueError, SyntaxError):
+                    # Handle the case where the string cannot be converted to a list
+                    rowlist = rowlist.strip("[]").replace("'", "").split(", ")
 
             logging.debug(f"Processing row: {rowlist}")
             # Create a list of zeroes the length of the stringlist
@@ -87,11 +86,18 @@ class PreProcessing:
                 else:
                     logging.debug(f"Error: '{item}' is not in list")
                     logging.debug(f"Current stringlist: {stringlist}")
-            
+
             # Add the list to the numbered list
             numberedlist.append(newlist)
 
         return numberedlist
+    
+    def fix_course_types(self, course_types):
+        unique_types = set()
+        for sublist in course_types:
+            for item in sublist:
+                unique_types.add(item)
+        return list(unique_types)
   
     def preprocess_columns(self, df, col):
         sequences = df[col].apply(lambda x: str(x)).tolist()
@@ -147,9 +153,11 @@ class PreProcessing:
         Input: dataset
         Output: preprocessed dataset
         """
+        # Copy the dataframe
+        new_df = df.copy()
 
         # Drop the Xp columns
-        df = df.drop(columns=self.Xp)
+        new_df = new_df.drop(columns=self.Xp)
         logging.debug(f"{self.Xp} were dropped")
 
         # Iterate through the columns
@@ -158,36 +166,38 @@ class PreProcessing:
                 # X
                 if col == 'learning style':
                     stringlist = self.data.learning_style()['learning_style_list']
-                    df[col] = self.stringlist_to_binarylist(stringlist, df[col])
+                    new_df[col] = self.stringlist_to_binarylist(stringlist, new_df[col])
                 elif col == 'major':
                     stringlist = self.data.major()['majors_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'previous courses':
                     stringlist = self.data.course()['course_names_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'course types':
+                    # Apply special function to fix the 'course types' column to be one nonrepeating list
+                    new_df[col] = new_df[col].apply(eval).apply(self.fix_course_types)
                     stringlist = self.data.course()['course_type_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'course subjects':
                     stringlist = self.data.course()['course_subject']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'subjects of interest':
                     stringlist = self.data.subjects()['subjects_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'extracurricular activities':
                     stringlist = self.data.extracurricular_activities()['complete_activity_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 # Xu
                 elif col == 'career aspirations':
                     stringlist = self.data.careers()['careers_list']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'future topics':
                     stringlist = self.data.future_topics()['future_topics']
-                    df[col] = self.string_list_to_numberedlist(stringlist, df[col])
+                    new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 else:
                     logging.error(f"{col} is not a known column name")
-
-        return df
+                
+        return new_df
     
     def run_RNN_models(self, df, model, layers=2):
         # Copy of dataframe
@@ -282,4 +292,4 @@ if __name__ == "__main__":
     df.to_csv(config["running_model"]["preprocessed data path"], index=False)
 
     # Create the RNN models and save them to their files
-    preprocessor.create_RNN_models(df)
+    #preprocessor.create_RNN_models(df)
