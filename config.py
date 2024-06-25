@@ -2,7 +2,7 @@ def load_config():
     return {
         # Logging Level
         "logging": {
-            "level": "INFO",
+            "level": "DEBUG",
             "format": "%(asctime)s - %(levelname)s - %(message)s"
         },
         "running_model": {
@@ -44,6 +44,8 @@ def load_config():
             "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
 
             "preprocessed with RNN data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv',
+
+            "completely preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv',
 
             "model comparison path":'/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/model_comparison_results.csv',
 
@@ -117,7 +119,10 @@ def load_config():
             },
             "shuffle": {
                 "shuffle_ratio": 0.1
-            }
+            },
+
+            # Boolean on whether to increase list lengths or not
+            "list_len": False
         },
         "calculating_tradeoffs":{
             "privacy_cols": [

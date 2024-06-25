@@ -101,7 +101,7 @@ def main():
             style = config["privacy"]["style"]
 
             # Privatizing the dataset
-            privatizer = Privatizer(config)
+            privatizer = Privatizer(config, data, config["privacy"]["style"], config["privacy"]["list_len"])
             private_dataset = privatizer.privatize_dataset(preprocessed_dataset)
             logging.info("Privatization completed using %s", style)
 

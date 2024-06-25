@@ -181,7 +181,8 @@ class Privatizer:
             len_sensitivity = max_length / col_len
         else:
             len_sensitivity = None
-        logging.debug("Sensitivity and list length sensitivity calculated for %s", col)
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            logging.debug("Sensitivity and list length sensitivity calculated for %s", col)
         return sensitivity, len_sensitivity
     
     def basic_differential_privacy(self, df, epsilon, method='laplace', list_length=False):

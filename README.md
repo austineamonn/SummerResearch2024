@@ -16,9 +16,8 @@ Take student input data and build a privatized version to train a machine learni
   <li>Main Functions</li>
   <li>Data Generation</li>
   <li>Data Preprocessing</li>
-  <li>Data Privatization - Under Construction</li>
+  <li>Data Privatization</li>
   <li>Calculating Tradeoffs</li>
-  <li>Neural Network - Under Construction</li>
   <li>Sources and Acknowledgments</li>
 </ol>
 
@@ -265,7 +264,7 @@ private_cols.get_private_cols(synthetic_dataset)
 ```
 
 ### [tradeoffs](calculating_tradeoffs/tradeoffs.py):
-Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics).
+Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics). The file will run the model to predict each of the columns as well as the private columns combined, the utility columns combined, and all the columns combined. Three different machine learning models are run: Linear Regression, Decision Tree, and Random Forest.
 
 ```python
 from pandas import pd
@@ -278,17 +277,13 @@ RNN_preprocessed_dataset = pd.read_csv('path_to_RNN_preprocessed_dataset.csv')
 # Create a private columns class
 predictor = CalculateTradeoffs(config, RNN_preprocessed_dataset)
 
-# Returns the processed private columns (ethnoracial group, gender, international student status)
+# Train and evaluate the models
 predictor.train_and_evaluate()
+
+# Save the results to a CSV file
+results_csv_path = 'model_evaluation_results.csv'
+predictor.save_results_to_csv(results, results_csv_path)
 ```
-
-## Neural Network​:
-
-### [neural_network - Under Construction](neural_network/neural_network.py):
-Creates and runs a neural network on the privatized dataset. The target is 'future topics' and the features are the PCA columns. The NeuralNetwork class can also run a cross validation of the model, extract the feature importance for the model, and tune the model hyperparameters.
-
-### [Feature_Importance - Under Construction](neural_network/Feature_Importance.csv)
-Columns are features, mean feature importance, and standard deviation feature importance.
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
