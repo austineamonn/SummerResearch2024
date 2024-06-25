@@ -157,32 +157,6 @@ In this folder, the different RNN models for dimensionality reduction can be fou
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns are 1 dimensional. Contains 100,000 'students'.
 
-### [feature_importance - Under Construction](data_preprocessing/feature_importance.py):
-Run a random forest model and analyze feature importance using the built in RandomForest feature importance calculator. Calculate this feature importance among feature columns (X) for calculating both utility (Xu) columns: 'career aspirations' and 'future topics'.
-
-```python
-from pandas import pd
-from config import load_config
-from feature_importance import FeatureImportanceAnalyzer
-
-# Import preprocessed dataset (with RNN dimensionality reduction) CSV as a pandas dataframe
-preprocessed_dataset = pd.readcsv('RNN_model.csv')
-
-# Load configuration and data
-config = load_config()
-
-# Create preprocessor class
-feature_analyzer = FeatureImportanceAnalyzer(config, preprocessed_dataset)
-
-# Returns preprocessed dataset
-feature_analyzer.calculate_feature_importance()
-```
-
-### Feature Importance Files - Under Construction:
-There are several folders in data_processing with the feature importance files for specific RNN dimensionality reduction methods. These are summarized in the following table which averages feature importance for both 'career aspirations' and 'future topics' across the RNN methods.
-
-### average_feature_importance_comparison - Under Construction
-
 ## Data Privatization
 
 ### Privatization Methods
@@ -264,7 +238,9 @@ private_cols.get_private_cols(synthetic_dataset)
 ```
 
 ### [tradeoffs](calculating_tradeoffs/tradeoffs.py):
-Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics). The file will run the model to predict each of the columns as well as the private columns combined, the utility columns combined, and all the columns combined. Three different machine learning models are run: Linear Regression, Decision Tree, and Random Forest.
+Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics). The file will run the model to predict each of the columns as well as the private columns combined, the utility columns combined, and all the columns combined. Three different machine learning models are run: Linear Regression, Decision Tree, and Random Forest. SHAP feature importance is calculated for each prediction.
+
+--- Be warned that the current model imputes NaN values which means students who have not gone to college suddenly have GPAs and other similar issues. ---
 
 ```python
 from pandas import pd
@@ -284,6 +260,9 @@ predictor.train_and_evaluate()
 results_csv_path = 'model_evaluation_results.csv'
 predictor.save_results_to_csv(results, results_csv_path)
 ```
+
+### SHAP Values
+These CSV files contain the SHAP values for different models with different targets.
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.

@@ -5,6 +5,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import shap
 import os
 import sys
 import logging
@@ -25,7 +26,7 @@ class CalculateTradeoffs:
         self.models = {
             'LinearRegression': LinearRegression(),
             'DecisionTree': DecisionTreeRegressor(),
-            'RandomForest': RandomForestRegressor(n_estimators=10)  # Reduced number of estimators for quicker run
+            'RandomForest': RandomForestRegressor(n_estimators=10)
         }
         self.encoders = {}
         self.imputer = SimpleImputer(strategy='median')
@@ -35,11 +36,43 @@ class CalculateTradeoffs:
         # Impute missing values and ensure the datatype stays a pandas dataframe
         self.data = pd.DataFrame(self.imputer.fit_transform(self.data), columns=self.data.columns, index=self.data.index)
 
+    def log_data_info(self, data, name):
+        logging.debug(f"{name} shape: {data.shape}")
+        logging.debug(f"{name} mean: {data.mean().to_dict()}")
+        logging.debug(f"{name} std: {data.std().to_dict()}")
+
+    def compute_shap_values(self, model, X, model_name, target_name):
+        # Log the data info before passing to SHAP explainer
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            self.log_data_info(X, "Data passed to SHAP")
+
+        if model_name in ['DecisionTree', 'RandomForest']:
+            explainer = shap.TreeExplainer(model)
+        else:
+            explainer = shap.Explainer(model, X)
+            
+        shap_values = explainer(X)
+
+        # Handle different shapes of SHAP values
+        if len(shap_values.values.shape) > 2:  # Handle multi-dimensional SHAP values
+            reshaped_dim = shap_values.values.shape[-1]
+            shap_values_reshaped = shap_values.values.reshape(shap_values.values.shape[0], -1)
+            columns = [f"{col}_{i}" for i in range(reshaped_dim) for col in X.columns]
+        else:
+            shap_values_reshaped = shap_values.values
+            columns = X.columns
+
+        shap_df = pd.DataFrame(shap_values_reshaped, columns=columns)
+        shap_df["target"] = [target_name] * len(shap_df)
+        shap_df["model"] = [model_name] * len(shap_df)
+        shap_filename = f"shap_values_basic/shap_values_{model_name}_{target_name.replace(' ', '_')}.csv"
+        shap_df.to_csv(shap_filename, index=False)
+
     def train_and_evaluate(self):
         results = {}
 
         # Helper function to evaluate a single target
-        def evaluate_target(target_columns):
+        def evaluate_target(target_columns, results_title=None):
             if logging.getLogger().isEnabledFor(logging.DEBUG):
                 logging.debug("The target(s): %s", target_columns)
             X = self.data[self.other_columns]
@@ -49,46 +82,73 @@ class CalculateTradeoffs:
                 y = self.data[target_columns].values.ravel()  # Flatten the target variable but only if there is just one column being targeted
             else:
                 y = self.data[target_columns]
+
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                # Log the training data info
+                self.log_data_info(X, "Training data")
+            
+            # Test-Train split
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-            target_results = {}
-            for model_name, model in self.models.items():
+
+            # Run Each model
+            for name, model in self.models.items():
                 model.fit(X_train, y_train)
                 predictions = model.predict(X_test)
+
+                # Calculate Errors
                 mse = mean_squared_error(y_test, predictions)
                 mae = mean_absolute_error(y_test, predictions)
                 r2 = r2_score(y_test, predictions)
-                target_results[model_name] = {'MSE': mse, 'MAE': mae, 'R^2': r2}
-            return target_results
+
+                if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    logging.debug(f"Results for {name} on {target_columns}: MSE={mse}, MAE={mae}, R2={r2}")
+
+                # Make results_title equal to target_columns if no title was given
+                if results_title == None:
+                    results_title = target_columns
+                
+                # Ensure the key is a string and results are stored correctly
+                key = f"{name}_{results_title}"
+                results[key] = {"MSE": mse, "MAE": mae, "R2": r2}
+
+                # Compute and save SHAP values
+                self.compute_shap_values(model, X_test, name, results_title)
 
         # Individual columns as targets
         for column in self.private_columns + self.utility_columns:
-            results[column] = evaluate_target([column])
+            evaluate_target([column], column)
 
         # All private_columns as targets
-        results["all_private_columns"] = evaluate_target(self.private_columns)
+        evaluate_target(self.private_columns, "private_columns")
 
         # All utility_columns as targets
-        results["all_utility_columns"] = evaluate_target(self.utility_columns)
+        evaluate_target(self.utility_columns, "utility_colums")
 
         # All columns as targets
-        results["all_columns"] = evaluate_target(self.private_columns + self.utility_columns)
+        evaluate_target(self.private_columns + self.utility_columns, "all_columns")
+
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+                    logging.debug(f"Results Dictionary: {results}")
 
         return results
 
-    def save_results_to_csv(self, results, filename):
-        # Flatten the results for better CSV formatting
-        flattened_results = []
-        for target, metrics in results.items():
-            for model, scores in metrics.items():
-                flattened_results.append({
-                    'Target': target,
-                    'Model': model,
-                    'MSE': scores['MSE'],
-                    'MAE': scores['MAE'],
-                    'R^2': scores['R^2']
-                })
-        results_df = pd.DataFrame(flattened_results)
-        results_df.to_csv(filename, index=False)
+    def save_results_to_csv(self, results, file_path):
+        rows = []
+        for model_target, scores in results.items():
+            if not isinstance(scores, dict):
+                logging.error(f"Expected dict for scores, got {type(scores)} for {model_target}")
+                continue
+            if 'MSE' not in scores or 'MAE' not in scores or 'R2' not in scores:
+                logging.error(f"Missing expected keys in scores for {model_target}: {scores}")
+                continue
+            rows.append({
+                'Model_Target': model_target,
+                'MSE': scores['MSE'],
+                'MAE': scores['MAE'],
+                'R2': scores['R2']
+            })
+        df = pd.DataFrame(rows)
+        df.to_csv(file_path, index=False)
 
 if __name__ == "__main__":
     # Import necessary dependencies
@@ -113,6 +173,5 @@ if __name__ == "__main__":
     results = predictor.train_and_evaluate()
 
     # Save the results to a CSV file
-    results_csv_path = 'model_evaluation_results.csv'
+    results_csv_path = 'tradeoff_results/model_evaluation_results.csv'
     predictor.save_results_to_csv(results, results_csv_path)
-
