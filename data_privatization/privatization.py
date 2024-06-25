@@ -10,7 +10,7 @@ from ast import literal_eval
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class Privatizer:
-    def __init__(self, config, data, style=None):
+    def __init__(self, config, data, style=None, list_length=False):
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
@@ -23,17 +23,22 @@ class Privatizer:
         # Normalization Parameters
         self.normalize_type = config["privacy"]["normalize_type"]
 
-        # Privatization Parameters
-        self.epsilon = config["privacy"]["basic differential privacy"]["epsilon"]
-        self.low = config["privacy"]["uniform"]["low"]
-        self.high = config["privacy"]["uniform"]["high"]
-        self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
-
         # Privatization Method
         if style:
             self.style = style
         else:
             self.style = config["privacy"]["style"]
+        self.list_length = list_length
+
+        # Privatization Parameters
+        self.epsilon = config["privacy"]["basic differential privacy"]["epsilon"]
+        if self.style == "basic differential privacy":
+            self.method = 'laplace'
+        elif self.style == "uniform":
+            self.method = 'uniform'
+        else:
+            self.method = config["privacy"]["basic differential privacy"]["method"]
+        self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
 
         # Max Values (because all the mins are always 0)
         self.learning_style_max = 1
@@ -148,7 +153,11 @@ class Privatizer:
         value = round(value, 2)
         return value # Return final value between 2.0 and 4.0
     
-    def adjust_list_length(self, l, target_length, mid_val):
+    def adjust_list_length(self, l, target_length, mid_val, max_len):
+        # Ensure target length is within the list length range (0 to max_len)
+        target_length = self.modulus(target_length, max_len)
+
+        # Adjust length of list
         current_length = len(l)
         if target_length < current_length:
             return l[:target_length]
@@ -175,7 +184,7 @@ class Privatizer:
         logging.debug("Sensitivity and list length sensitivity calculated for %s", col)
         return sensitivity, len_sensitivity
     
-    def basic_differential_privacy(self, df, epsilon, list_length=False):
+    def basic_differential_privacy(self, df, epsilon, method='laplace', list_length=False):
         def add_laplace_noise(value, scale, max_val):
             premod = value + np.random.laplace(0, scale)
             if max_val == 4.0: # A max value of 4.0 only occurs for GPA so it is used to pull out GPA which is not an integer like all the other columns
@@ -184,8 +193,19 @@ class Privatizer:
                 final_val = self.modulus(premod, max_val)
             return final_val
 
-        def add_noise_to_list(lst, scale, max_val):
+        def add_laplace_noise_to_list(lst, scale, max_val):
             return [add_laplace_noise(x, scale, max_val) for x in lst]
+        
+        def add_uniform_noise(value, low, high, max_val):
+            premod = value + np.random.uniform(low, high)
+            if max_val == 4.0: # A max value of 4.0 only occurs for GPA so it is used to pull out GPA which is not an integer like all the other columns
+                final_val = self.gpa_modulus(premod)
+            else:
+                final_val = self.modulus(premod, max_val)
+            return final_val
+        
+        def add_uniform_noise_to_list(lst, low, high, max_val):
+            return [add_uniform_noise(x, low, high, max_val) for x in lst]
 
         noisy_df = df.copy()
         for column in noisy_df.columns:
@@ -194,20 +214,35 @@ class Privatizer:
             sensitivity, len_sensitivity = self.calculate_sensitivity(column, max_val, max_len)
             scale = sensitivity/epsilon
             if noisy_df[column].dtype == 'object':
-                if list_length and column != 'learning style':
-                    len_scale = len_sensitivity/epsilon
-                    target_lengths = np.random.laplace(0, len_scale, size=len(df)).astype(int)
-                    # Ensure target lengths are at least 1
-                    target_lengths = np.maximum(target_lengths, 0)
-                    mid_val = max_val / 2
-                    # Adjust the lists
-                    noisy_df[column] = [self.adjust_list_length(lst, length, mid_val) for lst, length in zip(noisy_df[column], target_lengths)]
-                noisy_df[column] = noisy_df[column].apply(lambda x: add_noise_to_list(x, scale, max_val))
+                if method == 'laplace':
+                    if list_length and column != 'learning style':
+                        len_scale = len_sensitivity/epsilon
+                        target_lengths = np.random.laplace(0, len_scale, size=len(df)).astype(int)
+                        mid_val = max_val / 2
+                        # Adjust the lists
+                        noisy_df[column] = [self.adjust_list_length(lst, length, mid_val, max_len) for lst, length in zip(noisy_df[column], target_lengths)]
+                    noisy_df[column] = noisy_df[column].apply(lambda x: add_laplace_noise_to_list(x, scale, max_val))
+                if method == 'uniform':
+                    # Calculate noise range
+                    high = sensitivity / epsilon
+                    low = -high
+                    if list_length and column != 'learning style':
+                        # Calculate noise range
+                        len_high = sensitivity / epsilon
+                        len_low = -len_high
+                        target_lengths = np.random.uniform(len_low, len_high, size=len(df)).astype(int)
+                        mid_val = max_val / 2
+                        # Adjust the lists
+                        noisy_df[column] = [self.adjust_list_length(lst, length, mid_val, max_len) for lst, length in zip(noisy_df[column], target_lengths)]
+                    noisy_df[column] = noisy_df[column].apply(lambda x: add_uniform_noise_to_list(x, low, high, max_val))
             else:
-                noisy_df[column] = noisy_df[column].apply(lambda x: add_laplace_noise(x, scale, max_val))
+                if method == 'laplace':
+                    noisy_df[column] = noisy_df[column].apply(lambda x: add_laplace_noise(x, scale, max_val))
+                elif method == 'uniform':
+                    noisy_df[column] = noisy_df[column].apply(lambda x: add_uniform_noise(x, low, high, max_val))
 
         return noisy_df
-    
+
     def privatize_dataset(self, df):
         """
         Input: preprocessed dataset
@@ -217,12 +252,11 @@ class Privatizer:
         df_X = df.loc[:, self.X]
 
         # Privatize the X columns
-        if self.style == 'basic differential privacy':
-            df_X = self.basic_differential_privacy(df_X, self.epsilon)
-        elif self.style == 'basic differential privacy list length change':
-            df_X = self.basic_differential_privacy(df_X, self.epsilon, True)
-        elif self.style == 'uniform':
-            df = self.add_uniform_noise(df, self.low, self.high)
+        if self.style == 'basic differential privacy' or self.style == 'uniform':
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                parameter_dict = {"epsilon": self.epsilon, "method": self.method, "list_length": self.list_length}
+                logging.debug(f"Calculating basic differential privacy with the following parameters: {parameter_dict}")
+            df_X = self.basic_differential_privacy(df_X, self.epsilon, self.method, self.list_length)
         elif self.style == 'shuffle':
             # The number to shuffle depends on the number of rows
             # and the ratio of rows shuffled
@@ -247,35 +281,40 @@ if __name__ == "__main__":
 
     # Import preprocessed (but not dimensionality reduced) dataset being sure to read the list columns as lists not as strings
     df = pd.read_csv(config["running_model"]["preprocessed data path"], converters={'learning style': literal_eval, 'major': literal_eval, 'previous courses': literal_eval, 'course types': literal_eval, 'course subjects': literal_eval, 'subjects of interest': literal_eval, 'extracurricular activities': literal_eval, 'career aspirations': literal_eval, 'future topics': literal_eval})
-
+    """
     # Basic Differential Privacy
     privatizer = Privatizer(config, data, 'basic differential privacy')
     bdp_df = privatizer.privatize_dataset(df)
     bdp_df.to_csv(config["running_model"]["basic differential privacy privatized data path"], index=False)
 
     # Basic Differential Privacy with changing list lengths
-    privatizer = Privatizer(config, data, 'basic differential privacy list length change')
+    privatizer = Privatizer(config, data, 'basic differential privacy', True)
     bdp_df = privatizer.privatize_dataset(df)
     bdp_df.to_csv(config["running_model"]["basic differential privacy LLC privatized data path"], index=False)
-"""
-    logging.info("Basic Differential Privacy completed")
 
+    logging.info("Basic Differential Privacy completed")
+    """
     # Uniform Noise Addition
-    privatizer = Privatizer(config, 'uniform')
+    privatizer = Privatizer(config, data, 'uniform')
     un_df = privatizer.privatize_dataset(df)
     un_df.to_csv(config["running_model"]["uniform noise privatized data path"], index=False)
 
-    logging.info("Uniform Noise Privacy completed")
+    # Uniform Noise Addition with changing list lengths
+    privatizer = Privatizer(config, data, 'uniform', True)
+    un_df = privatizer.privatize_dataset(df)
+    un_df.to_csv(config["running_model"]["uniform noise LLC privatized data path"], index=False)
 
+    logging.info("Uniform Noise Privacy completed")
+"""
     # Random Shuffling
-    privatizer = Privatizer(config, 'shuffle')
+    privatizer = Privatizer(config, data, 'shuffle')
     rs_df = privatizer.privatize_dataset(df)
     rs_df.to_csv(config["running_model"]["random shuffling privatized data path"], index=False)
 
     logging.info("Random Shuffling Privacy completed")
 
     # Complete Shuffling
-    privatizer = Privatizer(config, 'full shuffle')
+    privatizer = Privatizer(config, data, 'full shuffle')
     fs_df = privatizer.privatize_dataset(df)
     fs_df.to_csv(config["running_model"]["complete shuffling privatized data path"], index=False)
 

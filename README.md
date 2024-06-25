@@ -187,7 +187,7 @@ There are several folders in data_processing with the feature importance files f
 ## Data Privatization
 
 ### [privatization - Under Construction](data_privatization/privatization.py):
-Generates the privatized dataset based on the preprocessed dataset using various methods including: basic differential privacy (using laplace noise addition), uniform noise addition, randomized response, and random shuffling.
+Generates the privatized dataset based on the preprocessed dataset using various methods including: basic differential privacy (using laplace noise addition), uniform noise addition, and random shuffling.
 
 ```python
 from pandas import pd
