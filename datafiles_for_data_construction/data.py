@@ -844,7 +844,7 @@ class Data:
             course_tuples = json.load(f)
         
         # Pull out the course names
-        course_names = list(set([course[0] for course in course_tuples]))
+        course_names = sorted(list(set([course[0] for course in course_tuples])))
 
         courses = {
             'course_tuples': course_tuples,
