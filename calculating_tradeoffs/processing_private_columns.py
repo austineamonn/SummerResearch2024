@@ -77,3 +77,16 @@ if __name__ == "__main__":
     # Get Private Columns and save them
     privacy_cols_df = private_cols.get_private_cols(df)
     privacy_cols_df.to_csv(config["running_model"]["private columns path"], index=False)
+
+    # Combine dimensionality reduced data with privatized columns
+    GRU1_df = pd.read_csv(config["running_model"]["preprocessed with GRU1 data path"])
+    GRU1_combined_df = pd.concat([GRU1_df, privacy_cols_df], axis=1)
+    GRU1_combined_df.to_csv(config["running_model"]["completely preprocessed GRU1 data path"], index=False)
+
+    LSTM1_df = pd.read_csv(config["running_model"]["preprocessed with LSTM1 data path"])
+    LSTM1_combined_df = pd.concat([LSTM1_df, privacy_cols_df], axis=1)
+    LSTM1_combined_df.to_csv(config["running_model"]["completely preprocessed LSTM1 data path"], index=False)
+
+    Simple1_df = pd.read_csv(config["running_model"]["preprocessed with Simple1 data path"])
+    Simple1_combined_df = pd.concat([Simple1_df, privacy_cols_df], axis=1)
+    Simple1_combined_df.to_csv(config["running_model"]["completely preprocessed Simple1 data path"], index=False)

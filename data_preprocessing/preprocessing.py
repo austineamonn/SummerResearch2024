@@ -97,7 +97,7 @@ class PreProcessing:
         for sublist in course_types:
             for item in sublist:
                 unique_types.add(item)
-        return list(unique_types)
+        return sorted(list(unique_types))
   
     def preprocess_columns(self, df, col):
         sequences = df[col].apply(lambda x: str(x)).tolist()

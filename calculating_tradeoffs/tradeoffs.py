@@ -14,9 +14,12 @@ import logging
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class CalculateTradeoffs:
-    def __init__(self, config, df):
+    def __init__(self, config, df, RNN_type):
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+
+        # Get RNN model type
+        self.RNN_type = RNN_type
 
         # Data
         self.data = df
@@ -65,7 +68,7 @@ class CalculateTradeoffs:
         shap_df = pd.DataFrame(shap_values_reshaped, columns=columns)
         shap_df["target"] = [target_name] * len(shap_df)
         shap_df["model"] = [model_name] * len(shap_df)
-        shap_filename = f"shap_values_basic/shap_values_{model_name}_{target_name.replace(' ', '_')}.csv"
+        shap_filename = f"shap_values_basic/{self.RNN_type}/shap_values_{model_name}_{target_name.replace(' ', '_')}.csv"
         shap_df.to_csv(shap_filename, index=False)
 
     def train_and_evaluate(self):
@@ -77,7 +80,6 @@ class CalculateTradeoffs:
                 logging.debug("The target(s): %s", target_columns)
             X = self.data[self.other_columns]
             X = pd.DataFrame(self.imputer.fit_transform(X), columns=X.columns)  # Impute missing values in features
-            print(len(target_columns))
             if len(target_columns) == 1:
                 y = self.data[target_columns].values.ravel()  # Flatten the target variable but only if there is just one column being targeted
             else:
@@ -92,6 +94,7 @@ class CalculateTradeoffs:
 
             # Run Each model
             for name, model in self.models.items():
+                logging.info(f"Running {name} for {results_title}")
                 model.fit(X_train, y_train)
                 predictions = model.predict(X_test)
 
@@ -132,7 +135,7 @@ class CalculateTradeoffs:
 
         return results
 
-    def save_results_to_csv(self, results, file_path):
+    def save_results_to_csv(self, results):
         rows = []
         for model_target, scores in results.items():
             if not isinstance(scores, dict):
@@ -148,6 +151,7 @@ class CalculateTradeoffs:
                 'R2': scores['R2']
             })
         df = pd.DataFrame(rows)
+        file_path = f"tradeoff_results_basic/model_evaluation_results_{self.RNN_type}.csv"
         df.to_csv(file_path, index=False)
 
 if __name__ == "__main__":
@@ -157,21 +161,21 @@ if __name__ == "__main__":
     # Load configuration
     config = load_config()
 
-    # Get Data Paths
-    preprocessed_dataset_path = config["running_model"]["completely preprocessed data path"]
-    model_comparison_path = config["running_model"]["model comparison path"]
+    # List of RNN models to run
+    RNN_model_list = ['GRU1'] # ['LSTM1', 'Simple1']
 
-    # Load combined dataset
-    preprocessed_dataset_df = pd.read_csv(preprocessed_dataset_path)
+    for RNN_model in RNN_model_list:
+        logging.info(f"Starting {RNN_model}")
+        # Get Data Paths
+        path_name = f"completely preprocessed {RNN_model} data path"
+        preprocessed_dataset_path = config["running_model"][path_name]
 
-    # Define private and utility columns
-    private_columns = config["calculating_tradeoffs"]["privacy_cols"]
-    utility_columns =config["privacy"]["Xu_list"]
+        # Load combined dataset
+        preprocessed_dataset_df = pd.read_csv(preprocessed_dataset_path)
 
-    # Instantiate the class and run the training and evaluation
-    predictor = CalculateTradeoffs(config, preprocessed_dataset_df)
-    results = predictor.train_and_evaluate()
+        # Instantiate the class and run the training and evaluation
+        predictor = CalculateTradeoffs(config, preprocessed_dataset_df, RNN_model)
+        results = predictor.train_and_evaluate()
 
-    # Save the results to a CSV file
-    results_csv_path = 'tradeoff_results/model_evaluation_results.csv'
-    predictor.save_results_to_csv(results, results_csv_path)
+        # Save the results to a CSV file
+        predictor.save_results_to_csv(results)

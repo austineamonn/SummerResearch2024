@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
     # Import preprocessed (but not dimensionality reduced) dataset being sure to read the list columns as lists not as strings
     df = pd.read_csv(config["running_model"]["preprocessed data path"], converters={'learning style': literal_eval, 'major': literal_eval, 'previous courses': literal_eval, 'course types': literal_eval, 'course subjects': literal_eval, 'subjects of interest': literal_eval, 'extracurricular activities': literal_eval, 'career aspirations': literal_eval, 'future topics': literal_eval})
-    """
+    
     # Basic Differential Privacy
     privatizer = Privatizer(config, data, 'basic differential privacy')
     bdp_df = privatizer.privatize_dataset(df)
@@ -325,7 +325,7 @@ if __name__ == "__main__":
     un_df.to_csv(config["running_model"]["uniform noise LLC privatized data path"], index=False)
 
     logging.info("Uniform Noise Privacy completed")
-    """
+    
     # Random Shuffling
     privatizer = Privatizer(config, data, 'shuffle')
     rs_df = privatizer.privatize_dataset(df)

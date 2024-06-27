@@ -103,23 +103,34 @@ This folder contains all the graphs produced by data_analysis.
 Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
 
 <p align="center">
-  <img src="/graphics/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/graphics/canva_generated_graphs/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
 </p>
 
 ## Data Preprocessing:
 
 ### Splitting the Data:
-Xp = [first name, last name, race or ethnicity, gender, international student status, socioeconomic status]
-
-Xp columns are cut out and removed as we want to keep these hidden and they would be useless for determining a student's career aspirations or future topics.
-
-X = [learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, extracurricular activities]
-
-X columns are privatized using various techniques. These will also be the features for the neural network.
-
-Xu = [career aspirations, future topics]
-
-Xu columns are left alone. These utility columns are the targets for the neural network.
+<table>
+  <tr>
+    <th>Data Category</th>
+    <th>Features</th>
+    <th>Explanation</th>
+  </tr>
+  <tr>
+    <td>Xp</td>
+    <td>X</td>
+    <td>Xu</td>
+  </tr>
+  <tr>
+    <td>first name, last name, race or ethnicity, gender, international student status, and socioeconomic status</td>
+    <td>learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, and extracurricular activities</td>
+    <td>career aspirations and future topics</td>
+  </tr>
+  <tr>
+    <td>Xp columns are cut out and removed as we want to keep these hidden and they would be useless for determining a student's career aspirations or future topics.</td>
+    <td>X columns are privatized using various techniques. These will also be the features for the neural network.</td>
+    <td>Xu columns are left alone. These utility columns are the targets for the neural network.</td>
+  </tr>
+</table>
 
 ### [preprocessing](data_preprocessing/preprocessing.py):
 preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.
@@ -163,13 +174,12 @@ All feature columns and utility columns are 1 dimensional. Contains 100,000 'stu
 There are two main methods:
 <ol>
   <li>Differential Privacy which adds noise to the data to reach a privatization level specified by epsilon. Epsilon is set to 0.1 and the noise type is set to 'laplace'. The list lengths can be changed based on the noise type though this is set to False.</li>
-  <li>Random Shuffling which shuffles a set ratio of the data rows. The shuffle ratio is set to 10% but can be automatically set o 100% using the 'full shuffle' privatization method.</li>
+  <li>Random Shuffling which shuffles a set ratio of the data rows. The shuffle ratio is set to 10% but can be automatically set to 100% using the 'full shuffle' privatization method.</li>
 </ol>
 Overall, there is wide flexibility in the options for privatization method. The sensitivity for the differential privacy is calculated using the mean method.
 
-
 <p align="center">
-  <img src="/graphics/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
+  <img src="/graphics/canva_generated_graphs/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
 </p>
 
 ### [privatization](data_privatization/privatization.py):

@@ -43,9 +43,20 @@ def load_config():
 
             "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
 
-            "preprocessed with RNN data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv',
+            # GRU1
+            "preprocessed with GRU1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv',
 
-            "completely preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv',
+            "completely preprocessed GRU1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv',
+
+            # LSTM1
+            "preprocessed with LSTM1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1.csv',
+
+            "completely preprocessed LSTM1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv',
+
+            # Simple1
+            "preprocessed with Simple1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1.csv',
+
+            "completely preprocessed Simple1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv',
 
             "model comparison path":'/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/model_comparison_results.csv',
 
