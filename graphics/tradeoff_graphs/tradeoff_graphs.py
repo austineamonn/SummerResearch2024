@@ -1,60 +1,55 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load the data
-file_path = '../../calculating_tradeoffs/tradeoff_results_basic/model_evaluation_results_GRU1.csv'  # Replace with your file path
-data = pd.read_csv(file_path)
+# Load the CSV files
+file_path_gru = '../../calculating_tradeoffs/tradeoff_results_basic/model_evaluation_results_GRU1.csv'
+file_path_lstm = '../../calculating_tradeoffs/tradeoff_results_basic/model_evaluation_results_LSTM1.csv'
+file_path_simple = '../../calculating_tradeoffs/tradeoff_results_basic/model_evaluation_results_Simple1.csv'
 
-# Function to simplify and categorize model names
-def simplify_model_name(row):
-    if '_private_columns' in row:
-        return row.replace('_private_columns', ''), 'Private Columns'
-    elif '_utility_colums' in row:
-        return row.replace('_utility_colums', ''), 'Utility Columns'
-    elif '_all_columns' in row:
-        return row.replace('_all_columns', ''), 'All Columns'
-    else:
-        return row, 'Unknown'
+data_gru = pd.read_csv(file_path_gru)
+data_lstm = pd.read_csv(file_path_lstm)
+data_simple = pd.read_csv(file_path_simple)
 
-# Apply the function to the data
-data[['Model', 'Category']] = data['Model_Target'].apply(simplify_model_name).apply(pd.Series)
+# Add a column to each dataframe to indicate the model type
+data_gru['Model_Type'] = 'GRU'
+data_lstm['Model_Type'] = 'LSTM'
+data_simple['Model_Type'] = 'Simple'
 
-# Sort the data by Model and Category
-data = data.sort_values(by=['Model', 'Category'])
+# Combine the dataframes
+combined_data = pd.concat([data_gru, data_lstm, data_simple], ignore_index=True)
 
-# Set the figure size for better readability
-plt.figure(figsize=(14, 12))
+# Set up the figure and axes for the grouped bar plots
+fig, axs = plt.subplots(3, 1, figsize=(15, 18))
 
-# Plotting MSE
-plt.subplot(3, 1, 1)
-for category, group in data.groupby('Category'):
-    plt.bar(group['Model'] + ' (' + group['Category'] + ')', group['MSE'], label=category)
-plt.ylabel('MSE')
-plt.title('Mean Squared Error (MSE) by Model')
-plt.xticks([])  # Remove x-ticks for the first plot
-plt.legend()
+# Define distinct colors for the bars
+colors = {'GRU': 'blue', 'LSTM': 'green', 'Simple': 'red'}
 
-# Plotting MAE
-plt.subplot(3, 1, 2)
-for category, group in data.groupby('Category'):
-    plt.bar(group['Model'] + ' (' + group['Category'] + ')', group['MAE'], label=category)
-plt.ylabel('MAE')
-plt.title('Mean Absolute Error (MAE) by Model')
-plt.xticks([])  # Remove x-ticks for the second plot
-plt.legend()
+# Plotting MSE with distinct colors
+mse_data = combined_data.pivot(index='Model_Target', columns='Model_Type', values='MSE')
+mse_data.plot(kind='bar', ax=axs[0], color=[colors[col] for col in mse_data.columns])
+axs[0].set_title('Mean Squared Error (MSE) Comparison')
+axs[0].set_xlabel('Model_Target')
+axs[0].set_ylabel('MSE')
+axs[0].tick_params(axis='x', rotation=90)
 
-# Plotting R2
-plt.subplot(3, 1, 3)
-for category, group in data.groupby('Category'):
-    plt.bar(group['Model'] + ' (' + group['Category'] + ')', group['R2'], label=category)
-plt.xlabel('Model_Target')
-plt.ylabel('R2')
-plt.title('R-squared (R2) by Model')
-plt.xticks(rotation=45, ha='right')  # Rotate x-ticks for the third plot
-plt.legend()
+# Plotting MAE with distinct colors
+mae_data = combined_data.pivot(index='Model_Target', columns='Model_Type', values='MAE')
+mae_data.plot(kind='bar', ax=axs[1], color=[colors[col] for col in mae_data.columns])
+axs[1].set_title('Mean Absolute Error (MAE) Comparison')
+axs[1].set_xlabel('Model_Target')
+axs[1].set_ylabel('MAE')
+axs[1].tick_params(axis='x', rotation=90)
 
-# Adjust layout for better spacing
+# Plotting R2 with distinct colors
+r2_data = combined_data.pivot(index='Model_Target', columns='Model_Type', values='R2')
+r2_data.plot(kind='bar', ax=axs[2], color=[colors[col] for col in r2_data.columns])
+axs[2].set_title('R-squared (R2) Comparison')
+axs[2].set_xlabel('Model_Target')
+axs[2].set_ylabel('R2')
+axs[2].tick_params(axis='x', rotation=90)
+
+# Adjust layout to prevent overlap
 plt.tight_layout()
 
 # Save the figure
-plt.savefig('model_evaluation_results_plot.png')
+plt.savefig('model_evaluation_results_plot_basic.png')

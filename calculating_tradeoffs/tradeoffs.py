@@ -125,7 +125,7 @@ class CalculateTradeoffs:
         evaluate_target(self.private_columns, "private_columns")
 
         # All utility_columns as targets
-        evaluate_target(self.utility_columns, "utility_colums")
+        evaluate_target(self.utility_columns, "utility_columns")
 
         # All columns as targets
         evaluate_target(self.private_columns + self.utility_columns, "all_columns")

@@ -18,6 +18,7 @@ Take student input data and build a privatized version to train a machine learni
   <li>Data Preprocessing</li>
   <li>Data Privatization</li>
   <li>Calculating Tradeoffs</li>
+  <li>Graphics</li>
   <li>Sources and Acknowledgments</li>
 </ol>
 
@@ -162,11 +163,30 @@ preprocesser.preprocess_dataset(synthetic_dataset)
 preprocessor.create_RNN_models(synthetic_dataset)
 ```
 
-### [RNN Model Files](data_preprocessing/RNN_models):
-In this folder, the different RNN models for dimensionality reduction can be found. Currently I have run Simple with 1 and 2 layers, GRU with 1 layer and LSTM with 1 and 2 layers. So only these five can be found here.
-
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
-All feature columns and utility columns are 1 dimensional. Contains 100,000 'students'.
+All feature columns and utility columns have been converted into either binary lists or numerical lists. Contains 100,000 'students' in the CSV.
+
+### [processing_private_columns](calculating_tradeoffs/processing_private_columns.py):
+The private data are converted into numbered lists. This currently only converts ethnoracial group, gender, and international status.
+
+```python
+from pandas import pd
+from config import load_config
+from datafiles_for_data_construction.data import Data
+from processing_private_columns import PrivateColumns
+
+# Import the synthetic dataset CSV as a pandas dataframes
+synthetic_dataset = pd.read_csv(path_to_synthetic_dataset.csv')
+
+# Create a private columns class
+private_cols = PrivateColumns(config, data)
+
+# Returns the processed private columns (ethnoracial group, gender, international student status)
+private_cols.get_private_cols(synthetic_dataset)
+```
+
+### [RNN Model Files](data_preprocessing/RNN_models):
+In this folder, the different RNN models for dimensionality reduction can be found. Currently I have run Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns while the regular versions do not.
 
 ## Data Privatization
 
@@ -223,29 +243,7 @@ metrics = PrivacyMetrics(config)
 metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 ```
 
-### [Stats_Comparison_Dataset - Under Construction](data_privatization/Stats_Comparison_Dataset.csv)
-Each row is a column from 'Privatized_Dataset' with the utility columns removed. The columns are the dataset column names, original mean, anonymized mean, original standard deviation, anonymized standard deviation, original sum, anonymized sum.
-
 ## Calculating Tradeoffs:
-
-### [processing_private_columns](calculating_tradeoffs/processing_private_columns.py):
-The private data are converted into numbered lists. This currently only converts ethnoracial group, gender, and international status.
-
-```python
-from pandas import pd
-from config import load_config
-from datafiles_for_data_construction.data import Data
-from processing_private_columns import PrivateColumns
-
-# Import the synthetic dataset CSV as a pandas dataframes
-synthetic_dataset = pd.read_csv(path_to_synthetic_dataset.csv')
-
-# Create a private columns class
-private_cols = PrivateColumns(config, data)
-
-# Returns the processed private columns (ethnoracial group, gender, international student status)
-private_cols.get_private_cols(synthetic_dataset)
-```
 
 ### [tradeoffs](calculating_tradeoffs/tradeoffs.py):
 Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics). The file will run the model to predict each of the columns as well as the private columns combined, the utility columns combined, and all the columns combined. Three different machine learning models are run: Linear Regression, Decision Tree, and Random Forest. SHAP feature importance is calculated for each prediction.
@@ -273,6 +271,27 @@ predictor.save_results_to_csv(results, results_csv_path)
 
 ### SHAP Values
 These CSV files contain the SHAP values for different models with different targets.
+
+## Graphics:
+
+### [tradeoff_graphs](graphics/tradeoff_graphs/tradeoff_graphs.py):
+Plots the Mean Standard Error (MSE), Mean Absolute Erro (MAE), and R-Squared (R2) for each machine learning model (Decision Tree, Random Forest, Linear Regression) and for each target (each of the private columns, each of the utility columns, all of the private columns, all of the utility columns, and all of the columns combined). This is repeated for each of the privatized dataset versions.
+
+### ![Tradeoff Graphs for NonPrivatized Dataset](graphics/tradeoff_graphs/model_evaluation_results_plot_basic.png):
+
+### [SHAP_graphs](graphics/SHAP_graphs/SHAP_graphs.py):
+Graphs the Bar Graph and the SHAP Summary for the feature importance of each machine learning model and target combination for each of the privatized datasets.
+
+```python
+from config import load_config
+from tradeoffs import CalculateTradeoffs
+
+# Create a private columns class
+grapher = SHAP_Grapher(config)
+
+# Generate the feature importance graphs
+grapher.generate_graphs()
+```
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
