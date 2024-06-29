@@ -118,17 +118,17 @@ Synthetic dataset. The file here contains 25,000 'students', but you can generat
   </tr>
   <tr>
     <td>Xp</td>
-    <td>X</td>
-    <td>Xu</td>
-  </tr>
-  <tr>
     <td>first name, last name, race or ethnicity, gender, international student status, and socioeconomic status</td>
-    <td>learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, and extracurricular activities</td>
-    <td>career aspirations and future topics</td>
+    <td>Xp columns are cut out and removed as we want to keep these hidden and they would be useless for determining a student's career aspirations or future topics.</td>
   </tr>
   <tr>
-    <td>Xp columns are cut out and removed as we want to keep these hidden and they would be useless for determining a student's career aspirations or future topics.</td>
+    <td>X</td>
+    <td>learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, and extracurricular activities</td>
     <td>X columns are privatized using various techniques. These will also be the features for the neural network.</td>
+  </tr>
+  <tr>
+    <td>Xu</td>
+    <td>career aspirations and future topics</td>
     <td>Xu columns are left alone. These utility columns are the targets for the neural network.</td>
   </tr>
 </table>
@@ -277,7 +277,7 @@ These CSV files contain the SHAP values for different models with different targ
 ### [tradeoff_graphs](graphics/tradeoff_graphs/tradeoff_graphs.py):
 Plots the Mean Standard Error (MSE), Mean Absolute Erro (MAE), and R-Squared (R2) for each machine learning model (Decision Tree, Random Forest, Linear Regression) and for each target (each of the private columns, each of the utility columns, all of the private columns, all of the utility columns, and all of the columns combined). This is repeated for each of the privatized dataset versions.
 
-### ![Tradeoff Graphs for NonPrivatized Dataset](graphics/tradeoff_graphs/model_evaluation_results_plot_basic.png):
+### ![Tradeoff Graphs for NonPrivatized Dataset](graphics/tradeoff_graphs/model_evaluation_results_plot_basic.png)
 
 ### [SHAP_graphs](graphics/SHAP_graphs/SHAP_graphs.py):
 Graphs the Bar Graph and the SHAP Summary for the feature importance of each machine learning model and target combination for each of the privatized datasets.

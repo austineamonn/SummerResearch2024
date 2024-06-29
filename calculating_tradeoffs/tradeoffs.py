@@ -4,8 +4,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, explained_variance_score
 import shap
+import time
+import joblib
+import numpy as np
 import os
 import sys
 import logging
@@ -27,9 +30,9 @@ class CalculateTradeoffs:
         self.utility_columns = config["privacy"]["Xu_list"]
         self.other_columns = config["privacy"]["X_list"]
         self.models = {
-            'LinearRegression': LinearRegression(),
-            'DecisionTree': DecisionTreeRegressor(),
-            'RandomForest': RandomForestRegressor(n_estimators=10)
+            'Linear Regression': LinearRegression(),
+            'Decision Tree': DecisionTreeRegressor(),
+            'Random Forest': RandomForestRegressor(n_estimators=10)
         }
         self.encoders = {}
         self.imputer = SimpleImputer(strategy='median')
@@ -49,7 +52,7 @@ class CalculateTradeoffs:
         if logging.getLogger().isEnabledFor(logging.DEBUG):
             self.log_data_info(X, "Data passed to SHAP")
 
-        if model_name in ['DecisionTree', 'RandomForest']:
+        if model_name in ['Decision Tree', 'Random Forest']:
             explainer = shap.TreeExplainer(model)
         else:
             explainer = shap.Explainer(model, X)
@@ -65,10 +68,13 @@ class CalculateTradeoffs:
             shap_values_reshaped = shap_values.values
             columns = X.columns
 
+        # Remove space in model name to not create problems with file saving
+        model_name_for_files = model_name.replace(' ', '_')
+
         shap_df = pd.DataFrame(shap_values_reshaped, columns=columns)
         shap_df["target"] = [target_name] * len(shap_df)
         shap_df["model"] = [model_name] * len(shap_df)
-        shap_filename = f"shap_values_basic/{self.RNN_type}/shap_values_{model_name}_{target_name.replace(' ', '_')}.csv"
+        shap_filename = f"shap_values_basic/{self.RNN_type}/{model_name_for_files}/shap_values_{model_name_for_files}_{target_name.replace(' ', '_')}.csv"
         shap_df.to_csv(shap_filename, index=False)
 
     def train_and_evaluate(self):
@@ -95,13 +101,22 @@ class CalculateTradeoffs:
             # Run Each model
             for name, model in self.models.items():
                 logging.info(f"Running {name} for {results_title}")
+                start_time = time.time()
                 model.fit(X_train, y_train)
-                predictions = model.predict(X_test)
+                end_time = time.time()
+                training_time = end_time - start_time
+                y_pred = model.predict(X_test)
 
                 # Calculate Errors
-                mse = mean_squared_error(y_test, predictions)
-                mae = mean_absolute_error(y_test, predictions)
-                r2 = r2_score(y_test, predictions)
+                mse = mean_squared_error(y_test, y_pred)
+                mae = mean_absolute_error(y_test, y_pred)
+                r2 = r2_score(y_test, y_pred)
+                rmse = np.sqrt(mse) # Root Mean Squared Error
+                epsilon = 1e-10  # A small number to avoid division by zero
+                mape = np.mean(np.abs((y_test - y_pred) / np.where(y_test == 0, epsilon, y_test))) * 100 # Mean Absolute Percentage Error
+                medae = np.median(np.abs(y_test - y_pred)) # Median Absolute Error
+                explained_variance = explained_variance_score(y_test, y_pred)
+                mbd = np.mean(y_test - y_pred)  # Mean Bias Deviation
 
                 if logging.getLogger().isEnabledFor(logging.DEBUG):
                     logging.debug(f"Results for {name} on {target_columns}: MSE={mse}, MAE={mae}, R2={r2}")
@@ -109,31 +124,52 @@ class CalculateTradeoffs:
                 # Make results_title equal to target_columns if no title was given
                 if results_title == None:
                     results_title = target_columns
+                results_title = results_title.title()
                 
                 # Ensure the key is a string and results are stored correctly
                 key = f"{name}_{results_title}"
-                results[key] = {"MSE": mse, "MAE": mae, "R2": r2}
+                results[key] = {
+                    'MSE': mse,
+                    'MAE': mae,
+                    'R2': r2,
+                    'RMSE': rmse,
+                    'MAPE': mape,
+                    'MedAE': medae,
+                    'Explained Variance': explained_variance,
+                    'MBD': mbd,
+                    'Training Time': training_time
+                    }
 
                 # Compute and save SHAP values
                 self.compute_shap_values(model, X_test, name, results_title)
+
+                # Save the trained model
+                self.save_model(model, name, results_title)
 
         # Individual columns as targets
         for column in self.private_columns + self.utility_columns:
             evaluate_target([column], column)
 
         # All private_columns as targets
-        evaluate_target(self.private_columns, "private_columns")
+        evaluate_target(self.private_columns, "Private Columns")
 
         # All utility_columns as targets
-        evaluate_target(self.utility_columns, "utility_columns")
+        evaluate_target(self.utility_columns, "Utility Columns")
 
         # All columns as targets
-        evaluate_target(self.private_columns + self.utility_columns, "all_columns")
+        evaluate_target(self.private_columns + self.utility_columns, "All Columns")
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
                     logging.debug(f"Results Dictionary: {results}")
 
         return results
+    
+    def save_model(self, model, model_name, target_name):
+        model_dir = 'models_basic'
+        os.makedirs(model_dir, exist_ok=True)
+        file_path = os.path.join(model_dir, f"{model_name}_{target_name}.joblib")
+        joblib.dump(model, file_path)
+        logging.info(f"Saved model {model_name} for target {target_name} at {file_path}")
 
     def save_results_to_csv(self, results):
         rows = []
@@ -141,14 +177,22 @@ class CalculateTradeoffs:
             if not isinstance(scores, dict):
                 logging.error(f"Expected dict for scores, got {type(scores)} for {model_target}")
                 continue
-            if 'MSE' not in scores or 'MAE' not in scores or 'R2' not in scores:
-                logging.error(f"Missing expected keys in scores for {model_target}: {scores}")
+            required_keys = ['MSE', 'MAE', 'R2', 'RMSE', 'MAPE', 'MedAE', 'Explained Variance', 'MBD', 'Training Time']
+            missing_keys = [key for key in required_keys if key not in scores]
+            if missing_keys:
+                logging.error(f"Missing expected keys in scores for {model_target}: {missing_keys}")
                 continue
             rows.append({
                 'Model_Target': model_target,
                 'MSE': scores['MSE'],
                 'MAE': scores['MAE'],
-                'R2': scores['R2']
+                'R2': scores['R2'],
+                'RMSE': scores['RMSE'],
+                'MAPE': scores['MAPE'],
+                'MedAE': scores['MedAE'],
+                'Explained Variance': scores['Explained Variance'],
+                'MBD': scores['MBD'],
+                'Training Time': scores['Training Time']
             })
         df = pd.DataFrame(rows)
         file_path = f"tradeoff_results_basic/model_evaluation_results_{self.RNN_type}.csv"
@@ -162,7 +206,7 @@ if __name__ == "__main__":
     config = load_config()
 
     # List of RNN models to run
-    RNN_model_list = ['GRU1'] # ['LSTM1', 'Simple1']
+    RNN_model_list = ['GRU1', 'LSTM1', 'Simple1']
 
     for RNN_model in RNN_model_list:
         logging.info(f"Starting {RNN_model}")
