@@ -14,7 +14,7 @@ import tensorflow as tf
 import json
 import time
 import joblib
-from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.models import Model # type: ignore
 from tensorflow.keras.layers import Dense # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
 from tensorflow.keras.layers import Input, Dropout # type: ignore
@@ -23,7 +23,7 @@ from sklearn.preprocessing import OneHotEncoder
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-class CalculateTradeoffs:
+class CalculateTradeoffsCategorical:
     def __init__(self, config, df, RNN_type):
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
@@ -49,31 +49,34 @@ class CalculateTradeoffs:
         logging.debug(f"{name} std: {data.std().to_dict()}")
 
     def create_model(self, input_shape, output_shape):
-        model = Sequential()
-        model.add(Input(shape=(input_shape,)))  # Adjust the shape as needed
-        model.add(Dense(64, activation='relu'))
-        model.add(Dropout(0.2))  # Add dropout with 20% rate
-        model.add(Dense(32, activation='relu'))
-        model.add(Dropout(0.2))  # Add dropout with 20% rate
+        inputs = Input(shape=(input_shape,))
+        x = Dense(64, activation='relu')(inputs)
+        x = Dropout(0.2)(x)
+        x = Dense(32, activation='relu')(x)
+        x = Dropout(0.2)(x)
         if output_shape == 1:
-            model.add(Dense(output_shape, activation='sigmoid'))  # Use sigmoid for binary classification
-            model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])  # Use binary_crossentropy for binary classification
+            outputs = Dense(output_shape, activation='sigmoid')(x)
+            model = Model(inputs, outputs)
+            model.compile(optimizer=Adam(learning_rate=0.001), loss='binary_crossentropy', metrics=['accuracy'])
         else:
-            model.add(Dense(output_shape, activation='softmax'))
+            outputs = Dense(output_shape, activation='softmax')(x)
+            model = Model(inputs, outputs)
             model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def compute_shap_values(self, model, X, target_name):
-        # Explainer for SHAP values using DeepExplainer
-        explainer = shap.DeepExplainer(model, X)
-        shap_values = explainer.shap_values(X)
+        # Select a subset of X as background data (e.g., 100 samples)
+        background_data = X.sample(100, random_state=42).values
+
+        # Use KernelExplainer for SHAP values
+        explainer = shap.KernelExplainer(model.predict, background_data)
+        shap_values = explainer.shap_values(X.values)
         
         shap_values_reshaped = shap_values.values
         columns = X.columns
 
         # Note how there is a '_' instead of a space
         model_name = 'Neural_Network'
-
 
         shap_df = pd.DataFrame(shap_values_reshaped, columns=columns)
         shap_df["target"] = [target_name] * len(shap_df)
@@ -107,27 +110,32 @@ class CalculateTradeoffs:
             end_time = time.time()
             training_time = end_time - start_time
 
+           # Predict classes
             y_pred = model.predict(X_test)
+
+            # Calculate log loss directly on the one-hot encoded labels
+            log_loss_value = log_loss(y_test, y_pred)
+
+            # Calculate class labels for accuracy metrics
             y_test_classes = y_test.argmax(axis=1)
             y_pred_classes = y_pred.argmax(axis=1)
             
             # Calculate Accuracy Values
             accuracy = accuracy_score(y_test_classes, y_pred_classes)
-            precision = precision_score(y_test_classes, y_pred_classes, average='weighted')
-            recall = recall_score(y_test_classes, y_pred_classes, average='weighted')
-            f1 = f1_score(y_test_classes, y_pred_classes, average='weighted')
+            precision = precision_score(y_test_classes, y_pred_classes, average='weighted', zero_division=1)
+            recall = recall_score(y_test_classes, y_pred_classes, average='weighted', zero_division=1)
+            f1 = f1_score(y_test_classes, y_pred_classes, average='weighted', zero_division=1)
             balanced_accuracy = balanced_accuracy_score(y_test_classes, y_pred_classes)
-            report = classification_report(y_test_classes, y_pred_classes, output_dict=True)
+            report = classification_report(y_test_classes, y_pred_classes, output_dict=True, zero_division=1)
             conf_matrix = confusion_matrix(y_test_classes, y_pred_classes)
-            log_loss_value = log_loss(y_test, y_pred, labels=list(range(output_shape)))
-
-            shap_values = self.compute_shap_values(model, X_test)
 
             # Make results_title equal to target_columns if no title was given
             if results_title == None:
                 results_title = target_columns
             results_title = results_title.title()
             name = 'Neural Network'
+
+            shap_values = self.compute_shap_values(model, X_test, results_title)
             
             key = f"{name}_{results_title}"
             results[key] = {
@@ -219,7 +227,7 @@ if __name__ == "__main__":
         preprocessed_dataset_df = pd.read_csv(preprocessed_dataset_path)
 
         # Instantiate the class and run the training and evaluation
-        predictor = CalculateTradeoffs(config, preprocessed_dataset_df, RNN_model)
+        predictor = CalculateTradeoffsCategorical(config, preprocessed_dataset_df, RNN_model)
         results = predictor.train_and_evaluate()
 
         # Save the results to a CSV file
