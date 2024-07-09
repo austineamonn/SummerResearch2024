@@ -3,7 +3,8 @@ def load_config():
         # Logging Level
         "logging": {
             "level": "INFO",
-            "format": "%(asctime)s - %(levelname)s - %(message)s"
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "handlers": ["console"]
         },
         "running_model": {
             # A list of the parts of main.py that you want to run. You can add any of the following to the list: Generate Dataset,
@@ -14,53 +15,53 @@ def load_config():
             # Add your data file paths here:
             #"data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset.csv',
 
-            # Data Generation Paths
-            "data path": '/Users/austinnicolas/Documents/SummerREU2024/saved_research_files/Dataset.csv',
+            "data_generation_paths": {
+                # Data Generation Paths
+                "data path": '/Users/austinnicolas/Documents/SummerREU2024/saved_research_files/Dataset.csv',
 
-            "data path 2": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset2.csv',
+                "data path 2": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_generation/Dataset2.csv',
+            },
 
-            # Privatized Data Paths
+            "privatized_data_paths": {
+                "basic differential privacy privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Basic_DP_Privatized_Dataset.csv',
 
-            "privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Privatized_Dataset.csv',
+                "basic differential privacy LLC privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Basic_DP_LLC_Privatized_Dataset.csv',
 
-            "basic differential privacy privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Basic_DP_Privatized_Dataset.csv',
+                "uniform noise privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Uniform_Privatized_Dataset.csv',
 
-            "basic differential privacy LLC privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Basic_DP_LLC_Privatized_Dataset.csv',
+                "uniform noise LLC privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Uniform_LLC_Privatized_Dataset.csv',
 
-            "uniform noise privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Uniform_Privatized_Dataset.csv',
+                "random shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Shuffling_Privatized_Dataset.csv',
 
-            "uniform noise LLC privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Uniform_LLC_Privatized_Dataset.csv',
+                "complete shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/privatized_datasets/Complete_Shuffling_Privatized_Dataset.csv',
+            },
 
-            "random shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Shuffling_Privatized_Dataset.csv',
+            "preprocessed_data_paths": {
+                # Preprocessed Data Paths
 
-            "complete shuffling privatized data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Complete_Shuffling_Privatized_Dataset.csv',
+                "private columns path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/Private_Columns.csv',
 
-            "statistics comparison path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_privatization/Stats_Comparison_Dataset.csv',
+                "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
+            },
 
-            # Preprocessed Data Paths
+            "completely_preprocessed_data_paths": {
+                "NoPrivatization": {
+                    # GRU1
+                    "GRU1": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv',
 
-            "private columns path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/Private_Columns.csv',
+                    "GRU1_combined": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv',
 
-            "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
+                    # LSTM1
+                    "LSTM1": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1.csv',
 
-            # GRU1
-            "preprocessed with GRU1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1.csv',
+                    "LSTM1_combined": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv',
 
-            "completely preprocessed GRU1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/GRU1_combined.csv',
+                    # Simple1
+                    "Simple1": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1.csv',
 
-            # LSTM1
-            "preprocessed with LSTM1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1.csv',
-
-            "completely preprocessed LSTM1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/LSTM1_combined.csv',
-
-            # Simple1
-            "preprocessed with Simple1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1.csv',
-
-            "completely preprocessed Simple1 data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv',
-
-            "model comparison path":'/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/model_comparison_results.csv',
-
-            "PCA explained variance path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/explained_variance_plot.png',
+                    "Simple1_combined": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/RNN_models/Simple1_combined.csv',
+                }
+            },
 
             "directory": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024'
         },

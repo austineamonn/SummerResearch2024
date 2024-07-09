@@ -204,6 +204,7 @@ class PreProcessing:
         df_copy = df.copy()
 
         # Iterate through the columns
+        # Remove self.Xu if doing dimensionality reduction on privatized datasets since they lack the utility columns
         for col in self.X + self.Xu:
             if col not in self.numerical_cols:
                 preprocessed_col = self.preprocess_columns(df_copy, col)

@@ -19,6 +19,7 @@ from tensorflow.keras.layers import Dense # type: ignore
 from tensorflow.keras.optimizers import Adam # type: ignore
 from tensorflow.keras.layers import Input, Dropout # type: ignore
 from sklearn.preprocessing import OneHotEncoder
+import numpy as np
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -64,23 +65,55 @@ class CalculateTradeoffsCategorical:
             model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def compute_shap_values(self, model, X, target_name):
-        # Select a subset of X as background data (e.g., 100 samples)
-        background_data = X.sample(100, random_state=42).values
+    def compute_shap_values(self, model, X_train, X_test, target_name, num_background_samples=1000, num_test_samples=1000):
+        # Select a subset of background samples
+        if len(X_train) > num_background_samples:
+            background_samples = X_train.sample(num_background_samples, random_state=0)
+        else:
+            background_samples = X_train
 
-        # Use KernelExplainer for SHAP values
-        explainer = shap.KernelExplainer(model.predict, background_data)
-        shap_values = explainer.shap_values(X.values)
+        # Select a subset of test samples
+        if len(X_test) > num_test_samples:
+            test_samples = X_test.sample(num_test_samples, random_state=0)
+        else:
+            test_samples = X_test
+
+        X_train_np = background_samples.to_numpy()
+        X_test_np = test_samples.to_numpy()
         
-        shap_values_reshaped = shap_values.values
-        columns = X.columns
+        # Use KernelExplainer for SHAP values
+        explainer = shap.KernelExplainer(model.predict, X_train_np)
+        shap_values = explainer.shap_values(X_test_np)
+    
+        shap_df = pd.DataFrame()
+
+        # Add input features
+        for i in range(X_test_np.shape[1]):
+            shap_df[f'feature_{i}'] = X_test_np[:, i]
+
+        # Handle different shapes of SHAP values
+        if isinstance(shap_values, list):
+            # For multi-class classification, shap_values is a list
+            for class_idx in range(len(shap_values)):
+                for feature_idx in range(X_test_np.shape[1]):
+                    shap_df[f'shap_class_{class_idx}_feature_{feature_idx}'] = shap_values[class_idx][:, feature_idx]
+        else:
+            # For binary classification or regression, shap_values is an array
+            for feature_idx in range(X_test_np.shape[1]):
+                shap_df[f'shap_feature_{feature_idx}'] = shap_values[:, feature_idx]
+
+        # Add predicted classes (optional, depends on if your model can predict on X_test)
+        if hasattr(model, 'predict'):
+            predicted_classes = np.argmax(model.predict(X_test_np), axis=1)
+            shap_df['predicted_class'] = predicted_classes
 
         # Note how there is a '_' instead of a space
         model_name = 'Neural_Network'
 
-        shap_df = pd.DataFrame(shap_values_reshaped, columns=columns)
+        # Add target and model name for context
         shap_df["target"] = [target_name] * len(shap_df)
         shap_df["model"] = [model_name] * len(shap_df)
+
         shap_filename = f"shap_values_NN_basic/{self.RNN_type}/{model_name}/shap_values_{model_name}_{target_name.replace(' ', '_')}.csv"
         shap_df.to_csv(shap_filename, index=False)
 
@@ -135,7 +168,7 @@ class CalculateTradeoffsCategorical:
             results_title = results_title.title()
             name = 'Neural Network'
 
-            shap_values = self.compute_shap_values(model, X_test, results_title)
+            shap_values = self.compute_shap_values(model, X_train, X_test, results_title)
             
             key = f"{name}_{results_title}"
             results[key] = {

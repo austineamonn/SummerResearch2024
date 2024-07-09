@@ -305,8 +305,6 @@ These CSV files contain the error/accuracy values for different dimensionality r
 ### [tradeoff_graphs](graphics/tradeoff_graphs/tradeoff_graphs.py):
 Plots the Mean Standard Error (MSE), Mean Absolute Erro (MAE), and R-Squared (R2) for each machine learning model (Decision Tree, Random Forest, Linear Regression) and for each target (each of the private columns, each of the utility columns, all of the private columns, all of the utility columns, and all of the columns combined). This is repeated for each of the privatized dataset versions.
 
-### ![Tradeoff Graphs for NonPrivatized Dataset](graphics/tradeoff_graphs/model_evaluation_results_plot_basic.png)
-
 ### [SHAP_graphs](graphics/SHAP_graphs/SHAP_graphs.py):
 Graphs the Bar Graph and the SHAP Summary for the feature importance of each machine learning model and target combination for each of the privatized datasets.
 
