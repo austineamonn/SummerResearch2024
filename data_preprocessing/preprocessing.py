@@ -7,12 +7,13 @@ import ast
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Embedding, SimpleRNN, Dense, Bidirectional, LSTM, GRU, Dropout # type: ignore
 from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping # type: ignore
 
 # Add the SummerResearch2024 directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class PreProcessing:
-    def __init__(self, config, data) -> None:
+    def __init__(self, config, data, privatization_type) -> None:
         # Set up logging
         logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
 
@@ -24,6 +25,9 @@ class PreProcessing:
 
         # Data
         self.data = data
+
+        # Privatization type
+        self.privatization_type = privatization_type
 
     def stringlist_to_binarylist(self, stringlist, col):
         binarylist = []
@@ -100,14 +104,10 @@ class PreProcessing:
         return sorted(list(unique_types))
   
     def preprocess_columns(self, df, col):
-        sequences = df[col].apply(lambda x: str(x)).tolist()
-        # Ensure all sequences are lists of integers
-        sequences = [[int(item) for item in seq.strip('[]').split(',') if item] for seq in sequences]
-        # Determine the maximum length of the sequences in this column
-        max_len = max(5, max(len(seq) for seq in sequences))
+        sequences = df[col].apply(lambda x: ast.literal_eval(str(x))).tolist()
         # Pad the sequences
-        padded_sequences = pad_sequences(sequences, maxlen=max_len, padding='post', truncating='post')
-        return padded_sequences
+        sequences = pad_sequences(sequences, padding='post', truncating='post')
+        return sequences
     
     def create_simple_rnn_model(self, output_dim=1, num_layers=2, dropout_rate=0.2):
         model = Sequential()
@@ -121,15 +121,15 @@ class PreProcessing:
         model.add(Dense(output_dim, activation='linear'))
         model.compile(optimizer='adam', loss='mse')
         return model
-    
+
     def create_lstm_model(self, output_dim=1, num_layers=2, dropout_rate=0.2):
         model = Sequential()
         model.add(Embedding(input_dim=5000, output_dim=64))
-        
+
         for _ in range(num_layers - 1):
             model.add(Bidirectional(LSTM(50, return_sequences=True)))
             model.add(Dropout(dropout_rate))
-        
+
         model.add(Bidirectional(LSTM(50, return_sequences=False)))
         model.add(Dense(output_dim, activation='linear'))
         model.compile(optimizer='adam', loss='mse')
@@ -200,16 +200,13 @@ class PreProcessing:
         return new_df
     
     def run_RNN_models(self, df, model, layers=2):
-        # Copy of dataframe
         df_copy = df.copy()
 
-        # Iterate through the columns
-        # Remove self.Xu if doing dimensionality reduction on privatized datasets since they lack the utility columns
-        for col in self.X + self.Xu:
+        # Change to self.Xu for calculating utility columns
+        for col in self.X:
             if col not in self.numerical_cols:
                 preprocessed_col = self.preprocess_columns(df_copy, col)
 
-                # Create and train the model
                 if model == 'Simple':
                     rnn_model = self.create_simple_rnn_model(num_layers=layers)
                 elif model == 'LSTM':
@@ -217,64 +214,27 @@ class PreProcessing:
                 elif model == 'GRU':
                     rnn_model = self.create_gru_model(num_layers=layers)
                 else:
-                    raise ValueError("Did not choose an RNN model type")
-                
-                # Normally, you would train the model with appropriate labels, but for this example, we'll use dummy data
-                dummy_labels = np.random.rand(len(preprocessed_col), 1)  # Dummy target vectors of length 1
-                rnn_model.fit(preprocessed_col, dummy_labels, epochs=10, batch_size=32)
-            
-                # Transform the sequences
+                    raise ValueError("Did not choose an RNN model type.")
+
+                dummy_labels = np.random.rand(len(preprocessed_col), 1)
+                early_stopping = EarlyStopping(monitor='loss', patience=3)
+                rnn_model.fit(preprocessed_col, dummy_labels, epochs=10, batch_size=32, callbacks=[early_stopping])
+
                 transformed_sequences = rnn_model.predict(preprocessed_col)
-                df_copy[col] = transformed_sequences
-        
+                df_copy[col] = list(transformed_sequences)
+
         return df_copy
     
     def create_RNN_models(self, df):
         for layer in range(1, 4):
             result = self.run_RNN_models(df, 'Simple', layer)
-            name = '/RNN_models/Simple'+str(layer)+'.csv'
-            result.to_csv(name, index=False)
+            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/Simple{layer}.csv', index=False)
+
             result = self.run_RNN_models(df, 'LSTM', layer)
-            name = '/RNN_models/LSTM'+str(layer)+'.csv'
-            result.to_csv(name, index=False)
+            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/LSTM{layer}.csv', index=False)
+
             result = self.run_RNN_models(df, 'GRU', layer)
-            name = '/RNN_models/GRU'+str(layer)+'.csv'
-            result.to_csv(name, index=False)
-
-# Functions for Exporting
-def string_list_to_numberedlist(stringlist, col):
-    numberedlist = []
-
-    for rowlist in col:
-        # Ensure rowlist is a list of strings
-        if isinstance(rowlist, str):
-            try:
-                rowlist = ast.literal_eval(rowlist)
-                if not isinstance(rowlist, list):
-                    raise ValueError
-            except (ValueError, SyntaxError):
-                # Handle the case where the string cannot be converted to a list
-                rowlist = rowlist.strip("[]").replace("'", "").split(", ")
-
-        logging.debug(f"Processing row: {rowlist}")
-        # Initialize a new list
-        newlist = []
-        for item in rowlist:
-            # Only strip if item is a string
-            if isinstance(item, str):
-                item = item.strip()
-            logging.debug(f"Processing item: {item}")
-            if item in stringlist:
-                # For each item in the list add its index to the new list
-                newlist.append(stringlist.index(item))
-            else:
-                logging.debug(f"Error: '{item}' is not in list")
-                logging.debug(f"Current stringlist: {stringlist}")
-        
-        # Add the list to the numbered list
-        numberedlist.append(newlist)
-
-    return numberedlist
+            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/GRU{layer}.csv', index=False)
 
 # Main execution
 if __name__ == "__main__":
@@ -286,11 +246,15 @@ if __name__ == "__main__":
     config = load_config()
     data = Data()
 
+    # Options: NoPrivatization, Basic_DP, Basic_DP_LLC, Uniform, Uniform_LLC, Shuffling, Complete_Shuffling
+    privatization_type = 'NoPrivatization'
+
     # Import synthetic dataset and preprocess it
     df = pd.read_csv(config["running_model"]["data path"])
-    preprocessor = PreProcessing(config, data)
+    preprocessor = PreProcessing(config, data, privatization_type)
     df = preprocessor.preprocess_dataset(df)
     df.to_csv(config["running_model"]["preprocessed data path"], index=False)
 
-    # Create the RNN models and save them to their files
-    #preprocessor.create_RNN_models(df)
+    # Dimensionality Reduction for each privatization type
+    df = pd.read_csv(config["running_model"][privatization_type])
+    preprocessor.create_RNN_models(df)
