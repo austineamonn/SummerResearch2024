@@ -12,9 +12,12 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class DataGenerator:
-    def __init__(self, config, data):
+    def __init__(self, data, config=None):
         # Set up logging
-        logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+        if config is not None:
+            logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+        else:
+            logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
         # First Names
         first_names_data = data.first_name()
@@ -28,19 +31,28 @@ class DataGenerator:
         ethnoracial_data = data.ethnoracial_group()
         self.ethnoracial_stats = ethnoracial_data['ethnoracial_stats']
         self.ethnoracial_to_activities = ethnoracial_data['ethnoracial_to_activities']
-        self.ethnoracial_dist = config["synthetic_data"]["ethnoracial_group"]
+        if config is not None:
+            self.ethnoracial_dist = config["synthetic_data"]["ethnoracial_group"]
+        else:
+            self.ethnoracial_dist = "real"
 
         # Gender
         gender_data = data.gender()
         self.gender_stats = gender_data['gender']
         self.gender_to_activities = gender_data['gender_to_activities']
-        self.gender_dist = config["synthetic_data"]["gender"]
+        if config is not None:
+            self.gender_dist = config["synthetic_data"]["gender"]
+        else:
+            self.gender_dist = "real"
 
         # International Student Status
         international_data = data.international_status()
         self.international_stats = international_data['international']
         self.international_to_activities = international_data['student_status_to_activities']
-        self.international_dist = config["synthetic_data"]["international_status"]
+        if config is not None:
+            self.international_dist = config["synthetic_data"]["international_status"]
+        else:
+            self.international_dist = "real"
 
         # Demographics to Extracurriculars - combine the 3 dictionaries into one
         self.demographics_to_activities = {k: v for d in (self.ethnoracial_to_activities, self.gender_to_activities, self.international_to_activities) for k, v in d.items()}
@@ -48,12 +60,18 @@ class DataGenerator:
         # Socioeconomic Status
         SES_data = data.socioeconomics_status()
         self.socioeconomic_stats = SES_data['socioeconomic']
-        self.socioeconomic_dist = config["synthetic_data"]["socioeconomic_status"]
+        if config is not None:
+            self.socioeconomic_dist = config["synthetic_data"]["socioeconomic_status"]
+        else:
+            self.socioeconomic_dist = "real"
 
         # Learning Styles
         LS_data = data.learning_style()
         self.learning_style_stats = LS_data['learning_style']
-        self.learning_style_dist = config["synthetic_data"]["learning_style"]
+        if config is not None:
+            self.learning_style_dist = config["synthetic_data"]["learning_style"]
+        else:
+            self.learning_style_dist = "real"
 
         # Majors
         major_data = data.major()
@@ -779,7 +797,7 @@ if __name__ == "__main__":
         logging.debug("Script started")
     
     # Initialize data generator class
-    data_generator = DataGenerator(config, data)
+    data_generator = DataGenerator(data, config)
 
     # Get config values
     num_samples = config["synthetic_data"]["num_samples"]

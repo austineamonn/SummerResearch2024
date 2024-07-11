@@ -27,8 +27,6 @@ if 'Privatize Dataset' in config["running_model"]["parts_to_run"]:
     from SummerResearch2024.data_privatization.privatization import Privatizer
 if 'Calculate Privacy Metrics' in config["running_model"]["parts_to_run"]:
     from data_privatization.privacy_metrics import PrivacyMetrics
-if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
-    from neural_network.neural_network import NeuralNetwork
 
 def main():
     """
@@ -124,34 +122,6 @@ def main():
             logging.info("Privacy metrics calculated: %s", privacy_metrics)
         else:
             logging.debug("Privacy metrics not run")
-        
-        if 'Run Neural Network' in config["running_model"]["parts_to_run"]:
-            # Run a neural network on the cleaned dataset
-            network = NeuralNetwork(config)
-            X_train, y_train, X_test, y_test = network.test_train_split(private_dataset)
-            
-            # Tune hyperparameters of the Neural Network
-            if 'Tune Neural Network' in config["running_model"]["parts_to_run"]:
-                model = network.tune_hyperparameters(X_train, y_train, X_test, y_test)
-            else:
-                model = network.build_neural_network(X_train, y_train, X_test, y_test)
-                logging.debug("Neural network tuning not run")
-            loss, accuracy = network.evaluate_model(model, X_test, y_test)
-            logging.info("Neural network loss %s", loss)
-            logging.info("Neural network accuracy %s", accuracy)
-
-            # Test the Neural Network
-            if 'Test Neural Network' in config["running_model"]["parts_to_run"]:
-                ave_loss, ave_accuracy = network.cross_validate(private_dataset)
-                logging.info("Neural network average loss from cross validation: %s", ave_loss)
-                logging.info("Neural network average accuracy from cross validation: %s", ave_accuracy)
-                feature_importance = network.get_feature_importance(model, X_test, y_test)
-                feature_importance.to_csv('Feature_Importance.csv', index=False)
-                logging.info("Neural network features ranked by importance: %s and saved to Feature_Importance.csv", feature_importance.head())
-            else:
-                logging.debug("Neural network testing not run")
-        else:
-            logging.debug("Neural network not run")
                
     except Exception as e:
         logging.error("Error in main execution: %s", e)
