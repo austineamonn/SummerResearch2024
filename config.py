@@ -118,9 +118,6 @@ def load_config():
                 "gpa", "student semester"
             ],
 
-            # Normalization Parameters
-            "normalize_type": 'Zscore',
-
             # Style Options: basic differential privacy, uniform, shuffle
             "style": "shuffle",
 

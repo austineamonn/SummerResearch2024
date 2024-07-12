@@ -10,18 +10,36 @@ from ast import literal_eval
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class Privatizer:
-    def __init__(self, config, data, style=None, list_length=False):
+    def __init__(self, data, config=None, style=None, list_length=False):
         # Set up logging
-        logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+        if config is not None:
+            logging_level = config["logging"]["level"]
+            logging.basicConfig(level=logging_level, format=config["logging"]["format"])
+        else:
+            logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-        # Privatized - Utility split
-        self.Xp = config["privacy"]["Xp_list"]
-        self.X = config["privacy"]["X_list"]
-        self.Xu = config["privacy"]["Xu_list"]
-        self.numerical_cols = config["privacy"]["numerical_columns"]
-
-        # Normalization Parameters
-        self.normalize_type = config["privacy"]["normalize_type"]
+        ## Privatized - Utility split
+        if config is not None:
+            self.Xp = config["privacy"]["Xp_list"]
+            self.X = config["privacy"]["X_list"]
+            self.Xu = config["privacy"]["Xu_list"]
+            self.numerical_cols = config["privacy"]["numerical_columns"]
+        else:
+            self.Xp = [
+                'first name','last name','ethnoracial group','gender',
+                'international status','socioeconomic status'
+            ]
+            self.X = [
+                'learning style', 'gpa', 'student semester' ,'major' ,
+                'previous courses','course types','course subjects',
+                'subjects of interest', 'extracurricular activities'
+            ]
+            self.Xu = [
+                'career aspirations', 'future topics'
+            ]
+            self.numerical_cols = [
+                "gpa", "student semester"
+            ]
 
         # Privatization Method
         if style:
@@ -31,14 +49,18 @@ class Privatizer:
         self.list_length = list_length
 
         # Privatization Parameters
-        self.epsilon = config["privacy"]["basic differential privacy"]["epsilon"]
+        if config is not None:
+            self.epsilon = config["privacy"]["basic differential privacy"]["epsilon"]
+            self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
+        else:
+            self.epsilon = 0.1
+            self.shuffle_ratio = 0.1
         if self.style == "basic differential privacy":
             self.method = 'laplace'
         elif self.style == "uniform":
             self.method = 'uniform'
         else:
             self.method = config["privacy"]["basic differential privacy"]["method"]
-        self.shuffle_ratio = config["privacy"]["shuffle"]["shuffle_ratio"]
 
         # Max Values (because all the mins are always 0)
         self.learning_style_max = 1
@@ -303,38 +325,38 @@ if __name__ == "__main__":
     df = pd.read_csv(config["running_model"]["preprocessed data path"], converters={'learning style': literal_eval, 'major': literal_eval, 'previous courses': literal_eval, 'course types': literal_eval, 'course subjects': literal_eval, 'subjects of interest': literal_eval, 'extracurricular activities': literal_eval, 'career aspirations': literal_eval, 'future topics': literal_eval})
     
     # Basic Differential Privacy
-    privatizer = Privatizer(config, data, 'basic differential privacy')
+    privatizer = Privatizer(data, config, 'basic differential privacy')
     bdp_df = privatizer.privatize_dataset(df)
     bdp_df.to_csv(config["running_model"]["basic differential privacy privatized data path"], index=False)
 
     # Basic Differential Privacy with changing list lengths
-    privatizer = Privatizer(config, data, 'basic differential privacy', True)
+    privatizer = Privatizer(data, config, 'basic differential privacy', True)
     bdp_df = privatizer.privatize_dataset(df)
     bdp_df.to_csv(config["running_model"]["basic differential privacy LLC privatized data path"], index=False)
 
     logging.info("Basic Differential Privacy completed")
 
     # Uniform Noise Addition
-    privatizer = Privatizer(config, data, 'uniform')
+    privatizer = Privatizer(data, config, 'uniform')
     un_df = privatizer.privatize_dataset(df)
     un_df.to_csv(config["running_model"]["uniform noise privatized data path"], index=False)
 
     # Uniform Noise Addition with changing list lengths
-    privatizer = Privatizer(config, data, 'uniform', True)
+    privatizer = Privatizer(data, config, 'uniform', True)
     un_df = privatizer.privatize_dataset(df)
     un_df.to_csv(config["running_model"]["uniform noise LLC privatized data path"], index=False)
 
     logging.info("Uniform Noise Privacy completed")
     
     # Random Shuffling
-    privatizer = Privatizer(config, data, 'shuffle')
+    privatizer = Privatizer(data, config, 'shuffle')
     rs_df = privatizer.privatize_dataset(df)
     rs_df.to_csv(config["running_model"]["random shuffling privatized data path"], index=False)
 
     logging.info("Random Shuffling Privacy completed")
 
     # Complete Shuffling
-    privatizer = Privatizer(config, data, 'full shuffle')
+    privatizer = Privatizer(data, config, 'full shuffle')
     fs_df = privatizer.privatize_dataset(df)
     fs_df.to_csv(config["running_model"]["complete shuffling privatized data path"], index=False)
 

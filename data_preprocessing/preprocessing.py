@@ -13,15 +13,36 @@ from tensorflow.keras.callbacks import EarlyStopping # type: ignore
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class PreProcessing:
-    def __init__(self, config, data, privatization_type) -> None:
+    def __init__(self, data, privatization_type=None, config=None):
         # Set up logging
-        logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
+        if config is not None:
+            logging_level = config["logging"]["level"]
+            logging.basicConfig(level=logging_level, format=config["logging"]["format"])
+        else:
+            logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
         # Privatized - Utility split
-        self.Xp = config["privacy"]["Xp_list"]
-        self.X = config["privacy"]["X_list"]
-        self.Xu = config["privacy"]["Xu_list"]
-        self.numerical_cols = config["privacy"]["numerical_columns"]
+        if config is not None:
+            self.Xp = config["privacy"]["Xp_list"]
+            self.X = config["privacy"]["X_list"]
+            self.Xu = config["privacy"]["Xu_list"]
+            self.numerical_cols = config["privacy"]["numerical_columns"]
+        else:
+            self.Xp = [
+                'first name','last name','ethnoracial group','gender',
+                'international status','socioeconomic status'
+            ]
+            self.X = [
+                'learning style', 'gpa', 'student semester' ,'major' ,
+                'previous courses','course types','course subjects',
+                'subjects of interest', 'extracurricular activities'
+            ]
+            self.Xu = [
+                'career aspirations', 'future topics'
+            ]
+            self.numerical_cols = [
+                "gpa", "student semester"
+            ]
 
         # Data
         self.data = data
@@ -199,11 +220,15 @@ class PreProcessing:
                 
         return new_df
     
-    def run_RNN_models(self, df, model, layers=2):
+    def run_RNN_models(self, df, model, layers=2, utility=False):
         df_copy = df.copy()
 
-        # Change to self.Xu for calculating utility columns
-        for col in self.X:
+        if utility: # Reduce dimensionality of utility columns
+            columns = self.Xu
+        else: # Reduce dimensionality of regular columns
+            columns = self.X
+
+        for col in columns:
             if col not in self.numerical_cols:
                 preprocessed_col = self.preprocess_columns(df_copy, col)
 
@@ -225,17 +250,28 @@ class PreProcessing:
 
         return df_copy
     
-    def create_RNN_models(self, df):
-        for layer in range(1, 4):
-            result = self.run_RNN_models(df, 'Simple', layer)
-            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/Simple{layer}.csv', index=False)
+    def create_RNN_models(self, df, end_range=1, save_files=False, utility=False):
+        results = []
 
-            result = self.run_RNN_models(df, 'LSTM', layer)
-            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/LSTM{layer}.csv', index=False)
+        for layer in range(1, end_range + 1):
+            simple = self.run_RNN_models(df, 'Simple', layer, utility)
+            if save_files:
+                simple.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
 
-            result = self.run_RNN_models(df, 'GRU', layer)
-            result.to_csv(f'/reduced_dimensionality_data/{self.privatization_type}/GRU{layer}.csv', index=False)
+            LSTM = self.run_RNN_models(df, 'LSTM', layer, utility)
+            if save_files:
+                LSTM.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
 
+            GRU = self.run_RNN_models(df, 'GRU', layer, utility)
+            if save_files:
+                GRU.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
+            
+            if not save_files:
+                results.append((simple, LSTM, GRU))
+        
+        if not save_files:
+            return results
+        
 # Main execution
 if __name__ == "__main__":
     # Import necessary dependencies
@@ -251,10 +287,10 @@ if __name__ == "__main__":
 
     # Import synthetic dataset and preprocess it
     df = pd.read_csv(config["running_model"]["data path"])
-    preprocessor = PreProcessing(config, data, privatization_type)
+    preprocessor = PreProcessing(data, privatization_type, config)
     df = preprocessor.preprocess_dataset(df)
     df.to_csv(config["running_model"]["preprocessed data path"], index=False)
 
     # Dimensionality Reduction for each privatization type
     df = pd.read_csv(config["running_model"][privatization_type])
-    preprocessor.create_RNN_models(df)
+    preprocessor.create_RNN_models(df, save_files=True)

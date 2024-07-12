@@ -77,7 +77,7 @@ from config import load_config
 from data_generation_GPU import DataGenerator
 
 # Create generator class
-generator = DataGenerator(config, data)
+generator = DataGenerator(data, config)
 
 # Set generation levels
 num_samples = 1000
@@ -163,15 +163,15 @@ config = load_config()
 data = Data()
 
 # Create preprocessor class
-preprocesser = PreProcessing(config, data)
+preprocesser = PreProcessing(data, config)
 
 # Returns preprocessed dataset
-preprocesser.preprocess_dataset(synthetic_dataset)
+preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
 
 # Create the RNN models and save them to their files
 # Use one of these models to reduce the dimensionality
 # of the preprocessed dataset
-preprocessor.create_RNN_models(synthetic_dataset)
+preprocessor.create_RNN_models(preprocessed_dataset, save_files=True)
 ```
 
 ### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
@@ -190,14 +190,14 @@ from processing_private_columns import PrivateColumns
 synthetic_dataset = pd.read_csv(path_to_synthetic_dataset.csv')
 
 # Create a private columns class
-private_cols = PrivateColumns(config, data)
+private_cols = PrivateColumns(data, config)
 
 # Returns the processed private columns (ethnoracial group, gender, international student status)
 private_cols.get_private_cols(synthetic_dataset)
 ```
 
-### [RNN Model Files](data_preprocessing/RNN_models):
-In this folder, the different RNN models for dimensionality reduction can be found. Currently I have run Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns while the regular versions do not.
+### [Reduced Dimensionality Files](data_preprocessing/reduced_dimensionality_data):
+In this folder, the different RNN models for dimensionality reduction can be found. They are organized by privatization method. Within each is the three methods Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns and utility columns while the regular versions do not. The reduced dimension utility columns can be found on their own in the 'NoPrivatization' folder.
 
 ## Data Privatization
 
@@ -225,7 +225,7 @@ from privatization import Privatizer
 preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
 
 # Create privatizer class using differential privacy with laplace noise addition, epsilon of 0.1 and no list length changing
-privatizer = Privatizer(config, data, 'basic differential privacy', True)
+privatizer = Privatizer(data, config, 'basic differential privacy', True)
 
 # Returns privatized dataset
 privatizer.privatize_dataset(preprocessed_dataset)
