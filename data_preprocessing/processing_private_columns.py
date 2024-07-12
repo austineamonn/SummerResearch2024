@@ -8,8 +8,7 @@ import ast
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class PrivateColumns:
-    def __init__(self, config, data) -> None:
-        self.config = config
+    def __init__(self, data) -> None:
         self.data = data
 
     def string_to_numberedlist(self, stringlist, col):
@@ -45,7 +44,8 @@ class PrivateColumns:
         return numberedlist
 
     def get_private_cols(self, df):
-        privacy_cols = self.config["calculating_tradeoffs"]["privacy_cols"]
+        privacy_cols = ['ethnoracial group','gender',
+                'international status','socioeconomic status']
         privacy_cols_df = df[privacy_cols].copy()
         for col in privacy_cols:
             if col == 'ethnoracial group':
@@ -54,6 +54,8 @@ class PrivateColumns:
                 stringlist = self.data.gender()["gender_list"]
             elif col == 'international status':
                 stringlist = self.data.international_status()["international_status_list"]
+            elif col == 'socioeconomic status':
+                stringlist = self.data.socioeconomics_status()["ses_list"]
             privacy_cols_df.loc[:, col] = self.string_to_numberedlist(stringlist, privacy_cols_df[col])
         
         return privacy_cols_df
@@ -72,11 +74,11 @@ if __name__ == "__main__":
     df = pd.read_csv(config["running_model"]["data_generation_paths"]["data path"])
 
     # Create private columns class
-    private_cols = PrivateColumns(config, data)
+    private_cols = PrivateColumns(data)
 
     # Get Private Columns and save them
     privacy_cols_df = private_cols.get_private_cols(df)
-    privacy_cols_df.to_csv(config["running_model"]["private columns path"], index=False)
+    privacy_cols_df.to_csv(config["running_model"]["preprocessed_data_paths"]["private columns path"], index=False)
 
     # Combine dimensionality reduced data with privatized columns and utility columns
     privatization_type_list = ['NoPrivatization', 'Basic_DP', 'Basic_DP_LLC', 'Uniform', 'Uniform_LLC', 'Shuffling', 'Complete_Shuffling']

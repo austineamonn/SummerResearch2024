@@ -105,7 +105,10 @@ class Data:
                 'Lower-middle income': 15,
                 'Middle income': 37,
                 'Higher income': 9
-            }
+            },
+            'ses_list': [
+                'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
+            ]
         }
 
         return SES

@@ -256,60 +256,8 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 
 ## Calculating Tradeoffs:
 
-### [tradeoffs](calculating_tradeoffs/tradeoffs.py):
-Takes a dataset and runs calculates how well the X columns can predict the private (ethnoracial group, gender, international student status) and utility columns (career aspirations, future topics). The file will run the model to predict each of the columns as well as the private columns combined, the utility columns combined, and all the columns combined. Three different machine learning models will run: Linear Regression, Decision Tree, and Random Forest. SHAP feature importance is calculated for each prediction.
-
---- Be warned that the current model imputes NaN values which means students who have not gone to college suddenly have GPAs and other similar issues. ---
-
-```python
-from pandas import pd
-from config import load_config
-from tradeoffs import CalculateTradeoffs
-
-# Import the synthetic dataset CSV as a pandas dataframes
-RNN_preprocessed_dataset = pd.read_csv('path_to_RNN_preprocessed_dataset.csv')
-
-# Calculate the tradeoffs for a specific RNN model
-predictor = CalculateTradeoffs(config, RNN_preprocessed_dataset, RNN_model)
-
-# Train and evaluate the models
-results = predictor.train_and_evaluate()
-
-# Save the results to a CSV file
-results_csv_path = 'model_evaluation_results.csv'
-predictor.save_results_to_csv(results, results_csv_path)
-```
-
-### [tradeoffs_categorical](calculating_tradeoffs/tradeoffs_categorical.py):
-Since the private columns are categorical, in addition to running the tradeoff files, categorical machine learning is used for the private columns on their own.
-The file takes a dataset and runs calculates how well the X columns can predict the private columns (ethnoracial group, gender, international student status). The file will run the model to predict each of the columns as well as the private columns combined. One basic neural network is run with 2 hidden layers and 2 dropout layers. SHAP feature importance is calculated for each prediction.
-
---- Be warned that the current model imputes NaN values which means students who have not gone to college suddenly have GPAs and other similar issues. ---
-
-```python
-from pandas import pd
-from config import load_config
-from tradeoffs_categorical import CalculateTradeoffsCategorical
-
-# Import the synthetic dataset CSV as a pandas dataframes
-RNN_preprocessed_dataset = pd.read_csv('path_to_RNN_preprocessed_dataset.csv')
-
-# Calculate the categorical tradeoffs for a specific RNN model
-predictor = CalculateTradeoffsCategorical(config, RNN_preprocessed_datase, RNN_model)
-
-# Train and evaluate the models
-results = predictor.train_and_evaluate()
-
-# Save the results to a CSV file
-results_csv_path = 'model_evaluation_results.csv'
-predictor.save_results_to_csv(results, results_csv_path)
-```
-
-### SHAP Values
-These CSV files contain the SHAP values for different dimensionality reduction models and different predictive models with different targets. SHAP Explainer was used for linear regression, SHAP TreeExplainer was used for decision tree and random forest, and SHAP KernelExplainer was used for the neural network.
-
-### Tradeoff Results
-These CSV files contain the error/accuracy values for different dimensionality reduction models and different predictive models with different targets. The error values for 'tradeoffs' are mean squared error, mean absolute error, R squared, root mean squared error, mean absolute percentage error, median absolute error, explained variance, and mean bias deviation. The accuracy values for 'categorical tradeoffs' are accuracy, precision, recall, F1 score, balanced accuracy, log loss, classification report, and confusion matrix. Both types also include training time.
+### [Decision Tree Classifier](calculating_tradeoffs/decision_tree_classifier):
+Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column.
 
 ## Graphics:
 
