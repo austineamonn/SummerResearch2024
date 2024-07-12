@@ -24,14 +24,22 @@ Take student input data and build a privatized version to train a machine learni
 
 ## Main Functions:
 
-### [main](main.py):
-The main file of the framework. Generates a synthetic dataset using 'data_generation', privatizes the dataset using 'privatization', calculates the privacy metrics using 'privacy_metrics', and trains a neural network on the data using 'neural_network'.
+### [main - Under Construction](main.py):
+The main file of the framework. What can this file do?
+<ol>
+  <li>Generates a synthetic dataset using either 'data_generation_CPU' or 'data_generation_GPU'</li>
+  <li>Analyzes the dataset using 'data_analysis'</li>
+  <li>Preprocesses and reduces the dimensionality of the dataset using 'preprocessing'</li>
+  <li>Privatizes the dataset using 'privatization'</li>
+  <li>Calculates the privacy metrics using 'privacy_metrics'</li>
+</ol>
+Use the config file to change which of the above parts of the file are run during main.
 
-### [interactive main](main.ipynb):
+### [interactive main - Under Construction](main.ipynb):
 An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale.
 
 ### [config](config.py):
-Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics, Run Neural Network, and Test Neural Network.
+Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
 
 ## Data Generation:
 
