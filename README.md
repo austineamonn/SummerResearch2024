@@ -1,4 +1,4 @@
-# SummerResearch2024
+# IntelliShield: A Privacy Preserving Explainable Educational Recommendation System
 For the iCompBio REU program Summer of 2024 at the University of Tennessee Chattanooga.
 
 Project Lead: Austin Nicolas.
@@ -265,30 +265,21 @@ from pandas import pd
 from config import load_config
 from decision_tree_classifier import DTClassifier
 
+# Import the combined dataset CSV as a pandas dataframes
+combined_dataset = pd.readcsv('path_to_combined_dataset.csv')
+
 # Specify the inputs for the classifier
 privatization_type = 'Shuffling'
 RNN_model = 'GRU1'
 target = 'gender'
 
 # Create decision tree class
-classifier = DTClassifier(privatization_type, RNN_model, target)
-
-# Read in part of the data
-classifier.read_data(100)
-
-# Do the train-test split
-classifier.split_data()
+classifier = DTClassifier(privatization_type, RNN_model, target, combined_dataset)
 
 # Get the best ccp alpha value
 ccp_alpha = classifier.get_best_model(return_model=False)
 
-# Read in the full dataset
-classifier.read_data(100)
-
-# Do the train-test split
-classifier.split_data()
-
-# Run the full model
+# Run the full model - saves graphs, model, and more in the outputs folder
 classifier.run_model(ccp_alpha=ccp_alpha)
 ```
 

@@ -17,7 +17,7 @@ import time
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class DTClassifier:
-    def __init__(self, privatization_type, RNN_model, target='ethnoracial group'):
+    def __init__(self, privatization_type, RNN_model, target='ethnoracial group', data=None):
         # Initiate inputs
         self.target = target # Set 'ethnoracial group' as the target if one is not chosen, other options include: 'gender', 'international status', and 'socioeconomic status'
         self.target_name = target.replace(' ', '_')
@@ -42,12 +42,12 @@ class DTClassifier:
             ]
         else:
             raise ValueError(f"Incorrect target column name {target}")
-
-    def read_data(self, nrows=1000):
+        
         # Get Data Paths
+        if data is None:
             data_path = f'../../data_preprocessing/reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_combined.csv'
 
-            self.data = pd.read_csv(data_path, nrows=nrows, converters={
+            self.data = pd.read_csv(data_path, converters={
                 'learning style': literal_eval,
                 'major': literal_eval,
                 'previous courses': literal_eval,
@@ -58,17 +58,30 @@ class DTClassifier:
                 'career aspirations': literal_eval,
                 'future topics': literal_eval
             })
+        else:
+            self.data = data
 
-    def split_data(self):
-        # Set up X
-        self.X = self.data[['learning style', 'major', 'previous courses', 'course types', 
-                'course subjects', 'subjects of interest', 'extracurricular activities']]
-        # Change the lists into just the elements within them
-        for column in self.X.columns:
-            self.X.loc[:,column] = self.X[column].apply(lambda x: x[0])
-
-        # Set up y
+    def split_data(self, full_model=False):
+        # Define y
         self.y = self.data[[self.target]]
+
+        # Stratify the data by taking only the number of elements the least common values has
+        least_common_count = self.y.value_counts().min()
+        if full_model:
+            sample_number = least_common_count
+        else: # Cut it off at 1,000 if running the ccp alpha calculations
+            sample_number = min(1000, least_common_count)
+        self.stratified_data = self.data.groupby(self.target, group_keys=False).apply(lambda x: x.sample(sample_number))
+
+        # Set up X
+        self.X = self.stratified_data[['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 
+                'course subjects', 'subjects of interest', 'extracurricular activities']]
+        # Change the lists into just the elements within them if the element is a list otherwise just take the element
+        for column in self.X.columns:
+            self.X.loc[:, column] = self.X[column].apply(lambda x: x[0] if isinstance(x, list) else x)
+
+        # Set up y post stratification
+        self.y = self.stratified_data[[self.target]]
 
         # Change the doubles into integers
         self.y = self.y.astype(int)
@@ -77,6 +90,9 @@ class DTClassifier:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, train_size = 0.8, random_state = 1234)
     
     def get_best_model(self, make_graphs=True, return_model=True, return_ccp_alpha=True):
+        # Split the data
+        self.split_data()
+
         # Generate the models with different ccp alphas
         clf = DecisionTreeClassifier(random_state=0)
         path = clf.cost_complexity_pruning_path(self.X_train, self.y_train)
@@ -183,6 +199,9 @@ class DTClassifier:
         plt.close()
 
     def run_model(self, model=None, ccp_alpha=None, print_report=False, save_files=True, plot_files=True, get_shap=True):
+        # Split the data
+        self.split_data(full_model=True)
+
         if model is not None:
             self.model = model
             self.y_pred = self.model.predict(self.X_test)
@@ -211,8 +230,9 @@ class DTClassifier:
             with open(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/classification_report.json', 'w') as json_file:
                 json.dump(report, json_file, indent=4)
 
-            # Save y_preds to a csv file
-            y_pred_df = pd.DataFrame(self.y_pred, columns=[f'Predicted Class: {self.target}'])
+            # Create a new csv file with the predictions
+            y_pred_df = pd.concat([self.X_test, self.y_test], axis=1)
+            y_pred_df[f'Predicted Class: {self.target}'] = self.y_pred
             y_pred_df.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/predictions.csv', index=False)
 
             # Save the model
@@ -220,7 +240,7 @@ class DTClassifier:
 
         if plot_files:
             # Plot the model
-            self.plotter()
+            self.plotter(save_fig=True)
 
         if get_shap:
             # Calculate and plot SHAP values
@@ -278,6 +298,10 @@ class DTClassifier:
 
 # Main execution
 if __name__ == "__main__":
+    # Import necessary dependencies
+    import cProfile
+    import pstats
+
     # List of RNN models to run
     RNN_model_list = ['GRU1', 'LSTM1', 'Simple1']
 
@@ -287,6 +311,10 @@ if __name__ == "__main__":
     # List of targets for the model 
     targets = ['ethnoracial group', 'gender', 'international status', 'socioeconomic status']
 
+    # Get the runtime values for the function
+    profiler = cProfile.Profile()
+    profiler.enable()
+
     for privatization_type in privatization_types:
         logging.info(f"Starting {privatization_type}")
         for RNN_model in RNN_model_list:
@@ -295,10 +323,14 @@ if __name__ == "__main__":
                 logging.info(f"Starting {target}")
                 # Initiate first classifier
                 classifier = DTClassifier(privatization_type, RNN_model, target)
-                classifier.read_data(10000)
-                classifier.split_data()
                 ccp_alpha = classifier.get_best_model(return_model=False)
-                classifier.read_data(100000)
-                classifier.split_data()
                 # Don't forget you left get_shap at false!!!
                 classifier.run_model(ccp_alpha=ccp_alpha, get_shap=False)
+
+    # Save the profiling stats to a file
+    profile_stats_file = "profile_stats.txt"
+    with open(profile_stats_file, 'w') as f:
+        stats = pstats.Stats(profiler, stream=f).sort_stats('cumtime')
+        stats.print_stats()
+    
+    print(classifier.y_pred.head())
