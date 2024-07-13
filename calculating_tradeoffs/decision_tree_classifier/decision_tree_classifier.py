@@ -213,7 +213,7 @@ class DTClassifier:
 
             # Save y_preds to a csv file
             y_pred_df = pd.DataFrame(self.y_pred, columns=[f'Predicted Class: {self.target}'])
-            y_pred_df.to_csv('predictions.csv', index=False)
+            y_pred_df.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/predictions.csv', index=False)
 
             # Save the model
             self.save_model(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_classifier_model.pkl')

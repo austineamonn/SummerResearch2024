@@ -250,24 +250,30 @@ class PreProcessing:
 
         return df_copy
     
-    def create_RNN_models(self, df, end_range=1, save_files=False, utility=False):
+    def create_RNN_models(self, df, end_range=1, save_files=False, utility=False, simple=True, LSTM=True, GRU=True):
         results = []
 
         for layer in range(1, end_range + 1):
-            simple = self.run_RNN_models(df, 'Simple', layer, utility)
-            if save_files:
-                simple.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
+            if simple:
+                simple_df = self.run_RNN_models(df, 'Simple', layer, utility)
+                if save_files:
+                    simple_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
+                else:
+                    results.append(simple_df)
 
-            LSTM = self.run_RNN_models(df, 'LSTM', layer, utility)
-            if save_files:
-                LSTM.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
+            if LSTM:
+                LSTM_df = self.run_RNN_models(df, 'LSTM', layer, utility)
+                if save_files:
+                    LSTM_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
+                else:
+                    results.append(LSTM_df)
 
-            GRU = self.run_RNN_models(df, 'GRU', layer, utility)
-            if save_files:
-                GRU.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
-            
-            if not save_files:
-                results.append((simple, LSTM, GRU))
+            if GRU:
+                GRU_df = self.run_RNN_models(df, 'GRU', layer, utility)
+                if save_files:
+                    GRU_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
+                else:
+                    results.append(GRU_df)
         
         if not save_files:
             return results

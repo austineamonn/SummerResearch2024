@@ -18,7 +18,6 @@ Take student input data and build a privatized version to train a machine learni
   <li>Data Preprocessing</li>
   <li>Data Privatization</li>
   <li>Calculating Tradeoffs</li>
-  <li>Graphics</li>
   <li>Sources and Acknowledgments</li>
 </ol>
 
@@ -256,27 +255,59 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 
 ## Calculating Tradeoffs:
 
-### [Decision Tree Classifier](calculating_tradeoffs/decision_tree_classifier):
-Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column.
+### [Decision Tree Classifier](calculating_tradeoffs/decision_tree_classifier/decision_tree_classifier.py):
+Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
-## Graphics:
-
-### [tradeoff_graphs](graphics/tradeoff_graphs/tradeoff_graphs.py):
-Plots the Mean Standard Error (MSE), Mean Absolute Erro (MAE), and R-Squared (R2) for each machine learning model (Decision Tree, Random Forest, Linear Regression) and for each target (each of the private columns, each of the utility columns, all of the private columns, all of the utility columns, and all of the columns combined). This is repeated for each of the privatized dataset versions.
-
-### [SHAP_graphs](graphics/SHAP_graphs/SHAP_graphs.py):
-Graphs the Bar Graph and the SHAP Summary for the feature importance of each machine learning model and target combination for each of the privatized datasets.
+The model, various graphs, and the predicted y values are all saved in the outputs folder.
 
 ```python
+from pandas import pd
 from config import load_config
-from tradeoffs import CalculateTradeoffs
+from decision_tree_classifier import DTClassifier
 
-# Create a private columns class
-grapher = SHAP_Grapher(config)
+# Specify the inputs for the classifier
+privatization_type = 'Shuffling'
+RNN_model = 'GRU1'
+target = 'gender'
 
-# Generate the feature importance graphs
-grapher.generate_graphs()
+# Create decision tree class
+classifier = DTClassifier(privatization_type, RNN_model, target)
+
+# Read in part of the data
+classifier.read_data(100)
+
+# Do the train-test split
+classifier.split_data()
+
+# Get the best ccp alpha value
+ccp_alpha = classifier.get_best_model(return_model=False)
+
+# Read in the full dataset
+classifier.read_data(100)
+
+# Do the train-test split
+classifier.split_data()
+
+# Run the full model
+classifier.run_model(ccp_alpha=ccp_alpha)
 ```
+
+### [Decision Tree Classifier Outputs](calculating_tradeoffs/decision_tree_classifier/outputs):
+
+Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
+
+<ul>
+  <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
+  <li>The best ccp alpha fit model</li>
+  <li>The y predictions based on the best model</li>
+  <li>The classification report from the best model (with an added runtime value)</li>
+  <li>The decision tree image from the best model</li>
+  <li>Alpha vs accuracy</li>
+  <li>Alpha vs graph nodes and graph depth</li>
+  <li>Alpha vs total impurity</li>
+</ul>
+
+Note that what is saved and make can be changed by altering inputs for the functions.
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
