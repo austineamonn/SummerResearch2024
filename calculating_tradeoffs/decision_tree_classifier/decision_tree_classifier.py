@@ -89,7 +89,7 @@ class DTClassifier:
         # Test - Train Split
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, train_size = 0.8, random_state = 1234)
     
-    def get_best_model(self, make_graphs=True, return_model=True, return_ccp_alpha=True):
+    def get_best_model(self, make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
         # Split the data
         self.split_data()
 
@@ -123,9 +123,11 @@ class DTClassifier:
             'node count': self.node_counts,
             'depth': self.depth
         }
-
+        
         models = pd.DataFrame(self.models_data)
-        models.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_classifier_models.csv', index=False)
+
+        if save_model:
+            models.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_classifier_models.csv', index=False)
 
         models_sorted = models.sort_values(by='test scores', ascending=False)
 

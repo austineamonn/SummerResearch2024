@@ -23,7 +23,7 @@ Take student input data and build a privatized version to train a machine learni
 
 ## Main Functions:
 
-### [main - Under Construction](main.py):
+### [Main - Under Construction](main.py):
 The main file of the framework. What can this file do?
 <ul>
   <li>Generates a synthetic dataset using either 'data_generation_CPU' or 'data_generation_GPU'</li>
@@ -34,21 +34,24 @@ The main file of the framework. What can this file do?
 </ul>
 Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but order does matter.
 
-### [interactive main - Under Construction](main.ipynb):
+### [Interactive Main - Under Construction](main.ipynb):
 An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. None of the files produced are saved.
 
-### [config](config.py):
+### [Interactive Main - Google Colab](https://drive.google.com/drive/folders/1xqYj2SbNwp0Gpms4Qk8-YAlXKtMlvgo7?usp=share_link)
+There is also a colab that does the same think as the Interactive Main file above.
+
+### [Config](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
 
 ## Data Generation:
 
-### [datafiles_for_data_construction](datafiles_for_data_construction)
+### [Datafiles for Data Construction](datafiles_for_data_construction)
 Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file.
 
-### [data](datafiles_for_data_construction/data.py):
+### [Data](datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
-### [data_generation_CPU](data_generation/data_generation_CPU.py):
+### [Data Generation with a CPU](data_generation/data_generation_CPU.py):
 Generates the synthetic dataset on the computer's CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
@@ -67,7 +70,7 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [data_generation_GPU](data_generation/data_generation_GPU.py):
+### [Data Generation with a GPU](data_generation/data_generation_GPU.py):
 Generates the synthetic dataset on the computer's GPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
@@ -86,7 +89,7 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [data_analysis](data_generation/data_analysis.py):
+### [Data Analysis](data_generation/data_analysis.py):
 Takes the synthetic dataset and produces various graphs about the data. For the numerical columns boxplots, distributions, and summary statistics are produced. For all the other columns the top ten highest count items are displayed. Calculates the percentage of empty of NaN values in each column.
 
 ```python
@@ -107,7 +110,7 @@ analyzer.analyze_data()
 analyzer.analyze_data()
 ```
 
-### [data_analysis_graphs](data_generation/data_analysis_graphs):
+### [Data Analysis Graphs](data_generation/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
 ### [Dataset](data_generation/Dataset.csv)
@@ -143,7 +146,7 @@ Synthetic dataset. The file here contains 25,000 'students', but you can generat
   </tr>
 </table>
 
-### [preprocessing](data_preprocessing/preprocessing.py):
+### [Preprocessing](data_preprocessing/preprocessing.py):
 preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.
 
 run_RNN_models() - Takes in a preprocessed dataset. For each list in each column, the lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional. There are 3 RNN types (Simple, GRU, ans LSTM) and they can run with different numbers of layers (1-4).
@@ -173,10 +176,10 @@ preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
 preprocessor.create_RNN_models(preprocessed_dataset, save_files=True)
 ```
 
-### [Preprocessed_Dataset](data_preprocessing/Preprocessed_Dataset.csv):
+### [Preprocessed Dataset](data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns have been converted into either binary lists or numerical lists. Contains 100,000 'students' in the CSV.
 
-### [processing_private_columns](calculating_tradeoffs/processing_private_columns.py):
+### [Processing the Private Columns](calculating_tradeoffs/processing_private_columns.py):
 The private data are converted into numbered lists. This currently only converts ethnoracial group, gender, and international status.
 
 ```python
@@ -212,7 +215,7 @@ Overall, there is wide flexibility in the options for privatization method. The 
   <img src="/graphics/canva_generated_graphs/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
 </p>
 
-### [privatization](data_privatization/privatization.py):
+### [Privatization](data_privatization/privatization.py):
 Generates the privatized dataset based on the preprocessed dataset using one of the various methods listed above.
 
 ```python
@@ -233,7 +236,7 @@ privatizer.privatize_dataset(preprocessed_dataset)
 ### Privatized Datasets
 There are a variety of privatized datasets including differential privacy with laplace and uniform noise addition and with and without list length changing (LLC) as well as the random shuffling at 10% and 100%.
 
-### [privacy_metrics - Under Construction](data_privatization/privacy_metrics.py):
+### [Privacy Metrics - Under Construction](data_privatization/privacy_metrics.py):
 Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
 
 ```python
