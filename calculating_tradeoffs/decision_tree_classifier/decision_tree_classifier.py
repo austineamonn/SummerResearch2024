@@ -82,6 +82,9 @@ class DTClassifier:
         path = clf.cost_complexity_pruning_path(self.X_train, self.y_train)
         self.ccp_alphas, self.impurities = path.ccp_alphas, path.impurities
 
+        # Ensure all ccp_alphas are non-negative
+        self.ccp_alphas = [max(alpha, 0.0) for alpha in self.ccp_alphas]
+
         # Fit the models
         clfs = []
         for ccp_alpha in self.ccp_alphas:
@@ -163,52 +166,66 @@ class DTClassifier:
         plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_accuracy.png')
         plt.close()
 
-    def plotter(self):
+    def plotter(self, model=None, save_fig=False, show_fig=False):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
-        plot_tree(self.model, 
+        if model is None:
+            model = self.model
+        plot_tree(model, 
                   feature_names=self.X.columns, 
                   class_names=self.classnames,
                   filled=True, 
                   rounded=True)
-        plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/decision_tree_classifier.png')
+        if show_fig:
+            plt.show()
+        if save_fig:
+            plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/decision_tree_classifier.png')
         plt.close()
 
-    def run_model(self, model=None, ccp_alpha=None):
+    def run_model(self, model=None, ccp_alpha=None, print_report=False, save_files=True, plot_files=True, get_shap=True):
         if model is not None:
-            clf = model
-        elif ccp_alpha is not None:
-            clf = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+            self.model = model
+            self.y_pred = self.model.predict(self.X_test)
         else:
-            clf = DecisionTreeClassifier(random_state=0)
-        
-        # Run and time model
-        start_time = time.time()
-        clf.fit(self.X_train, self.y_train)
-        self.y_pred = clf.predict(self.X_test)
-        end_time = time.time()
-        runtime = end_time - start_time
+            if ccp_alpha is not None:
+                self.model = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+            else:
+                self.model = DecisionTreeClassifier(random_state=0)
+            
+            # Run and time model
+            start_time = time.time()
+            self.model.fit(self.X_train, self.y_train)
+            self.y_pred = self.model.predict(self.X_test)
+            end_time = time.time()
+            runtime = end_time - start_time
 
         # Get Metrics
         report = classification_report(self.y_test, self.y_pred, zero_division=0, output_dict=True)
-        report['time'] = runtime # Add time to the report dictionary
+        if model is None:
+            report['time'] = runtime # Add time to the report dictionary
+        if print_report:
+            print(report)
 
         # Saving to a JSON file
-        with open(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/classification_report.json', 'w') as json_file:
-            json.dump(report, json_file, indent=4)
+        if save_files:
+            with open(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/classification_report.json', 'w') as json_file:
+                json.dump(report, json_file, indent=4)
 
-        # Save y_preds to a csv file
-        y_pred_df = pd.DataFrame(self.y_pred, columns=[f'Predicted Class: {self.target}'])
-        y_pred_df.to_csv('predictions.csv', index=False)
+            # Save y_preds to a csv file
+            y_pred_df = pd.DataFrame(self.y_pred, columns=[f'Predicted Class: {self.target}'])
+            y_pred_df.to_csv('predictions.csv', index=False)
 
-        # Plot the model
-        self.plotter()
-        # Save the model
-        self.save_model(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_classifier_model.pkl')
+            # Save the model
+            self.save_model(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_classifier_model.pkl')
 
-        # Calculate and plot SHAP values
-        #self.calculate_shap_values()
-        #self.plot_shap_values()
+        if plot_files:
+            # Plot the model
+            self.plotter()
+
+        if get_shap:
+            # Calculate and plot SHAP values
+            self.calculate_shap_values()
+            self.plot_shap_values()
 
     def calculate_shap_values(self, sample_size=1000):
         # Select a random sample from self.X
@@ -267,7 +284,7 @@ if __name__ == "__main__":
     # List of Privatization Types to run
     privatization_types = ['NoPrivatization', 'Basic_DP', 'Basic_DP_LLC', 'Uniform', 'Uniform_LLC', 'Shuffling', 'Complete_Shuffling']
 
-    # List of targets for the model
+    # List of targets for the model 
     targets = ['ethnoracial group', 'gender', 'international status', 'socioeconomic status']
 
     for privatization_type in privatization_types:
@@ -281,8 +298,7 @@ if __name__ == "__main__":
                 classifier.read_data(10000)
                 classifier.split_data()
                 ccp_alpha = classifier.get_best_model(return_model=False)
-                # Initiate second classifier
-                classifier2 = DTClassifier(privatization_type, RNN_model, target)
-                classifier2.read_data(100000)
-                classifier2.split_data()
-                classifier2.run_model(ccp_alpha=ccp_alpha)
+                classifier.read_data(100000)
+                classifier.split_data()
+                # Don't forget you left get_shap at false!!!
+                classifier.run_model(ccp_alpha=ccp_alpha, get_shap=False)

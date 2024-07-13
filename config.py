@@ -137,15 +137,5 @@ def load_config():
             "privacy_cols": [
                 'ethnoracial group', 'gender', 'international status'
             ]
-        },
-        "neural_network": {
-            "optimizer": 'adam',
-            "optimizer_params": {
-                'learning_rate': 0.001
-            },
-            "loss": 'binary_crossentropy',
-            "metrics": ['accuracy'],
-            "epochs": 50,
-            "batch_size": 32
         }
     }

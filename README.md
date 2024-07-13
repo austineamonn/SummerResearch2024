@@ -26,17 +26,17 @@ Take student input data and build a privatized version to train a machine learni
 
 ### [main - Under Construction](main.py):
 The main file of the framework. What can this file do?
-<ol>
+<ul>
   <li>Generates a synthetic dataset using either 'data_generation_CPU' or 'data_generation_GPU'</li>
   <li>Analyzes the dataset using 'data_analysis'</li>
   <li>Preprocesses and reduces the dimensionality of the dataset using 'preprocessing'</li>
   <li>Privatizes the dataset using 'privatization'</li>
   <li>Calculates the privacy metrics using 'privacy_metrics'</li>
-</ol>
-Use the config file to change which of the above parts of the file are run during main.
+</ul>
+Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but order does matter.
 
 ### [interactive main - Under Construction](main.ipynb):
-An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale.
+An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. None of the files produced are saved.
 
 ### [config](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.

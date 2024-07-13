@@ -196,7 +196,7 @@ class PreProcessing:
                     new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'course types':
                     # Apply special function to fix the 'course types' column to be one nonrepeating list
-                    new_df[col] = new_df[col].apply(eval).apply(self.fix_course_types)
+                    new_df[col] = new_df[col].astype(str).apply(eval).apply(self.fix_course_types)
                     stringlist = self.data.course()['course_type_list']
                     new_df[col] = self.string_list_to_numberedlist(stringlist, new_df[col])
                 elif col == 'course subjects':
