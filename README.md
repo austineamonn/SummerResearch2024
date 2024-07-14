@@ -258,6 +258,15 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 
 ## Calculating Tradeoffs:
 
+This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several classification and regression models. The classification models calculate the privacy loss on the private columns while the regression models calculate the utility gain on the utility columns. Here is a list of the models:
+
+<ul>
+  <li>Decision Tree Classifier</li>
+  <li>Decision Tree Regressor</li>
+</ul>
+
+More models are to be added.
+
 ### [Decision Tree Classifier](calculating_tradeoffs/decision_tree_classifier/decision_tree_classifier.py):
 Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
@@ -288,7 +297,50 @@ classifier.run_model(ccp_alpha=ccp_alpha)
 
 ### [Decision Tree Classifier Outputs](calculating_tradeoffs/decision_tree_classifier/outputs):
 
-Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
+Contains a variety of outputs from the decision tree classification function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
+
+<ul>
+  <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
+  <li>The best ccp alpha fit model</li>
+  <li>The y predictions based on the best model</li>
+  <li>The classification report from the best model (with an added runtime value)</li>
+  <li>The decision tree image from the best model</li>
+  <li>Alpha vs accuracy</li>
+  <li>Alpha vs graph nodes and graph depth</li>
+  <li>Alpha vs total impurity</li>
+</ul>
+
+### [Decision Tree Regressor](calculating_tradeoffs/decision_tree_regression/decision_tree_regression.py):
+Takes a dataset and uses a decision tree regressor to see how well the X columns can predict each utility column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
+
+The model, various graphs, and the predicted y values are all saved in the outputs folder.
+
+```python
+from pandas import pd
+from config import load_config
+from decision_tree_regression import DTRegressor
+
+# Import the combined dataset CSV as a pandas dataframes
+combined_dataset = pd.readcsv('path_to_combined_dataset.csv')
+
+# Specify the inputs for the classifier
+privatization_type = 'Shuffling'
+RNN_model = 'GRU1'
+target = 'gender'
+
+# Create decision tree class
+regressor = DTRegressor(privatization_type, RNN_model, target, combined_dataset)
+
+# Get the best ccp alpha value
+ccp_alpha = regressor.get_best_model(return_model=False)
+
+# Run the full model - saves graphs, model, and more in the outputs folder
+classifier.run_model(ccp_alpha=ccp_alpha)
+```
+
+### [Decision Tree Regressor Outputs](calculating_tradeoffs/decision_tree_classifier/outputs):
+
+Contains a variety of outputs from the decision tree regression function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
 <ul>
   <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>

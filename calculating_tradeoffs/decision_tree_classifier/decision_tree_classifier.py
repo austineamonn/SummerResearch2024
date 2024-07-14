@@ -1,6 +1,4 @@
 import logging
-import sys
-import os
 from ast import literal_eval
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier,plot_tree
@@ -13,11 +11,8 @@ import numpy as np
 import json
 import time
 
-# Add the SummerResearch2024 directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 class DTClassifier:
-    def __init__(self, privatization_type, RNN_model, target='ethnoracial group', data=None):
+    def __init__(self, privatization_type, RNN_model, target='ethnoracial group', data=None, output_paths=None):
         # Initiate inputs
         self.target = target # Set 'ethnoracial group' as the target if one is not chosen, other options include: 'gender', 'international status', and 'socioeconomic status'
         self.target_name = target.replace(' ', '_')
@@ -60,6 +55,10 @@ class DTClassifier:
             })
         else:
             self.data = data
+
+        # Set up Output Paths
+        if output_paths is not None:
+            self.ccp_alpha_models_path = output_paths[""]
 
     def split_data(self, full_model=False):
         # Define y
@@ -334,5 +333,3 @@ if __name__ == "__main__":
     with open(profile_stats_file, 'w') as f:
         stats = pstats.Stats(profiler, stream=f).sort_stats('cumtime')
         stats.print_stats()
-    
-    print(classifier.y_pred.head())
