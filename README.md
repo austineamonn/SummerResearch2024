@@ -32,12 +32,12 @@ The main file of the framework. What can this file do?
   <li>Privatizes the dataset using 'privatization'</li>
   <li>Calculates the privacy metrics using 'privacy_metrics'</li>
 </ul>
-Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but order does matter.
+Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but they will run in this order.
 
 ### [Interactive Main - Under Construction](main.ipynb):
 An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. None of the files produced are saved.
 
-### [Interactive Main - Google Colab](https://drive.google.com/drive/folders/1xqYj2SbNwp0Gpms4Qk8-YAlXKtMlvgo7?usp=share_link)
+### [Interactive Main - Google Colab - Under Construction](https://drive.google.com/drive/folders/1xqYj2SbNwp0Gpms4Qk8-YAlXKtMlvgo7?usp=share_link)
 There is also a colab that does the same think as the Interactive Main file above.
 
 ### [Config](config.py):
@@ -198,6 +198,27 @@ private_cols = PrivateColumns(data, config)
 private_cols.get_private_cols(synthetic_dataset)
 ```
 
+### [Alternative Future Topic Preprocessing](data_preprocessing/alternate_future_topics.py):
+In this alternative preprocessing method, future topics are split into 5 columns with each column containing one of the five recommended future topics per student. Take the preprocessed dataset as an input
+
+```python
+from pandas import pd
+from processing_private_columns import PrivateColumns
+
+# Import preprocessed dataset CSV as a pandas dataframe
+preprocessed_dataset = pd.readcsv('path_to_preprocessed_dataset.csv')
+
+# Specify the inputs for the classifier
+privatization_type = 'Shuffling'
+RNN_model = 'GRU1'
+
+# Initiate class instance
+alt_topics_getter = AltFutureTopics(privatization_type, RNN_model)
+
+# Returns the combined columns with the alternative future topic preprocessing
+alt_topics_getter.int_list_to_separate_cols(preprocessed_dataset)
+```
+
 ### [Reduced Dimensionality Files](data_preprocessing/reduced_dimensionality_data):
 In this folder, the different RNN models for dimensionality reduction can be found. They are organized by privatization method. Within each is the three methods Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns and utility columns while the regular versions do not. The reduced dimension utility columns can be found on their own in the 'NoPrivatization' folder.
 
@@ -234,7 +255,18 @@ privatizer.privatize_dataset(preprocessed_dataset)
 ```
 
 ### Privatized Datasets
-There are a variety of privatized datasets including differential privacy with laplace and uniform noise addition and with and without list length changing (LLC) as well as the random shuffling at 10% and 100%.
+There are a variety of privatized datasets including differential privacy with laplace and uniform noise addition and with and without list length changing (LLC) as well as the random shuffling at 10% and 100%. Here are the models that are saved in this section:
+
+<ul>
+  <li>Differential Privacy with Laplacian Noise</li>
+  <li>Differential Privacy with Laplacian Noise and List Lengthening</li>
+  <li>Differential Privacy with Uniform Noise</li>
+  <li>Differential Privacy with Uniform Noise and List Lengthening</li>
+  <li>Shuffling at 10%</li>
+  <li>Complete Shuffling (100% of the rows are shuffled)</li>
+</ul>
+
+Note that changing privatization parameters in config can allow you to make different variations of these methods.
 
 ### [Privacy Metrics - Under Construction](data_privatization/privacy_metrics.py):
 Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
@@ -274,7 +306,6 @@ The model, various graphs, and the predicted y values are all saved in the outpu
 
 ```python
 from pandas import pd
-from config import load_config
 from decision_tree_classifier import DTClassifier
 
 # Import the combined dataset CSV as a pandas dataframes
@@ -310,6 +341,8 @@ Contains a variety of outputs from the decision tree classification function. Or
   <li>Alpha vs total impurity</li>
 </ul>
 
+Note that what items are made and saved can be changed by altering inputs for the functions.
+
 ### [Decision Tree Regressor](calculating_tradeoffs/decision_tree_regression/decision_tree_regression.py):
 Takes a dataset and uses a decision tree regressor to see how well the X columns can predict each utility column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
@@ -317,7 +350,6 @@ The model, various graphs, and the predicted y values are all saved in the outpu
 
 ```python
 from pandas import pd
-from config import load_config
 from decision_tree_regression import DTRegressor
 
 # Import the combined dataset CSV as a pandas dataframes
@@ -353,7 +385,7 @@ Contains a variety of outputs from the decision tree regression function. Organi
   <li>Alpha vs total impurity</li>
 </ul>
 
-Note that what is saved and make can be changed by altering inputs for the functions.
+Note that what items are made and saved can be changed by altering inputs for the functions.
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.

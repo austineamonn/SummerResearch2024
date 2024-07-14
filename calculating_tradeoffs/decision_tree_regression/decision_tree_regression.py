@@ -291,7 +291,7 @@ if __name__ == "__main__":
             logging.info(f"Starting {RNN_model}")
             for target in targets:
                 logging.info(f"Starting {target}")
-                # Initiate first classifier
+                # Initiate regressor
                 classifier = DTRegressor(privatization_type, RNN_model, target)
                 ccp_alpha = classifier.get_best_model(return_model=False)
                 # Don't forget you left get_shap at false!!!
