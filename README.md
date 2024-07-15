@@ -361,7 +361,7 @@ alternate_dataset = pd.readcsv('path_to_alternate_dataset.csv')
 # Specify the inputs for the classifier
 privatization_type = 'Shuffling'
 RNN_model = 'GRU1'
-target = 'future topics 1'
+target = 'future topic 1'
 
 # Create decision tree class
 alternate = DTAlternate(privatization_type, RNN_model, target, alternate_dataset)

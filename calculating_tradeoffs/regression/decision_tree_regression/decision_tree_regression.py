@@ -172,7 +172,7 @@ class DTRegressor:
         plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_accuracy.png')
         plt.close()
 
-    def plotter(self, model=None, save_fig=False, show_fig=False):
+    def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if model is None:
@@ -180,7 +180,8 @@ class DTRegressor:
         plot_tree(model, 
                   feature_names=self.X_columns,
                   filled=True, 
-                  rounded=True)
+                  rounded=True,
+                  max_depth=max_depth) # Prevent too much of the tree from being generated
         if show_fig:
             plt.show()
         if save_fig:

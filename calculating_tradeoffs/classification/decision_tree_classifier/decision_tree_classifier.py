@@ -39,6 +39,7 @@ class DTClassifier:
             ]
         else:
             raise ValueError(f"Incorrect target column name {target}")
+        self.labels = list(range(len(self.classnames)))
         
         # Get Data Paths
         if data is None:
@@ -197,7 +198,7 @@ class DTClassifier:
         plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_accuracy.png')
         plt.close()
 
-    def plotter(self, model=None, save_fig=False, show_fig=False):
+    def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if model is None:
@@ -206,7 +207,8 @@ class DTClassifier:
                   feature_names=self.X_columns, 
                   class_names=self.classnames,
                   filled=True, 
-                  rounded=True)
+                  rounded=True,
+                  max_depth=max_depth) # Prevent too much of the tree from being generated
         if show_fig:
             plt.show()
         if save_fig:
@@ -234,11 +236,13 @@ class DTClassifier:
             runtime = end_time - start_time
 
         # Get Metrics
-        report = classification_report(self.y_test, self.y_pred, zero_division=0, output_dict=True)
-        if model is None:
-            report['time'] = runtime # Add time to the report dictionary
         if print_report:
+            report = classification_report(self.y_test, self.y_pred, zero_division=0, labels=self.labels, target_names=self.classnames)
             print(report)
+        else:
+            report = classification_report(self.y_test, self.y_pred, zero_division=0, output_dict=True, labels=self.labels,target_names=self.classnames)
+            if model is None:
+                report['time'] = runtime # Add time to the report dictionary
 
         # Saving to a JSON file
         if save_files:

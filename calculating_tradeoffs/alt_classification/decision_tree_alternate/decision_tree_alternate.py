@@ -14,7 +14,7 @@ import os
 import pickle
 
 class DTAlternate:
-    def __init__(self, privatization_type, RNN_model, target='future topics 1', data=None, output_paths=None):
+    def __init__(self, privatization_type, RNN_model, target='future topic 1', data=None, output_paths=None):
         # Initiate inputs
         self.target = target # Set 'future topics' as the target if one is not chosen, other options include future topics 2-5
         self.target_name = target.replace(' ', '_')
@@ -23,9 +23,9 @@ class DTAlternate:
         
         # Get Data Paths
         if data is None:
-            data_path = f'../../../data_preprocessing/reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_combined.csv'
+            data_path = f'../../../data_preprocessing/reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_alt_future_topics.csv'
 
-            self.data = pd.read_csv(data_path, converters={
+            dataset = pd.read_csv(data_path, converters={
                 'learning style': literal_eval,
                 'major': literal_eval,
                 'previous courses': literal_eval,
@@ -37,8 +37,14 @@ class DTAlternate:
                 'future topics': literal_eval
             })
         else:
-            self.data = data
+            dataset = data
         self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+
+        # Drop rows with NaN values in specific columns
+        if target != 'future topic 1':
+            self.data = dataset.dropna(subset=[target])
+        else:
+            self.data = dataset
 
         # Set up Output Paths
         if output_paths is not None:
@@ -72,7 +78,7 @@ class DTAlternate:
 
         # Change the lists into just the elements within them if the element is a list otherwise just take the element
         for column in self.y.columns:
-            self.y.loc[:, column] = self.y[column].apply(lambda x: int(x[0]) if isinstance(x, list) else int(x))
+            self.y.loc[:, column] = self.y[column].apply(lambda x: x[0] if isinstance(x, list) else (int(x) if not np.isnan(x) else x))
 
         # Test - Train Split
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, train_size = 0.8, random_state = 1234)
@@ -80,9 +86,12 @@ class DTAlternate:
     def score(self, model, X, y, sample_weight=None):
         # Takes in values from a regressor model, but scores them based on a classification (round to the nearest whole number)
 
-        y_pred = int(round(model.predict(X)))
+        y_pred = model.predict(X)
 
-        return accuracy_score(y, y_pred, sample_weight=sample_weight)
+        # Round the predictions and convert to integers
+        y_pred_rounded = np.round(y_pred).astype(int)
+
+        return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
     
     def get_best_model(self, make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
         # Split the data
@@ -180,7 +189,7 @@ class DTAlternate:
         plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_accuracy.png')
         plt.close()
 
-    def plotter(self, model=None, save_fig=False, show_fig=False):
+    def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if model is None:
@@ -188,7 +197,8 @@ class DTAlternate:
         plot_tree(model, 
                   feature_names=self.X_columns,
                   filled=True, 
-                  rounded=True)
+                  rounded=True,
+                  max_depth=max_depth) # Prevent too much of the tree from being generated
         if show_fig:
             plt.show()
         if save_fig:
@@ -201,7 +211,10 @@ class DTAlternate:
 
         if model is not None:
             self.model = model
-            self.y_pred = int(round(self.model.predict(self.X_test)))
+            y_pred = self.model.predict(self.X_test)
+
+            # Round the predictions and convert to integers
+            self.y_pred = np.round(y_pred).astype(int)
         else:
             if ccp_alpha is not None:
                 self.model = DecisionTreeRegressor(random_state=0, ccp_alpha=ccp_alpha)
@@ -211,7 +224,10 @@ class DTAlternate:
             # Run and time model
             start_time = time.time()
             self.model.fit(self.X_train, self.y_train)
-            self.y_pred = int(round(self.model.predict(self.X_test)))
+            y_pred = self.model.predict(self.X_test)
+
+            # Round the predictions and convert to integers
+            self.y_pred = np.round(y_pred).astype(int)
             end_time = time.time()
             runtime = end_time - start_time
 
@@ -399,7 +415,7 @@ if __name__ == "__main__":
     privatization_types = ['NoPrivatization', 'Basic_DP', 'Basic_DP_LLC', 'Uniform', 'Uniform_LLC', 'Shuffling', 'Complete_Shuffling']
 
     # List of targets for the model 
-    targets = ['future topics 1', 'future topics 2', 'future topics 3', 'future topics 4', 'future topics 5']
+    targets = ['future topic 1', 'future topic 2', 'future topic 3', 'future topic 4', 'future topic 5']
 
     # Get the runtime values for the function
     profiler = cProfile.Profile()
@@ -412,10 +428,10 @@ if __name__ == "__main__":
             for target in targets:
                 logging.info(f"Starting {target}")
 
-                # Skip the specific combination
+                """# Skip the specific combination
                 if privatization_type == 'NoPrivatization' and RNN_model == 'GRU1':
                     logging.info(f"Skipping combination: {privatization_type}, {RNN_model}, {target}")
-                    continue
+                    continue"""
 
                 # Initiate alternate processor
                 alternate = DTAlternate(privatization_type, RNN_model, target)
