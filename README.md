@@ -401,7 +401,7 @@ Contains a variety of outputs from the decision tree classification function. Or
 
 Note that what items are made and saved can be changed by altering inputs for the functions.
 
-### [Decision Tree Alternate](calculating_tradeoffs/alt_classification/decision_tree_alternate/decision_tree_alternate.py):
+### [Decision Tree Alternate](calculating_tradeoffs/alternate/alt_classification/decision_tree_alternate/decision_tree_alternate.py):
 Takes a dataset and uses a decision tree alternate to see how well the X columns can predict future topics as five split columns. This builds off of the alternate preprocessing path for the future topics column that split it into 5 columns. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -413,7 +413,7 @@ from decision_tree_classifier import DTClassifier
 # Import the alternate dataset CSV as a pandas dataframes
 alternate_dataset = pd.readcsv('path_to_alternate_dataset.csv')
 
-# Specify the inputs for the classifier
+# Specify the inputs for the alternate model (regressifier)
 privatization_type = 'Shuffling'
 RNN_model = 'GRU1'
 target = 'future topic 1'
@@ -428,7 +428,7 @@ ccp_alpha = alternate.get_best_model(return_model=False)
 alternate.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Alternate Outputs](calculating_tradeoffs/alt_classification/decision_tree_alternate/outputs):
+### [Decision Tree Alternate Outputs](calculating_tradeoffs/alternate/alt_classification/decision_tree_alternate/outputs):
 
 Contains a variety of outputs from the decision tree alternate function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
@@ -445,7 +445,7 @@ Contains a variety of outputs from the decision tree alternate function. Organiz
 
 Note that what items are made and saved can be changed by altering inputs for the functions.
 
-### [Decision Tree Regressor](calculating_tradeoffs/decision_tree_regression/decision_tree_regression.py):
+### [Decision Tree Regressor](calculating_tradeoffs/regression/decision_tree_regression/decision_tree_regression.py):
 Takes a dataset and uses a decision tree regressor to see how well the X columns can predict each utility column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -457,7 +457,7 @@ from decision_tree_regression import DTRegressor
 # Import the combined dataset CSV as a pandas dataframes
 combined_dataset = pd.readcsv('path_to_combined_dataset.csv')
 
-# Specify the inputs for the classifier
+# Specify the inputs for the regressor
 privatization_type = 'Shuffling'
 RNN_model = 'GRU1'
 target = 'gender'
@@ -472,7 +472,7 @@ ccp_alpha = regressor.get_best_model(return_model=False)
 classifier.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Regressor Outputs](calculating_tradeoffs/decision_tree_classifier/outputs):
+### [Decision Tree Regressor Outputs](calculating_tradeoffs/regression/decision_tree_regression/outputs):
 
 Contains a variety of outputs from the decision tree regression function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
