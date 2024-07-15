@@ -11,6 +11,9 @@ First a synthetic dataset was generated based on both real life data and synthet
 ### Goal:
 Take student input data and build a privatized version to train a machine learning model. The machine learning model will provide students with topics for future study and possible career paths. Then the students take these topics and paths to advisors, professors, counselors, peers, and others. These people will help the student consider next steps (picking classes, career fairs, etc.) based on the results.
 
+### Applications:
+Data privatization techniques are vital for allowing data to be shared without risking exposing the sensitive data to being identifiable by malicious parties. Though this project uses student demographic information as the sensitive data, this work is very applicable to medical data collection and analysis.
+
 ### Table of Contents:
 <ol>
   <li>Main Functions</li>
@@ -292,11 +295,36 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 
 ## Calculating Tradeoffs:
 
-This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several classification and regression models. The classification models calculate the privacy loss on the private columns while the regression models calculate the utility gain on the utility columns. There are also the alternative classifiers which calculate 'future topics' using classification but trained on a regressor model. Here is a list of the models:
+This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several model types:
+
+Classification:
+
+<ul>
+  <li>Calculate the privacy loss on the private columns</li>
+  <li>Based on various prebuilt models (ex: sklearn DecisionTreeClassifier)</li>
+</ul>
+
+Regression:
+
+<ul>
+  <li>Calculate the utility gain on the utility columns</li>
+  <li>Based on various prebuilt models (ex: sklearn DecisionTreeRegressor)</li>
+</ul>
+
+Alternate (Regressification):
+
+The alternate is a hybrid Classification-Regression model style. This style essentially trains the model like it's Regression. The tree is split based on lowest sum of squared errors (SSE), rather than entropy like a classification model would. Then the tree is evaluated like it's Classification using accuracy, rather than mean squared error (MSE) like a regression model would.
+
+<ul>
+  <li>Calculate the utility gain on the split 'future topics' columns from alternative future topics preprocessing</li>
+  <li>Train a regression model, then convert predictions to integers, then calculate metrics (like accuracy) using classification methods</li>
+</ul>
+
+Here is a list of the models:
 
 <ul>
   <li>Decision Tree Classifier</li>
-  <li>Decision Tree Classifier Alternate Future Topics</li>
+  <li>Decision Tree Alternate</li>
   <li>Decision Tree Regressor</li>
 </ul>
 
@@ -425,7 +453,7 @@ Contains a variety of outputs from the decision tree regression function. Organi
   <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
   <li>The best ccp alpha fit model</li>
   <li>The y predictions based on the best model</li>
-  <li>The classification report from the best model (with an added runtime value)</li>
+  <li>The metrics CSV which includes: mean squared error, root mean squared error, mean absolute error, median absolute error, r2 score, explained variance score, mean bias deviation, runtime</li>
   <li>The decision tree image from the best model</li>
   <li>Alpha vs accuracy</li>
   <li>Alpha vs graph nodes and graph depth</li>

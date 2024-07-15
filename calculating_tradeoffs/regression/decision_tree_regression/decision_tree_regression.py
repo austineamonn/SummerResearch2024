@@ -23,7 +23,7 @@ TypeError: ufunc 'isnan' not supported for the input types, and the inputs could
 """
 
 class DTRegressor:
-    def __init__(self, privatization_type, RNN_model, target='career aspirations', data=None, output_paths=None):
+    def __init__(self, privatization_type, RNN_model, target='career aspirations', data=None, output_path=None):
         # Initiate inputs
         self.target = target # Set 'career aspirations' as the target if one is not chosen, other options include: 'future topics'
         self.target_name = target.replace(' ', '_')
@@ -50,15 +50,17 @@ class DTRegressor:
         self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
 
         # Set up Output Paths
-        if output_paths is not None:
-            self.ccp_alpha_models_path = output_paths[""]
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            self.output_path = f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}'
 
         # Make the necessary folers
         self.make_folders()
 
     def make_folders(self, directory=None):
         if directory is None:
-            directory = os.path.dirname(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/feature_scatter_plots/example.py')
+            directory = os.path.dirname(f'{self.output_path}/graphs/feature_scatter_plots/example.py')
             
         # Create the directory if it doesn't exist
         if not os.path.exists(directory):
@@ -125,7 +127,7 @@ class DTRegressor:
 
         if save_model:
             # Extract the directory path from the file path
-            models.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_regression_models.csv', index=False)
+            models.to_csv(f'{self.output_path}/decision_tree_regression_models.csv', index=False)
 
         models_sorted = models.sort_values(by='test scores', ascending=False)
 
@@ -152,7 +154,7 @@ class DTRegressor:
         ax.set_xlabel("effective alpha")
         ax.set_ylabel("total impurity of leaves")
         ax.set_title("Total Impurity vs effective alpha for training set")
-        plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_total_impurity.png')
+        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_total_impurity.png')
         plt.close()
 
     def graph_nodes_and_depth(self):
@@ -167,7 +169,7 @@ class DTRegressor:
         ax[1].set_ylabel("depth of tree")
         ax[1].set_title("Depth vs alpha")
         fig.tight_layout()
-        plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
+        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
         plt.close()
 
     def graph_accuracy(self):
@@ -179,7 +181,7 @@ class DTRegressor:
         ax.plot(self.ccp_alphas, self.train_scores, marker="o", label="train", drawstyle="steps-post")
         ax.plot(self.ccp_alphas, self.test_scores, marker="o", label="test", drawstyle="steps-post")
         ax.legend()
-        plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/effective_alpha_vs_accuracy.png')
+        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_accuracy.png')
         plt.close()
 
     def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
@@ -195,7 +197,7 @@ class DTRegressor:
         if show_fig:
             plt.show()
         if save_fig:
-            plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/decision_tree_regressor.png', bbox_inches="tight")
+            plt.savefig(f'{self.output_path}/graphs/decision_tree_regressor.png', bbox_inches="tight")
         plt.close()
 
     def run_model(self, model=None, ccp_alpha=None, print_results=False, save_files=True, plot_files=True, get_shap=True):
@@ -239,15 +241,15 @@ class DTRegressor:
 
         # Saving to a JSON file
         if save_files:
-            results_df.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/metrics.csv', index=False)
+            results_df.to_csv(f'{self.output_path}/metrics.csv', index=False)
 
             # Create a new csv file with the predictions
             y_pred_df = pd.concat([self.X_test, self.y_test], axis=1)
             y_pred_df[f'Predicted Class: {self.target}'] = self.y_pred
-            y_pred_df.to_csv(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/predictions.csv', index=False)
+            y_pred_df.to_csv(f'{self.output_path}/predictions.csv', index=False)
 
             # Save the model
-            self.save_model(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/decision_tree_regressor_model.pkl')
+            self.save_model(f'{self.output_path}/decision_tree_regressor_model.pkl')
 
         if plot_files:
             # Plot the model
@@ -267,9 +269,8 @@ class DTRegressor:
         
         explainer = shap.TreeExplainer(self.model)
         self.shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
-        """self.shap_values = shap.Explanation(shap_values.values, base_values=shap_values.base_values, data=shap_values.data, feature_names=self.X_sample.columns)"""
 
-        shap_values_path = f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/shap_values.npy'
+        shap_values_path = f'{self.output_path}/shap_values.npy'
         np.save(shap_values_path, self.shap_values)
 
         if return_values:
@@ -290,7 +291,7 @@ class DTRegressor:
         fig.set_size_inches(20, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/shap_bar_plot.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
         plt.close(fig)
 
         # Scatter plot for each specific feature
@@ -309,7 +310,7 @@ class DTRegressor:
             fig.set_size_inches(15, 6)
 
             # Save the figure
-            plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
+            plt.savefig(f'{self.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
             plt.close()
 
         # Heatmap plot
@@ -323,7 +324,7 @@ class DTRegressor:
         fig.set_size_inches(15, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/shap_heatmap.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
         plt.close(fig)
 
         # Bee swarm plot
@@ -337,7 +338,7 @@ class DTRegressor:
         fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
         plt.close(fig)
 
         # Violin plot
@@ -349,7 +350,7 @@ class DTRegressor:
         fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        plt.savefig(f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/graphs/shap_violin_plot.png', bbox_inches="tight")
+        plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
         plt.close()
 
     def load_shap_values(self, file_path, return_values=False):
@@ -431,8 +432,8 @@ if __name__ == "__main__":
 
                 # Initiate regressor
                 regressor = DTRegressor(privatization_type, RNN_model, target)
-                """ccp_alpha = regressor.get_best_model(return_model=False)
-                regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)"""
+                #ccp_alpha = regressor.get_best_model(return_model=False)
+                #regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)
                 regressor.split_data(full_model=True)
                 regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_regressor_model.pkl')
                 regressor.calculate_shap_values()
