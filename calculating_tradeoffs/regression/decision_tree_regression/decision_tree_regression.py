@@ -12,6 +12,16 @@ import time
 import os
 import pickle
 
+# TODO: Fix TypeError error where 'violin plots' can only be run when loading saved SHAP values
+# TODO: Add a directory input so that the directory where the files are saved can be changed
+
+"""
+File "/opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/shap/plots/_violin.py", line 206, in violin
+    nan_mask = np.isnan(values)
+               ^^^^^^^^^^^^^^^^
+TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
+"""
+
 class DTRegressor:
     def __init__(self, privatization_type, RNN_model, target='career aspirations', data=None, output_paths=None):
         # Initiate inputs
@@ -215,7 +225,7 @@ class DTRegressor:
         medae = median_absolute_error(self.y_test, self.y_pred)
         r2 = r2_score(self.y_test, self.y_pred, multioutput='raw_values')
         evs = explained_variance_score(self.y_test, self.y_pred, multioutput='raw_values')
-        mbd = np.mean(np.array(self.y_pred) - np.array(self.y_test))
+        mbd = np.mean(np.array(self.y_pred) - np.array(self.y_test)) # Mean Bias Deviation
 
         # Put the resutls into a dataframe
         results = {
@@ -256,8 +266,8 @@ class DTRegressor:
             self.X_sample = self.X
         
         explainer = shap.TreeExplainer(self.model)
-        shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
-        self.shap_values = shap.Explanation(shap_values.values, base_values=shap_values.base_values, data=shap_values.data, feature_names=self.X_sample.columns)
+        self.shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
+        """self.shap_values = shap.Explanation(shap_values.values, base_values=shap_values.base_values, data=shap_values.data, feature_names=self.X_sample.columns)"""
 
         shap_values_path = f'outputs/{self.privatization_type}/{self.RNN_model}/{self.target_name}/shap_values.npy'
         np.save(shap_values_path, self.shap_values)
@@ -284,12 +294,13 @@ class DTRegressor:
         plt.close(fig)
 
         # Scatter plot for each specific feature
-        for i, column in enumerate(['learning style']):#self.X_columns):
+        for i, column in enumerate(self.X_columns):
             # Create a figure and axis
             fig, ax = plt.subplots()
+            # TODO: Fix the width of learning style graphs to match better
             if column == 'learning style':
                 shap.plots.scatter(self.shap_values[:, 2], show=False, ax=ax)
-                ax.set_xlim(0.4885, 0.4915)
+                ax.set_xlim(0.488, 0.51)
             else:
                 shap.plots.scatter(self.shap_values[:, i], show=False, ax=ax)
 
@@ -416,16 +427,18 @@ if __name__ == "__main__":
             for target in targets:
                 logging.info(f"Starting {target}")
 
-                # Skip the specific combination
-                if privatization_type == 'NoPrivatization' and RNN_model == 'GRU1':
-                    logging.info(f"Skipping combination: {privatization_type}, {RNN_model}, {target}")
-                    continue
+                target_name = target.replace(' ', '_')
 
                 # Initiate regressor
                 regressor = DTRegressor(privatization_type, RNN_model, target)
-                ccp_alpha = regressor.get_best_model(return_model=False)
-                # Don't forget you left get_shap at false!!!
-                regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)
+                """ccp_alpha = regressor.get_best_model(return_model=False)
+                regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)"""
+                regressor.split_data(full_model=True)
+                regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_regressor_model.pkl')
+                regressor.calculate_shap_values()
+                regressor.load_shap_values(f'outputs/{privatization_type}/{RNN_model}/{target_name}/shap_values.npy')
+                regressor.plot_shap_values()
+                regressor.plotter(save_fig=True)
 
     # Save the profiling stats to a file
     profile_stats_file = "profile_stats.txt"
