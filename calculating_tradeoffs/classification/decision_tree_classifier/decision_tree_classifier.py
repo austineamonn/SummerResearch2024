@@ -72,11 +72,17 @@ class DTClassifier:
 
     def make_folders(self, directory=None):
         if directory is None:
-            directory = os.path.dirname(f'{self.output_path}/graphs/feature_scatter_plots/example.py')
-            
-        # Create the directory if it doesn't exist
-        if not os.path.exists(directory):
-            os.makedirs(directory, exist_ok=True)
+            for name in self.classnames:
+                name = name.replace(' ', '_')
+                directory = os.path.dirname(f'{self.output_path}/graphs/{name}/feature_scatter_plots/example.py')
+
+                # Create the directory if it doesn't exist
+                if not os.path.exists(directory):
+                    os.makedirs(directory, exist_ok=True)
+        else:
+            # Create the directory if it doesn't exist
+            if not os.path.exists(directory):
+                os.makedirs(directory, exist_ok=True)
 
     def split_data(self, full_model=False):
         # Define y
@@ -276,20 +282,28 @@ class DTClassifier:
             self.X_sample = self.X
         
         explainer = shap.TreeExplainer(self.model)
-        self.shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
+        shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
 
         shap_values_path = f'{self.output_path}/shap_values.npy'
-        np.save(shap_values_path, self.shap_values)
+        np.save(shap_values_path, shap_values)
 
         if return_values:
-            return self.shap_values
+            return shap_values
+        
+    def plot_shap_values(self, shap_explainer_list=None):
+        if shap_explainer_list is not None:
+            self.shap_explainer_list = shap_explainer_list
+        
+        for i, name in enumerate(self.classnames):
+            self.plot_shap_values_one_target(self.shap_explainer_list[i], name)
 
-    def plot_shap_values(self, shap_values=None):
-        if shap_values is not None:
-            self.shap_values = shap_values
+    def plot_shap_values_one_target(self, shap_values, classname):
+
+        # Ensure proper naming protocol was used
+        classname = classname.replace(' ', '_')
 
         # Generate the SHAP bar plot and capture the axes
-        ax = shap.plots.bar(self.shap_values, show=False)
+        ax = shap.plots.bar(shap_values, show=False)
         
         # Get the figure from the axes
         fig = ax.figure
@@ -299,29 +313,29 @@ class DTClassifier:
         fig.set_size_inches(20, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/{classname}/shap_bar_plot.png', bbox_inches="tight")
         plt.close(fig)
 
         # Scatter plot for each specific feature
-        for i, column in enumerate(['learning style']):#self.X_columns):
+        for i, column in enumerate(self.X_columns):
             # Create a figure and axis
             fig, ax = plt.subplots()
             if column == 'learning style':
-                shap.plots.scatter(self.shap_values[:, 2], show=False, ax=ax)
+                shap.plots.scatter(shap_values[:, 2], show=False, ax=ax)
                 ax.set_xlim(0.488, 0.51)
             else:
-                shap.plots.scatter(self.shap_values[:, i], show=False, ax=ax)
+                shap.plots.scatter(shap_values[:, i], show=False, ax=ax)
 
             # Adjust the size
             fig = plt.gcf()
             fig.set_size_inches(15, 6)
 
             # Save the figure
-            plt.savefig(f'{self.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
+            plt.savefig(f'{self.output_path}/graphs/{classname}/feature_scatter_plots/{column}.png', bbox_inches="tight")
             plt.close()
 
         # Heatmap plot
-        ax = shap.plots.heatmap(self.shap_values, show=False)
+        ax = shap.plots.heatmap(shap_values, show=False)
 
         # Get the figure from the axes
         fig = ax.figure
@@ -331,11 +345,11 @@ class DTClassifier:
         fig.set_size_inches(15, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/{classname}/shap_heatmap.png', bbox_inches="tight")
         plt.close(fig)
 
         # Bee swarm plot
-        ax = shap.plots.beeswarm(self.shap_values, show=False)
+        ax = shap.plots.beeswarm(shap_values, show=False)
 
         # Get the figure from the axes
         fig = ax.figure
@@ -345,50 +359,55 @@ class DTClassifier:
         fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
+        fig.savefig(f'{self.output_path}/graphs/{classname}/shap_bee_swarm_plot.png', bbox_inches="tight")
         plt.close(fig)
 
         # Violin plot
         fig = plt.figure()
-        shap.plots.violin(self.shap_values, show=False)
+        shap.plots.violin(shap_values, show=False)
 
         # Set the figure size to be wider
         fig = plt.gcf()
         fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
         # Save the figure
-        plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
+        plt.savefig(f'{self.output_path}/graphs/{classname}/shap_violin_plot.png', bbox_inches="tight")
         plt.close()
 
     def load_shap_values(self, file_path, return_values=False):
         # Load the .npy file
-        self.shap_values = np.load(file_path, allow_pickle=True)
+        shap_values = np.load(file_path, allow_pickle=True)
 
-        # Extract the SHAP values, base values, and data
-        values = []
-        base_values = []
-        data = []
+        self.shap_explainer_list = []
 
-        for element in self.shap_values:
-            elem_values = []
-            elem_data = []
-            for item in range(len(element)):
-                elem_values.append(element[item].values)
-                elem_data.append(element[item].data)
-            values.append(elem_values)
-            base_values.append(element[0].base_values)
-            data.append(elem_data)
+        for i in range(len(self.classnames)):
+            # Extract the SHAP values, base values, and data
+            values = []
+            base_values = []
+            data = []
+            for element in shap_values:
+                elem_values = []
+                elem_data = []
+                for item in range(len(element)):
+                    elem_values.append(element[item][i].values)
+                    elem_data.append(element[item][i].data)
+                values.append(elem_values)
+                base_values.append(element[0][i].base_values)
+                data.append(elem_data)
 
-        # Convert lists to numpy arrays
-        values = np.array(values)
-        base_values = np.array(base_values)
-        data = np.array(data)
+            # Convert lists to numpy arrays
+            values = np.array(values)
+            base_values = np.array(base_values)
+            data = np.array(data)
 
-        # Create an Explanation object
-        self.shap_values = shap.Explanation(values=values,base_values=base_values, data=data)
+            # Create an Explanation object
+            shap_value_explainer = shap.Explanation(values=values,base_values=base_values, data=data, feature_names=self.X_columns)
+
+            # Add object to list of explainers, one per target
+            self.shap_explainer_list.append(shap_value_explainer)
 
         if return_values:
-            return self.shap_values
+            return self.shap_explainer_list
 
     def save_model(self, file_path):
         joblib.dump(self.model, file_path)
@@ -442,7 +461,7 @@ if __name__ == "__main__":
                 #ccp_alpha = classifier.get_best_model(return_model=False)
                 #classifier.run_model(ccp_alpha=ccp_alpha, get_shap=False)
                 classifier.split_data(full_model=True)
-                classifier.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_classifer_model.pkl')
+                classifier.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_classifier_model.pkl')
                 classifier.calculate_shap_values()
                 classifier.load_shap_values(f'outputs/{privatization_type}/{RNN_model}/{target_name}/shap_values.npy')
                 classifier.plot_shap_values()
@@ -453,3 +472,5 @@ if __name__ == "__main__":
     with open(profile_stats_file, 'w') as f:
         stats = pstats.Stats(profiler, stream=f).sort_stats('cumtime')
         stats.print_stats()
+
+        #SummerResearch2024/calculating_tradeoffs/classification/decision_tree_classifier/outputs/NoPrivatization/GRU1/ethnoracial_group/decision_tree_classifier_model.pkl

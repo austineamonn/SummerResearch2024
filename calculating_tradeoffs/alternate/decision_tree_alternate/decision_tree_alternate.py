@@ -13,6 +13,8 @@ import time
 import os
 import pickle
 
+# TODO: Add the scatter plots for all the graphs beyond learning style
+
 class DTAlternate:
     def __init__(self, privatization_type, RNN_model, target='future topic 1', data=None, output_path=None):
         # Initiate inputs
@@ -297,7 +299,7 @@ class DTAlternate:
         plt.close(fig)
 
         # Scatter plot for each specific feature
-        for i, column in enumerate(['learning style']):#self.X_columns):
+        for i, column in enumerate(self.X_columns):
             # Create a figure and axis
             fig, ax = plt.subplots()
             if column == 'learning style':

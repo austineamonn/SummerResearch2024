@@ -34,19 +34,44 @@ The main file of the framework. What can this file do?
   <li>Preprocesses and reduces the dimensionality of the dataset using 'preprocessing'</li>
   <li>Privatizes the dataset using 'privatization'</li>
   <li>Calculates the privacy metrics using 'privacy_metrics'</li>
+  <li>Calculates the utility gain using regression models from 'calculating tradeoffs/regression'</li>
+  <li>Calculates the utility gain for 'future topics' using alternate models from 'calculating tradeoffs/alternate'</li>
+  <li>Calculates the privacy loss using classification models from 'calculating tradeoffs/classification'</li>
 </ul>
 Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but they will run in this order.
 
 ### [Interactive Main - Under Construction](main.ipynb):
-An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. None of the files produced are saved.
+An interactive Jupyter Notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. <em>None of the files produced are saved</em>. There are two ways to run this code:
 
-### [Interactive Main - Google Colab - Under Construction](https://drive.google.com/drive/folders/1xqYj2SbNwp0Gpms4Qk8-YAlXKtMlvgo7?usp=share_link)
-There is also a colab that does the same thing as the Interactive Main file above.
+<table>
+  <tr>
+    <th>How to Run File</th>
+    <th>Where is it Run?</th>
+    <th>Inital Set Up</th>
+    <th>Which should I use?</th>
+  </tr>
+  <tr>
+    <td>Jupyter Notebook</td>
+    <td>Locally</td>
+    <td>Clone this github into a virtual environment.</td>
+    <td>Want to first explore and then use the full program functionality.</td>
+  </tr>
+  <tr>
+    <td>Google Colab</td>
+    <td>Browser</td>
+    <td>Download only the main.ipynb and upload it to colab.</td>
+    <td>Just taking a peek at program functionality or you don't have alot of space on your computer.</td>
+  </tr>
+</table>
+
+After you have completed the inital set up there are some additional instructions in the main.ipynb file to finish setup.
 
 ### [Config](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
 
 ## Data Generation:
+
+There was no available dataset that contained all the information required for this application. Thus, data was generated synthetically with a basis in real data.
 
 ### [Datafiles for Data Construction](datafiles_for_data_construction)
 Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file.
@@ -92,7 +117,7 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [Data Analysis](data_generation/data_analysis.py):
+### [Data Analysis - Under Construction](data_generation/data_analysis.py):
 Takes the synthetic dataset and produces various graphs about the data. For the numerical columns boxplots, distributions, and summary statistics are produced. For all the other columns the top ten highest count items are displayed. Calculates the percentage of empty of NaN values in each column.
 
 ```python
@@ -113,7 +138,7 @@ analyzer.analyze_data()
 analyzer.analyze_data()
 ```
 
-### [Data Analysis Graphs](data_generation/data_analysis_graphs):
+### [Data Analysis Graphs - Under Construction](data_generation/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
 ### [Dataset](data_generation/Dataset.csv)
@@ -126,6 +151,8 @@ Note: data category column is explained in the splitting the data section of dat
 </p>
 
 ## Data Preprocessing:
+
+Preprocessing is needed to convert the data into file types and structures that the machine learning models used in the tradeoffs section can easily learn from.
 
 ### Splitting the Data:
 <table>
