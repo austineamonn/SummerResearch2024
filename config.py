@@ -39,7 +39,7 @@ def load_config():
             "preprocessed_data_paths": {
                 # Preprocessed Data Paths
 
-                "private columns path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/calculating_tradeoffs/Private_Columns.csv',
+                "private columns path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Private_Columns.csv',
 
                 "preprocessed data path": '/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/data_preprocessing/Preprocessed_Dataset.csv',
             },

@@ -38,7 +38,7 @@ Use the config file to change which of the above parts of the file are run durin
 An interactive jupyter notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. None of the files produced are saved.
 
 ### [Interactive Main - Google Colab - Under Construction](https://drive.google.com/drive/folders/1xqYj2SbNwp0Gpms4Qk8-YAlXKtMlvgo7?usp=share_link)
-There is also a colab that does the same think as the Interactive Main file above.
+There is also a colab that does the same thing as the Interactive Main file above.
 
 ### [Config](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
@@ -114,7 +114,9 @@ analyzer.analyze_data()
 This folder contains all the graphs produced by data_analysis.
 
 ### [Dataset](data_generation/Dataset.csv)
-Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions.
+Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions. Note that all the other files were created using a 100,000 length dataset.
+
+Note: data category column is explained in the splitting the data section of data preprocessing.
 
 <p align="center">
   <img src="/graphics/canva_generated_graphs/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
@@ -290,16 +292,17 @@ metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 
 ## Calculating Tradeoffs:
 
-This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several classification and regression models. The classification models calculate the privacy loss on the private columns while the regression models calculate the utility gain on the utility columns. Here is a list of the models:
+This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several classification and regression models. The classification models calculate the privacy loss on the private columns while the regression models calculate the utility gain on the utility columns. There are also the alternative classifiers which calculate 'future topics' using classification but trained on a regressor model. Here is a list of the models:
 
 <ul>
   <li>Decision Tree Classifier</li>
+  <li>Decision Tree Classifier Alternate Future Topics</li>
   <li>Decision Tree Regressor</li>
 </ul>
 
 More models are to be added.
 
-### [Decision Tree Classifier](calculating_tradeoffs/decision_tree_classifier/decision_tree_classifier.py):
+### [Decision Tree Classifier](calculating_tradeoffs/classification/decision_tree_classifier/decision_tree_classifier.py):
 Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -326,9 +329,53 @@ ccp_alpha = classifier.get_best_model(return_model=False)
 classifier.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Classifier Outputs](calculating_tradeoffs/decision_tree_classifier/outputs):
+### [Decision Tree Classifier Outputs](calculating_tradeoffs/classification/decision_tree_classifier/outputs):
 
 Contains a variety of outputs from the decision tree classification function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
+
+<ul>
+  <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
+  <li>The best ccp alpha fit model</li>
+  <li>The y predictions based on the best model</li>
+  <li>The classification report from the best model (with an added runtime value)</li>
+  <li>The decision tree image from the best model</li>
+  <li>Alpha vs accuracy</li>
+  <li>Alpha vs graph nodes and graph depth</li>
+  <li>Alpha vs total impurity</li>
+</ul>
+
+Note that what items are made and saved can be changed by altering inputs for the functions.
+
+### [Decision Tree Alternate](calculating_tradeoffs/alt_classification/decision_tree_alternate/decision_tree_alternate.py):
+Takes a dataset and uses a decision tree alternate to see how well the X columns can predict future topics as five split columns. This builds off of the alternate preprocessing path for the future topics column that split it into 5 columns. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
+
+The model, various graphs, and the predicted y values are all saved in the outputs folder.
+
+```python
+from pandas import pd
+from decision_tree_classifier import DTClassifier
+
+# Import the alternate dataset CSV as a pandas dataframes
+alternate_dataset = pd.readcsv('path_to_alternate_dataset.csv')
+
+# Specify the inputs for the classifier
+privatization_type = 'Shuffling'
+RNN_model = 'GRU1'
+target = 'future topics 1'
+
+# Create decision tree class
+alternate = DTAlternate(privatization_type, RNN_model, target, alternate_dataset)
+
+# Get the best ccp alpha value
+ccp_alpha = alternate.get_best_model(return_model=False)
+
+# Run the full model - saves graphs, model, and more in the outputs folder
+alternate.run_model(ccp_alpha=ccp_alpha)
+```
+
+### [Decision Tree Alternate Outputs](calculating_tradeoffs/alt_classification/decision_tree_alternate/outputs):
+
+Contains a variety of outputs from the decision tree alternate function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
 <ul>
   <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
