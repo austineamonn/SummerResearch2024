@@ -1,0 +1,58 @@
+{
+    "European American or white": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 65.0
+    },
+    "Latino/a/x American": {
+        "precision": 0.21951219512195122,
+        "recall": 0.33962264150943394,
+        "f1-score": 0.26666666666666666,
+        "support": 53.0
+    },
+    "African American or Black": {
+        "precision": 0.09523809523809523,
+        "recall": 0.07407407407407407,
+        "f1-score": 0.08333333333333333,
+        "support": 54.0
+    },
+    "Asian American": {
+        "precision": 0.17073170731707318,
+        "recall": 0.12962962962962962,
+        "f1-score": 0.14736842105263157,
+        "support": 54.0
+    },
+    "Multiracial": {
+        "precision": 0.08571428571428572,
+        "recall": 0.16363636363636364,
+        "f1-score": 0.1125,
+        "support": 55.0
+    },
+    "American Indian or Alaska Native": {
+        "precision": 0.12121212121212122,
+        "recall": 0.13793103448275862,
+        "f1-score": 0.12903225806451613,
+        "support": 58.0
+    },
+    "Pacific Islander": {
+        "precision": 0.1896551724137931,
+        "recall": 0.19642857142857142,
+        "f1-score": 0.19298245614035087,
+        "support": 56.0
+    },
+    "accuracy": 0.14430379746835442,
+    "macro avg": {
+        "precision": 0.12600908243104567,
+        "recall": 0.14876033068011876,
+        "f1-score": 0.13312616217964265,
+        "support": 395.0
+    },
+    "weighted avg": {
+        "precision": 0.12243492171950296,
+        "recall": 0.14430379746835442,
+        "f1-score": 0.1292901685614608,
+        "support": 395.0
+    },
+    "time": 0.014250993728637695
+}
