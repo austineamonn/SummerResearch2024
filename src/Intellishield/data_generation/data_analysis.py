@@ -169,7 +169,7 @@ class DataAnalysis:
 
 if __name__ == "__main__":
     # Import necessary dependencies
-    from config import load_config
+    from SummerResearch2024.src.Intellishield.config import load_config
 
     # Load configuration and data
     config = load_config()

@@ -787,7 +787,7 @@ if __name__ == "__main__":
     import pstats
     # Import necessary dependencies
     from datafiles_for_data_construction.data import Data
-    from config import load_config
+    from SummerResearch2024.src.Intellishield.config import load_config
 
     # Load configuration and data
     config = load_config()
