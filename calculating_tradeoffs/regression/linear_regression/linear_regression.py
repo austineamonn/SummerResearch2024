@@ -79,6 +79,9 @@ class LinearRegressor:
         # Fill NaN values with the mean of each column
         self.X = self.X.fillna(self.X.mean())
 
+        # Infer objects to avoid future warning
+        self.X = self.X.infer_objects(copy=False)
+
         # Set up y post stratification
         self.y = self.final_data[[self.target]]
 

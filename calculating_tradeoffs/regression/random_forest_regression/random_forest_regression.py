@@ -81,7 +81,6 @@ class DTRegressor:
 
         # Reshape ys to be 1-dimensional
         self.y_train = self.y_train.values.ravel()
-        #self.y_test = self.y_test.values.ravel()
 
     def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the first decision tree using matplotlib
@@ -249,7 +248,7 @@ class DTRegressor:
 
         # Save the figure
         plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
-        plt.close(fig)
+        plt.close(fig)     
 
     def load_shap_values(self, file_path, return_values=False):
         # Load the .npy file

@@ -21,6 +21,7 @@ Data privatization techniques are vital for allowing data to be shared without r
   <li>Data Preprocessing</li>
   <li>Data Privatization</li>
   <li>Calculating Tradeoffs</li>
+  <li>Model Comparison</li>
   <li>Sources and Acknowledgments</li>
 </ol>
 
@@ -376,6 +377,9 @@ Here is a list of the models:
   <li>Decision Tree Classifier</li>
   <li>Decision Tree Alternate</li>
   <li>Decision Tree Regressor</li>
+  <li>Random Forest Regressor</li>
+  <li>Logistic Regressor (actually a classification model!)</li>
+  <li>Linear Regressor</li>
 </ul>
 
 More models are to be added.
@@ -511,6 +515,19 @@ Contains a variety of outputs from the decision tree regression function. Organi
 </ul>
 
 Note that what items are made and saved can be changed by altering inputs for the functions.
+
+## Model Comparison:
+
+Now that we have various models trained on the various datasets we need to compare them to decide which dimensionality reduction method was best and which privatization method was best.
+
+### [Classification Comparison](model_comparison/classification/comparison_classification.py):
+This file compares the classification metrics of the various classification machine learning models.
+
+### [Classification Regression](model_comparison/regression/comparison_regression.py):
+This file compares the regression metrics of the various regression machine learning models.
+
+### [Classification Alternate](model_comparison/alternate/comparison_alternate.py):
+This file compares the alternate metrics (same as classification) of the various alternate machine learning models.
 
 ## Sources and Acknowledgments:
 https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
