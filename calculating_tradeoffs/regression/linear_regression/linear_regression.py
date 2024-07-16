@@ -12,7 +12,11 @@ import time
 import os
 import pickle
 
-class DTRegressor:
+"""
+Warning that this class uses a lot of memory and can cause problems if too many iterations of it are called in one run.
+"""
+
+class LinearRegressor:
     def __init__(self, privatization_type, RNN_model, target='career aspirations', data=None, output_path=None):
         # Initiate inputs
         self.target = target # Set 'career aspirations' as the target if one is not chosen, other options include: 'future topics'
@@ -48,13 +52,17 @@ class DTRegressor:
         # Make the necessary folers
         self.make_folders()
 
-    def make_folders(self, directory=None):
-        if directory is None:
-            directory = os.path.dirname(f'{self.output_path}/graphs/feature_scatter_plots/example.py')
-            
-        # Create the directory if it doesn't exist
-        if not os.path.exists(directory):
-            os.makedirs(directory, exist_ok=True)
+    def make_folders(self, directories=None):
+        if directories is None:
+            directories = [
+                os.path.dirname(f'{self.output_path}/graphs/feature_scatter_plots/example.py'),
+                os.path.dirname(f'{self.output_path}/graphs/feature_linear_plots/example.py')
+            ]
+
+        for directory in directories:
+          # Create the directory if it doesn't exist
+          if not os.path.exists(directory):
+              os.makedirs(directory, exist_ok=True)
 
     def split_data(self, full_model=False):
         if full_model:
@@ -64,12 +72,12 @@ class DTRegressor:
         # Set up X
         self.X = self.final_data[self.X_columns]
 
-        # Fill NaN values with the mean of each column
-        self.X = self.X.fillna(self.X.mean())
-
         # Change the lists into just the elements within them if the element is a list otherwise just take the element
         for column in self.X_columns:
             self.X.loc[:, column] = self.X[column].apply(lambda x: x[0] if isinstance(x, list) else x)
+
+        # Fill NaN values with the mean of each column
+        self.X = self.X.fillna(self.X.mean())
 
         # Set up y post stratification
         self.y = self.final_data[[self.target]]
@@ -81,15 +89,18 @@ class DTRegressor:
         # Test - Train Split
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, train_size = 0.8, random_state = 1234)
 
-    def plotter(self, model=None, save_fig=False, show_fig=False):
+    def plotter(self, column, model=None, save_fig=False, show_fig=False):
         # Plot the regression using matplotlib
         plt.figure(figsize=(20,10))
         if model is None:
             model = self.model
-        fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (10,7));
+        fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (10,7))
 
-        ax.scatter(self.X, self.y, color='black');
-        ax.plot(self.X, self.model.predict(self.X), color='red',linewidth=3);
+        X_col = self.X[[column]]
+
+        ax.scatter(X_col, self.y, color='black')
+
+        ax.plot(X_col, model.predict(self.X), color='red',linewidth=3)
         ax.grid(True,
                 axis = 'both',
                 zorder = 0,
@@ -98,15 +109,24 @@ class DTRegressor:
         ax.tick_params(labelsize = 18)
         ax.set_xlabel('x', fontsize = 24)
         ax.set_ylabel('y', fontsize = 24)
-        ax.set_title("Linear Regression Line with Intercept y = {:.2f}x + {:.2f} (R2 = {:.2f})".format(self.m, self.b, self.R2), fontsize = 16 )
+
+        # Extract single values for formatting
+        m_value = self.m[0][0] if isinstance(self.m, np.ndarray) else self.m
+        b_value = self.b[0] if isinstance(self.b, np.ndarray) else self.b
+        r2_value = self.r2[0] if isinstance(self.r2, np.ndarray) else self.r2
+
+
+        ax.set_title("Linear Regression Line with Intercept y = {:.2f}x + {:.2f} (R2 = {:.2f})".format(m_value, b_value, r2_value), fontsize = 16 )
         fig.tight_layout()
         if show_fig:
             plt.show()
         if save_fig:
-            plt.savefig(f'{self.output_path}/graphs/linear_regressor.png', bbox_inches="tight")
-        plt.close()
+            plt.savefig(f'{self.output_path}/graphs/feature_linear_plots/{column}.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            plt.close(fig)
 
-    def run_model(self, model=None, ccp_alpha=None, print_results=False, save_files=True, plot_files=True, get_shap=True):
+    def run_model(self, model=None, print_results=False, save_files=True, plot_files=True, get_shap=True):
         # Split the data
         self.split_data(full_model=True)
 
@@ -114,10 +134,7 @@ class DTRegressor:
             self.model = model
             self.y_pred = self.model.predict(self.X_test)
         else:
-            if ccp_alpha is not None:
-                self.model = LinearRegression(fit_intercept=True, ccp_alpha=ccp_alpha)
-            else:
-                self.model = LinearRegression(fit_intercept=True)
+            self.model = LinearRegression(fit_intercept=True)
             
             # Run and time model
             start_time = time.time()
@@ -127,8 +144,9 @@ class DTRegressor:
             runtime = end_time - start_time
 
         # Get Equation of the line
-        self.m = self.model.coef_[0]
-        self.b = self.model.intercept_
+        self.m = self.model.coef_[0][0]
+        self.b = self.model.intercept_[0]
+
         # Get Metrics
         mse = mean_squared_error(self.y_test, self.y_pred, multioutput='raw_values')
         rmse = np.sqrt(mse)
@@ -333,17 +351,31 @@ if __name__ == "__main__":
         logging.info(f"Starting {privatization_type}")
         for RNN_model in RNN_model_list:
             logging.info(f"Starting {RNN_model}")
+
+            data_path = f'../../../data_preprocessing/reduced_dimensionality_data/{privatization_type}/{RNN_model}_combined.csv'
+
+            data = pd.read_csv(data_path, converters={
+                'learning style': literal_eval,
+                'major': literal_eval,
+                'previous courses': literal_eval,
+                'course types': literal_eval,
+                'course subjects': literal_eval,
+                'subjects of interest': literal_eval,
+                'extracurricular activities': literal_eval,
+                'career aspirations': literal_eval,
+                'future topics': literal_eval
+            })
+
             for target in targets:
                 logging.info(f"Starting {target}")
 
                 target_name = target.replace(' ', '_')
 
                 # Initiate regressor
-                regressor = DTRegressor(privatization_type, RNN_model, target)
-                #ccp_alpha = regressor.get_best_model(return_model=False)
-                #regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)
-                regressor.split_data(full_model=True)
-                regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/linear_regressor_model.pkl')
+                regressor = LinearRegressor(privatization_type, RNN_model, target, data=data)
+                regressor.run_model(get_shap=False)
+                #regressor.split_data(full_model=True)
+                #regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/linear_regressor_model.pkl')
                 regressor.calculate_shap_values()
                 regressor.load_shap_values(f'outputs/{privatization_type}/{RNN_model}/{target_name}/shap_values.npy')
                 regressor.plot_shap_values()

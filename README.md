@@ -59,7 +59,7 @@ An interactive Jupyter Notebook that walks through the full data pipeline proces
   <tr>
     <td>Google Colab</td>
     <td>Browser</td>
-    <td>Download only the main.ipynb and upload it to colab.</td>
+    <td>Download only the main.ipynb and upload it to colab, or search in the github section of open notebook in colab for 'austineamonn/SummerResearch2024' and open main.ipynb</td>
     <td>Just taking a peek at program functionality or you don't have alot of space on your computer.</td>
   </tr>
 </table>
@@ -74,7 +74,30 @@ Contains the basic configurations for the model. Most important is the ability t
 There was no available dataset that contained all the information required for this application. Thus, data was generated synthetically with a basis in real data.
 
 ### [Datafiles for Data Construction](datafiles_for_data_construction)
-Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file.
+Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file. The following table describes the JSON files of this folder.
+
+<table>
+  <tr>
+    <th>File Name</th>
+    <th>File Contents</th>
+  </tr>
+  <tr>
+    <td>courses.json</td>
+    <td>List of courses with course name, course number, course type, course subject, and course popularity</td>
+  </tr>
+  <tr>
+    <td>first_names.json</td>
+    <td>List of first names</td>
+  </tr>
+  <tr>
+    <td>last_names.json</td>
+    <td>List of last names</td>
+  </tr>
+  <tr>
+    <td>majors.json</td>
+    <td>List of majors with major name, percent of female identifying majors, major popularity, and top five careers for majors</td>
+  </tr>
+</table>
 
 ### [Data](datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.

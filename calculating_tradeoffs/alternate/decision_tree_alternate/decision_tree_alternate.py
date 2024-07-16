@@ -442,29 +442,13 @@ if __name__ == "__main__":
 
                 # Initiate alternate
                 alternate = DTAlternate(privatization_type, RNN_model, target)
-                #ccp_alpha = alternate.get_best_model(return_model=False)
-                #alternate.run_model(ccp_alpha=ccp_alpha, get_shap=False)
-                #alternate.split_data(full_model=True)
-                #alternate.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_alternate_model.pkl')
-                #alternate.calculate_shap_values()
+                ccp_alpha = alternate.get_best_model(return_model=False)
+                alternate.run_model(ccp_alpha=ccp_alpha, get_shap=False)
+                alternate.split_data(full_model=True)
+                alternate.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/decision_tree_alternate_model.pkl')
+                alternate.calculate_shap_values()
                 alternate.load_shap_values(f'outputs/{privatization_type}/{RNN_model}/{target_name}/shap_values.npy')
-                # Scatter plot for each specific feature
-                for i, column in enumerate(alternate.X_columns):
-                    # Create a figure and axis
-                    fig, ax = plt.subplots()
-                    if column == 'learning style':
-                        shap.plots.scatter(alternate.shap_values[:, 2], show=False, ax=ax)
-                        ax.set_xlim(0.488, 0.51)
-                    else:
-                        shap.plots.scatter(alternate.shap_values[:, i], show=False, ax=ax)
-
-                    # Adjust the size
-                    fig = plt.gcf()
-                    fig.set_size_inches(15, 6)
-
-                    # Save the figure
-                    plt.savefig(f'{alternate.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
-                    plt.close()
+                alternate.plotter(save_fig=True)
 
     # Save the profiling stats to a file
     profile_stats_file = "profile_stats.txt"

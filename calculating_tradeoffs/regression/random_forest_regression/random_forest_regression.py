@@ -78,102 +78,10 @@ class DTRegressor:
 
         # Test - Train Split
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, train_size = 0.8, random_state = 1234)
-    
-    def get_best_model(self, make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True, n_estimators=100, min_samples_split=10):
-        # Split the data
-        self.split_data()
 
-        # Generate the models with different ccp alphas
-        regressor = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0)
-        path = regressor.cost_complexity_pruning_path(self.X_train, self.y_train)
-        self.ccp_alphas, self.impurities = path.ccp_alphas, path.impurities
-
-        # Ensure all ccp_alphas are non-negative
-        self.ccp_alphas = [max(alpha, 0.0) for alpha in self.ccp_alphas]
-
-        # Fit the models
-        regressors = []
-        for ccp_alpha in self.ccp_alphas:
-            regressor = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0, ccp_alpha=ccp_alpha)
-            regressor.fit(self.X_train, self.y_train)
-            regressors.append(regressor)
-        self.node_counts = [regressor.tree_.node_count for regressor in regressors]
-        self.depth = [regressor.tree_.max_depth for regressor in regressors]
-
-        # Train the models
-        self.train_scores = [regressor.score(self.X_train, self.y_train) for regressor in regressors]
-        self.test_scores = [regressor.score(self.X_test, self.y_test) for regressor in regressors]
-
-        self.models_data = {
-            'models': regressors,
-            'ccp alpha': self.ccp_alphas,
-            'train scores': self.train_scores,
-            'test scores': self.test_scores,
-            'impurities': self.impurities,
-            'node count': self.node_counts,
-            'depth': self.depth
-        }
-        
-        models = pd.DataFrame(self.models_data)
-
-        if save_model:
-            # Extract the directory path from the file path
-            models.to_csv(f'{self.output_path}/random_forest_regression_models.csv', index=False)
-
-        models_sorted = models.sort_values(by='test scores', ascending=False)
-
-        # Pull out the model that has the highest test score and make it the model for training
-        self.model, self.ccp_alpha = models_sorted.iloc[0, 0:2]
-
-        if make_graphs:
-            self.graph_impurities()
-            self.graph_nodes_and_depth()
-            self.graph_accuracy()
-
-        # Return the best model and the ccp_alpha
-        if return_model and return_ccp_alpha:
-            return self.model, self.ccp_alpha
-        elif return_model:
-            return self.model
-        elif return_ccp_alpha:
-            return_ccp_alpha
-    
-    def graph_impurities(self):
-        # Impurity vs Effective Alpha
-        fig, ax = plt.subplots()
-        ax.plot(self.ccp_alphas[:-1], self.impurities[:-1], marker="o", drawstyle="steps-post")
-        ax.set_xlabel("effective alpha")
-        ax.set_ylabel("total impurity of leaves")
-        ax.set_title("Total Impurity vs effective alpha for training set")
-        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_total_impurity.png')
-        plt.close()
-
-    def graph_nodes_and_depth(self):
-        # Model Nodes and Depth vs Alpha
-        fig, ax = plt.subplots(2, 1)
-        ax[0].plot(self.ccp_alphas, self.node_counts, marker="o", drawstyle="steps-post")
-        ax[0].set_xlabel("alpha")
-        ax[0].set_ylabel("number of nodes")
-        ax[0].set_title("Number of nodes vs alpha")
-        ax[1].plot(self.ccp_alphas, self.depth, marker="o", drawstyle="steps-post")
-        ax[1].set_xlabel("alpha")
-        ax[1].set_ylabel("depth of tree")
-        ax[1].set_title("Depth vs alpha")
-        fig.tight_layout()
-        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
-        plt.close()
-
-    def graph_accuracy(self):
-        # Accuracy vs Alpha
-        fig, ax = plt.subplots()
-        ax.set_xlabel("alpha")
-        ax.set_ylabel("accuracy")
-        ax.set_title("Accuracy vs alpha for training and testing sets")
-        ax.plot(self.ccp_alphas, self.train_scores, marker="o", label="train", drawstyle="steps-post")
-        ax.plot(self.ccp_alphas, self.test_scores, marker="o", label="test", drawstyle="steps-post")
-        ax.legend()
-        plt.savefig(f'{self.output_path}/graphs/effective_alpha_vs_accuracy.png')
-        plt.close()
+        # Reshape ys to be 1-dimensional
+        self.y_train = self.y_train.values.ravel()
+        #self.y_test = self.y_test.values.ravel()
 
     def plotter(self, model=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the first decision tree using matplotlib
@@ -189,9 +97,11 @@ class DTRegressor:
             plt.show()
         if save_fig:
             plt.savefig(f'{self.output_path}/graphs/random_forest_regressor.png', bbox_inches="tight")
-        plt.close()
+            plt.close()
+        else:
+            plt.close()
 
-    def run_model(self, model=None, ccp_alpha=None, print_results=False, save_files=True, plot_files=True, get_shap=True, n_estimators=100, min_samples_split=10):
+    def run_model(self, model=None, print_results=False, save_files=True, plot_files=True, get_shap=True, n_estimators=100, min_samples_split=10):
         # Split the data
         self.split_data(full_model=True)
 
@@ -199,10 +109,7 @@ class DTRegressor:
             self.model = model
             self.y_pred = self.model.predict(self.X_test)
         else:
-            if ccp_alpha is not None:
-                self.model = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0, ccp_alpha=ccp_alpha)
-            else:
-                self.model = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0)
+            self.model = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0)
             
             # Run and time model
             start_time = time.time()
@@ -302,7 +209,7 @@ class DTRegressor:
 
             # Save the figure
             plt.savefig(f'{self.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
-            plt.close()
+            plt.close(fig)
 
         # Heatmap plot
         ax = shap.plots.heatmap(self.shap_values, show=False)
@@ -342,7 +249,7 @@ class DTRegressor:
 
         # Save the figure
         plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
-        plt.close()
+        plt.close(fig)
 
     def load_shap_values(self, file_path, return_values=False):
         # Load the .npy file
@@ -423,10 +330,9 @@ if __name__ == "__main__":
 
                 # Initiate regressor
                 regressor = DTRegressor(privatization_type, RNN_model, target)
-                #ccp_alpha = regressor.get_best_model(return_model=False)
-                #regressor.run_model(ccp_alpha=ccp_alpha, get_shap=False)
-                regressor.split_data(full_model=True)
-                regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/random_forest_regressor_model.pkl')
+                regressor.run_model(get_shap=False)
+                #regressor.split_data(full_model=True)
+                #regressor.load_model(f'outputs/{privatization_type}/{RNN_model}/{target_name}/random_forest_regressor_model.pkl')
                 regressor.calculate_shap_values()
                 regressor.load_shap_values(f'outputs/{privatization_type}/{RNN_model}/{target_name}/shap_values.npy')
                 regressor.plot_shap_values()
