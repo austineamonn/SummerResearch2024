@@ -135,7 +135,7 @@ class LinearRegressor:
             self.y_pred = self.model.predict(self.X_test)
         else:
             self.model = LinearRegression(fit_intercept=True)
-            
+
             # Run and time model
             start_time = time.time()
             self.model.fit(self.X_train, self.y_train)
@@ -148,17 +148,17 @@ class LinearRegressor:
         self.b = self.model.intercept_[0]
 
         # Get Metrics
-        mse = mean_squared_error(self.y_test, self.y_pred, multioutput='raw_values')
+        mse = mean_squared_error(self.y_test, self.y_pred, multioutput='raw_values')[0]
         rmse = np.sqrt(mse)
-        mae = mean_absolute_error(self.y_test, self.y_pred, multioutput='raw_values')
+        mae = mean_absolute_error(self.y_test, self.y_pred, multioutput='raw_values')[0]
         medae = median_absolute_error(self.y_test, self.y_pred)
-        self.r2 = r2_score(self.y_test, self.y_pred, multioutput='raw_values')
-        evs = explained_variance_score(self.y_test, self.y_pred, multioutput='raw_values')
+        self.r2 = r2_score(self.y_test, self.y_pred, multioutput='raw_values')[0]
+        evs = explained_variance_score(self.y_test, self.y_pred, multioutput='raw_values')[0]
         mbd = np.mean(np.array(self.y_pred) - np.array(self.y_test)) # Mean Bias Deviation
 
         # Put the resutls into a dataframe
         results = {
-            "Slope": self.m.tolist(), "Y-intercept": self.b.tolist(), "MSE": mse.tolist(), "RMSE": rmse.tolist(), "MAE": mae.tolist(), "MedAE": medae.tolist(), "R2": self.r2.tolist(), "Explained Variance": evs.tolist(), "MBD": mbd.tolist(), "Runtime": runtime
+            "Slope": [self.m], "Y-intercept": [self.b], "MSE": [mse], "RMSE": [rmse], "MAE": [mae], "MedAE": [medae], "R2": [self.r2], "Explained Variance": [evs], "MBD": [mbd], "Runtime": [runtime]
         }
         results_df = pd.DataFrame(results)
 
@@ -170,7 +170,8 @@ class LinearRegressor:
             results_df.to_csv(f'{self.output_path}/metrics.csv', index=False)
 
             # Create a new csv file with the predictions
-            y_pred_df = pd.concat([self.X_test, self.y_test], axis=1)
+            y_pred_df = self.X_test
+            y_pred_df[f'{self.target}'] = self.y_test
             y_pred_df[f'Predicted Class: {self.target}'] = self.y_pred
             y_pred_df.to_csv(f'{self.output_path}/predictions.csv', index=False)
 
@@ -179,12 +180,16 @@ class LinearRegressor:
 
         if plot_files:
             # Plot the model
-            self.plotter(save_fig=True)
+            for name in self.X_columns:
+                self.plotter(name, save_fig=True)
 
         if get_shap:
             # Calculate and plot SHAP values
             self.calculate_shap_values()
             self.plot_shap_values()
+
+        # Ensure all figures were closed
+        plt.close('all')
 
     def calculate_shap_values(self, sample_size=1000, return_values=False):
         # Select a random sample from self.X
@@ -192,8 +197,8 @@ class LinearRegressor:
             self.X_sample = self.X.sample(n=sample_size, random_state=42)
         else:
             self.X_sample = self.X
-        
-        explainer = shap.LinearExplainer(self.model)
+
+        explainer = shap.LinearExplainer(self.model, self.X_train)
         self.shap_values = explainer(self.X_sample)  # Obtain SHAP values as an Explanation object
 
         shap_values_path = f'{self.output_path}/shap_values.npy'
@@ -208,7 +213,7 @@ class LinearRegressor:
 
         # Generate the SHAP bar plot and capture the axes
         ax = shap.plots.bar(self.shap_values, show=False)
-        
+
         # Get the figure from the axes
         fig = ax.figure
 
@@ -237,7 +242,7 @@ class LinearRegressor:
 
             # Save the figure
             plt.savefig(f'{self.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
-            plt.close()
+            plt.close(fig)
 
         # Heatmap plot
         ax = shap.plots.heatmap(self.shap_values, show=False)
@@ -277,12 +282,15 @@ class LinearRegressor:
 
         # Save the figure
         plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
-        plt.close()
+        plt.close(fig)
+
+        # Ensure all figures were closed
+        plt.close('all')
 
     def load_shap_values(self, file_path, return_values=False):
         # Load the .npy file
         self.shap_values = np.load(file_path, allow_pickle=True)
-        
+
         # Extract the SHAP values, base values, and data
         values = []
         base_values = []
@@ -324,7 +332,7 @@ class LinearRegressor:
             except Exception as pickle_e:
                 logging.error(f"Pickle also failed to load the model: {pickle_e}")
                 raise pickle_e
-            
+
         if return_file:
             return self.model
 
