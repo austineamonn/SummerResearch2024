@@ -16,7 +16,7 @@ import time
 import os
 import pickle
 
-# TODO: Finish simplifying classification
+# TODO: Add the other tradeoff classes
 
 # Set the pandas option to avoid silent downcasting
 pd.set_option('future.no_silent_downcasting', True)
