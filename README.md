@@ -6,13 +6,27 @@ Project Lead: Austin Nicolas.
 Project Mentor: Dr. Shahnewaz Sakib.
 
 ## General Outline of Summer Research Project:
-First a synthetic dataset was generated based on both real life data and synthetic mappings. Within the mapping there are three column types: Xp are private data that should not be leaked, X are the data being used to calculate Xu the utility data that the machine learning model is trying to predict. Then the feature importance for the dataset was calculated based on how much each X column impacted the target Xu column. Then the data was privatized using a variety of techniques including differential privacy, random shuffling, and noise addition. Then the privacy loss - utility gain tradeoff was calculated across machine learning models and privatization techniques.
+First a synthetic dataset was generated based on both real life data and synthetic mappings. Within the mapping there are three column types: Xp are private data that should not be leaked, X are the data being used to calculate Xu the utility data that the machine learning model is trying to predict. Then the feature importance for the dataset was calculated based on how much each X column impacted the target Xu column. Then the data was privatized using a variety of techniques including variations on differential privacy and random shuffling. Then the privacy loss - utility gain tradeoff was calculated across machine learning models and privatization techniques.
 
 ### Goal:
 Take student input data and build a privatized version to train a machine learning model. The machine learning model will provide students with topics for future study and possible career paths. Then the students take these topics and paths to advisors, professors, counselors, peers, and others. These people will help the student consider next steps (picking classes, career fairs, etc.) based on the results.
 
 ### Applications:
 Data privatization techniques are vital for allowing data to be shared without risking exposing the sensitive data to being identifiable by malicious parties. Though this project uses student demographic information as the sensitive data, this work is very applicable to medical data collection and analysis.
+
+### Regressification:
+
+Regressification is a novel (to the best of the Author's knowledge) hybrid Classification-Regression machine learning model style. This style trains a regression model and then evaluates the data like a classification model. 
+
+For example the in Decision Tree Regressifier, the tree is split based on lowest sum of squared errors (SSE) like a regression model, rather than entropy like a classification model would. Then the tree is evaluated using accuracy typical of a classification model, rather than mean squared error (MSE) like a regression model would.
+
+Why use regressification?
+
+Since the split future topics have 226 distinct categories, an enormous amount of data would be required to have enough from each category to train the model. Additionally if methods like onehot encoding were used the model would go from 1 target (the top recommended future topic is trained separate from the second most recommended future topic and so on) to 226.
+
+Regressification skirts all these issues by training the model under regression and then evaluating it as a classification problem. Less data needed, only train with one target, and metrics like accuracy can still be used. It's the best of both worlds.
+
+For this use case the target values are all equally spaced apart at integer values (0 to 255). However the model will assume that nearby categories are closely related since it is trained on regression. For this use case that assumption is not true, but future work could capitalize on this assumption to build more accurate models.
 
 ### Warning:
 The file structures are currently going under a major overhaul to match python package best practices. The information contained within this README file still applies but the location of the files may have changed. Generally, the same structure is there but just within the src/IntelliShield folder.
@@ -176,7 +190,7 @@ Synthetic dataset. The file was removed because it was too large, but you can ge
 Note: data category column is explained in the splitting the data section of data preprocessing.
 
 <p align="center">
-  <img src="/docs/graphics/canva_generated_graphs/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
 </p>
 
 ## Data Preprocessing:
@@ -260,7 +274,7 @@ private_cols.get_private_cols(synthetic_dataset)
 ```
 
 ### [Alternative Future Topic Preprocessing](src/IntelliShield/data_preprocessing/alternate_future_topics.py):
-In this alternative preprocessing method, future topics are split into 5 columns with each column containing one of the five recommended future topics per student. Take the preprocessed dataset as an input
+In this alternative preprocessing method, future topics are split into 5 columns with each column containing one of the five recommended future topics per student. Takes the preprocessed dataset as an input. This method is used for the targets for the the novel 'Regressification' models.
 
 ```python
 from pandas import pd
@@ -288,14 +302,20 @@ In this folder, the different RNN models for dimensionality reduction can be fou
 ### Privatization Methods
 There are two main methods:
 <ol>
-  <li>Differential Privacy which adds noise to the data to reach a privatization level specified by epsilon. Epsilon is set to 0.1 and the noise type is set to 'laplace'. The list lengths can be changed based on the noise type though this is set to False.</li>
+  <li>Differential Privacy which adds noise to the data to reach a privatization level specified by epsilon. Epsilon is set to 0.1 and the noise type is set to 'laplace'. List length changing (LLC) can be added.</li>
   <li>Random Shuffling which shuffles a set ratio of the data rows. The shuffle ratio is set to 10% but can be automatically set to 100% using the 'full shuffle' privatization method.</li>
 </ol>
 Overall, there is wide flexibility in the options for privatization method. The sensitivity for the differential privacy is calculated using the mean method.
 
 <p align="center">
-  <img src="/docs/graphics/canva_generated_graphs/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
+  <img src="/docs/graphics/canva_generated/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
 </p>
+
+So what is list length changing (LLC)?
+
+Typically differential privacy works with numerical data, sometimes converting other types into numerical representations. Since a large amount of the synthetic dataset features are lists, LLC was used before the lists were converted to a numerical representation.
+
+LLC works by changing the length of a list based on the noise method. This is similar to how differential privacy works on numerical data except instead of changing the value by a certain amount based on the noise, LLC changes the list length based on the noise.
 
 ### [Privatization](src/IntelliShield/data_privatization/privatization.py):
 Generates the privatized dataset based on the preprocessed dataset using one of the various methods listed above.
@@ -367,9 +387,7 @@ Regression:
   <li>Based on various prebuilt models (ex: sklearn DecisionTreeRegressor)</li>
 </ul>
 
-Alternate (Regressification):
-
-The alternate is a hybrid Classification-Regression model style. This style essentially trains the model like it's Regression. The tree is split based on lowest sum of squared errors (SSE), rather than entropy like a classification model would. Then the tree is evaluated like it's Classification using accuracy, rather than mean squared error (MSE) like a regression model would.
+Regressification:
 
 <ul>
   <li>Calculate the utility gain on the split 'future topics' columns from alternative future topics preprocessing</li>
@@ -380,7 +398,7 @@ Here is a list of the models:
 
 <ul>
   <li>Decision Tree Classifier</li>
-  <li>Decision Tree Alternate</li>
+  <li>Decision Tree Regressifier</li>
   <li>Decision Tree Regressor</li>
   <li>Random Forest Regressor</li>
   <li>Logistic Regressor (actually a classification model!)</li>
@@ -444,12 +462,12 @@ Alpha vs Accuracy:
 
 Alpha vs Graph Nodes and Depth:
 <p align="center">
-  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Graph Nodes and Depth" alt="Two graphs, one comparing alpha and graph nodes, the other comparing alpha and tree depth">
+  <img src="/docs/graphics/decision_tree_classifier_example/effective_alpha_vs_graph_nodes_and_depth.png" width="1080" title="Alpha vs Graph Nodes and Depth" alt="Two graphs, one comparing alpha and graph nodes, the other comparing alpha and tree depth">
 </p>
 
 Alpha vs Total Impurity:
 <p align="center">
-  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Total Impurity" alt="A graph comparing alpha and impurity">
+  <img src="/docs/graphics/decision_tree_classifier_example/effective_alpha_vs_graph_nodes_and_depth.png" width="1080" title="Alpha vs Total Impurity" alt="A graph comparing alpha and impurity">
 </p>
 
 The first few splits of the best decision tree.

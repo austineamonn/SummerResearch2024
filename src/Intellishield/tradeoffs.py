@@ -3,9 +3,9 @@ from ast import literal_eval
 import pandas as pd
 from typing import Union
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sn
 import joblib
@@ -22,8 +22,10 @@ import pickle
 # Set the pandas option to avoid silent downcasting
 pd.set_option('future.no_silent_downcasting', True)
 
+# Classification Models
+
 class ISLogisticRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None):
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None):
         # Either data or data path must be declared
         if data is None and data_path is None:
             raise ValueError("At least one of 'data' or 'data_path' must be provided.")
@@ -58,7 +60,10 @@ class ISLogisticRegression:
 
         # Additional Attributes
         self.name = 'logistic_regressor'
-        self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
 
         # Initialize empty attributes to be filled.
         self.X = None
@@ -72,7 +77,9 @@ class ISLogisticRegression:
         self.X_sample = None
         self.cm = None
 
-        if target == 'ethnoracial group':
+        if classnames is not None:
+            self.classnames = classnames
+        elif target == 'ethnoracial group':
             self.classnames = [
                 'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
             ]
@@ -97,7 +104,7 @@ class ISLogisticRegression:
         self.labels = list(range(len(self.classnames)))
 
 class ISDecisionTreeClassification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None):
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None):
         # Either data or data path must be declared
         if data is None and data_path is None:
             raise ValueError("At least one of 'data' or 'data_path' must be provided.")
@@ -132,8 +139,11 @@ class ISDecisionTreeClassification:
 
         # Additional Attributes
         self.name = 'decision_tree_classifier'
-        self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
         self.shap_is_list = True
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
 
         # Initialize empty attributes to be filled.
         self.X = None
@@ -147,7 +157,9 @@ class ISDecisionTreeClassification:
         self.X_sample = None
         self.cm = None
 
-        if target == 'ethnoracial group':
+        if classnames is not None:
+            self.classnames = classnames
+        elif target == 'ethnoracial group':
             self.classnames = [
                 'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
             ]
@@ -177,6 +189,75 @@ class ISDecisionTreeClassification:
         self.node_counts = None
         self.depth = None
         
+# Regressification Models
+
+class ISDecisionTreeRegressification:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None):
+        # Either data or data path must be declared
+        if data is None and data_path is None:
+            raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Get the Data
+        if data is None:
+            self.data = pd.read_csv(data_path, converters={
+                'learning style': literal_eval,
+                'major': literal_eval,
+                'previous courses': literal_eval,
+                'course types': literal_eval,
+                'course subjects': literal_eval,
+                'subjects of interest': literal_eval,
+                'extracurricular activities': literal_eval,
+                'career aspirations': literal_eval,
+                'future topics': literal_eval
+            })
+        else:
+            self.data = data
+
+        self.data = self.data.dropna(subset=[target])
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'decision_tree_regressifier'
+        self.shap_is_list = False
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.cm = None
+
+        # Attributes for getting the best model
+        self.models_data = None
+        self.ccp_alphas = None
+        self.ccp_alpha = None
+        self.train_scores = None
+        self.test_scores = None
+        self.impurities = None
+        self.node_counts = None
+        self.depth = None
+
+# Regression Models
+
 def make_folders(Model, output_path=None):
     if output_path is None:
         output_path = Model.output_path
@@ -196,19 +277,29 @@ def make_folders(Model, output_path=None):
                 os.makedirs(directory, exist_ok=True)
 
 def split_data(Model, full_model=False):
-        # Define y
-        Model.y = Model.data[[Model.target]]
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
+            # Define y
+            Model.y = Model.data[[Model.target]]
 
-        # Stratify the data by taking only the number of elements the least common values has
-        least_common_count = Model.y.value_counts().min()
-        if full_model:
-            sample_number = least_common_count
-        else: # Cut it off at 1,000 if running the ccp alpha calculations
-            sample_number = min(1000, least_common_count)
-        Model.stratified_data = Model.data.groupby(Model.target, group_keys=False).apply(lambda x: x.sample(sample_number))
+            # Stratify the data by taking only the number of elements the least common values has
+            least_common_count = Model.y.value_counts().min()
+            if full_model:
+                sample_number = least_common_count
+            else: # Cut it off at 1,000 if running the ccp alpha calculations
+                sample_number = min(1000, least_common_count)
+            Model.stratified_data = Model.data.groupby(Model.target, group_keys=False).apply(lambda x: x.sample(sample_number))
 
-        # Set up X
-        Model.X = Model.stratified_data[Model.X_columns]
+            # Set up X
+            Model.X = Model.stratified_data[Model.X_columns]
+
+        elif isinstance(Model, ISDecisionTreeRegressification):
+            if full_model:
+                Model.final_data = Model.data
+            else:
+                Model.final_data = Model.data.sample(n=2000, random_state=1)
+            # Set up X
+            Model.X = Model.final_data[Model.X_columns]
+
         # Change the lists into just the elements within them if the element is a list otherwise just take the element
         for column in Model.X_columns:
             Model.X.loc[:, column] = Model.X[column].apply(lambda x: x[0] if isinstance(x, list) else x)
@@ -220,11 +311,20 @@ def split_data(Model, full_model=False):
             # Infer objects to avoid future warning
             Model.X = Model.X.infer_objects(copy=False)
 
-        # Set up y post stratification
-        Model.y = Model.stratified_data[[Model.target]]
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
+            # Set up y post stratification
+            Model.y = Model.stratified_data[[Model.target]]
 
-        # Change the doubles into integers (1.0 -> 1)
-        Model.y = Model.y.astype(int)
+            # Change the doubles into integers (1.0 -> 1)
+            Model.y = Model.y.astype(int)
+
+        elif isinstance(Model, ISDecisionTreeRegressification):
+            # Set up y post stratification
+            Model.y = Model.final_data[[Model.target]]
+
+            # Change the lists into just the elements within them if the element is a list otherwise just take the element
+            for column in Model.y.columns:
+                Model.y.loc[:, column] = Model.y[column].apply(lambda x: x[0] if isinstance(x, list) else (int(x) if not np.isnan(x) else x))
 
         # Test - Train Split
         Model.X_train, Model.X_test, Model.y_train, Model.y_test = train_test_split(Model.X, Model.y, train_size = 0.8, random_state = 1234)
@@ -232,6 +332,16 @@ def split_data(Model, full_model=False):
         if isinstance(Model, ISLogisticRegression):
             # Reshape ys to be 1-dimensional
             Model.y_train = Model.y_train.values.ravel()
+
+def score(tradeoffsmodel, X, y, sample_weight=None):
+    # Takes in values from a regressor model, but scores them based on a classification (round to the nearest whole number)
+
+    y_pred = tradeoffsmodel.predict(X)
+
+    # Round the predictions and convert to integers
+    y_pred_rounded = np.round(y_pred).astype(int)
+
+    return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
 
 def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
     # Split the data
@@ -431,6 +541,22 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
         # Save the model
         save_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
 
+def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix=False):
+    if y_pred is None or y_test is None:
+        y_pred = Model.y_pred
+        y_test = Model.y_test
+        if y_pred is None or y_test is None:
+            file_path = f'{Model.output_path}/predictions.csv'
+            load_prediction(Model, file_path)
+    
+    Model.cm = confusion_matrix(y_test, y_pred)
+
+    # Save confusion matrix
+    np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
+
+    if return_matrix:
+        return Model.cm
+    
 def calculate_shap_values(Model, sample_size=1000, return_values=False):
     # Select a random sample from Model.X
     if sample_size < len(Model.X):
@@ -627,6 +753,21 @@ def load_shap_values(Model, file_path, return_values=False):
 
         if return_values:
             return Model.shap_explainer_list
+
+def load_prediction(Model, file_path, return_predictions=False):
+    """
+    Loads in the y prediction and y test values as two dataframes
+    """
+    prediction = pd.read_csv(file_path, converters={
+        f'Actual Class: {Model.target}': literal_eval,
+        f'Predicted Class: {Model.target}': literal_eval
+    })
+
+    Model.y_pred = prediction.iloc[:, -1].to_frame()
+    Model.test = prediction.iloc[:, -2].to_frame()
+
+    if return_predictions:
+        return Model.y_pred
 
 def save_model(Model, file_path):
     joblib.dump(Model.tradeoffmodel, file_path)
