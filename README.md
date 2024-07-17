@@ -14,6 +14,9 @@ Take student input data and build a privatized version to train a machine learni
 ### Applications:
 Data privatization techniques are vital for allowing data to be shared without risking exposing the sensitive data to being identifiable by malicious parties. Though this project uses student demographic information as the sensitive data, this work is very applicable to medical data collection and analysis.
 
+### Warning:
+The file structures are currently going under a major overhaul to match python package best practices. The information contained within this README file still applies but the location of the files may have changed.
+
 ### Table of Contents:
 <ol>
   <li>Main Functions</li>

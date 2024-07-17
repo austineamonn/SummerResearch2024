@@ -67,25 +67,29 @@ class ISLogisticRegression:
         self.y_train = None
         self.y_test = None
         self.stratified_data = None
-        self.model = None
+        self.tradeoffmodel = None
         self.X_sample = None
 
         if target == 'ethnoracial group':
             self.classnames = [
                 'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
             ]
+            self.shap_is_list = True
         elif target == 'gender':
             self.classnames = [
                 'Female', "Male", 'Nonbinary'
             ]
+            self.shap_is_list = True
         elif target == 'international status':
             self.classnames = [
                 'Domestic', 'International'
             ]
+            self.shap_is_list = False
         elif target == 'socioeconomic status':
             self.classnames = [
                 'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
             ]
+            self.shap_is_list = True
         else:
             raise ValueError(f"Incorrect target column name {target} for a classification model")
         self.labels = list(range(len(self.classnames)))
@@ -127,6 +131,7 @@ class ISDecisionTreeClassification:
         # Additional Attributes
         self.name = 'decision_tree_classifier'
         self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        self.shap_is_list = True
 
         # Initialize empty attributes to be filled.
         self.X = None
@@ -136,7 +141,7 @@ class ISDecisionTreeClassification:
         self.y_train = None
         self.y_test = None
         self.stratified_data = None
-        self.model = None
+        self.tradeoffmodel = None
         self.X_sample = None
 
         if target == 'ethnoracial group':
@@ -162,6 +167,7 @@ class ISDecisionTreeClassification:
         # Attributes for getting the best model
         self.models_data = None
         self.ccp_alphas = None
+        self.ccp_alpha = None
         self.train_scores = None
         self.test_scores = None
         self.impurities = None
@@ -265,18 +271,18 @@ def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, 
     models_sorted = models.sort_values(by='test scores', ascending=False)
 
     # Pull out the model that has the highest test score and make it the model for training
-    Model.model, Model.ccp_alpha = models_sorted.iloc[0, 0:2]
+    Model.tradeoffmodel, Model.ccp_alpha = models_sorted.iloc[0, 0:2]
 
     if make_graphs:
-        Model.graph_impurities()
-        Model.graph_nodes_and_depth()
-        Model.graph_accuracy()
+        graph_impurities(Model)
+        graph_nodes_and_depth(Model)
+        graph_accuracy(Model)
 
     # Return the best model and the ccp_alpha
     if return_model and return_ccp_alpha:
-        return Model.model, Model.ccp_alpha
+        return Model.tradeoffmodel, Model.ccp_alpha
     elif return_model:
-        return Model.model
+        return Model.tradeoffmodel
     elif return_ccp_alpha:
         return_ccp_alpha
 
@@ -317,12 +323,12 @@ def graph_accuracy(Model: Union[ISDecisionTreeClassification]):
     plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_accuracy.png')
     plt.close()
 
-def tree_plotter(Model: Union[ISDecisionTreeClassification], model=None, save_fig=False, show_fig=False, max_depth=2):
+def tree_plotter(Model: Union[ISDecisionTreeClassification], tradeoffmodel=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
-        if model is None:
-            model = Model.model
-        plot_tree(model, 
+        if tradeoffmodel is None:
+            tradeoffmodel = Model.tradeoffmodel
+        plot_tree(tradeoffmodel, 
                   feature_names=Model.X_columns, 
                   class_names=Model.classnames,
                   filled=True, 
@@ -351,39 +357,39 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
         else:
             plt.close()
 
-def run_model(Model, model=None, ccp_alpha=None, print_report=False, save_files=True, plot_files=True, get_shap=True):
+def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, plot_files=True):
     # Split the data
     Model.split_data(full_model=True)
 
-    if model is not None:
-        Model.model = model
-        Model.y_pred = Model.model.predict(Model.X_test)
+    if tradeoffmodel is not None:
+        Model.tradeoffmodel = tradeoffmodel
+        Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
     else:
         if isinstance(Model, ISDecisionTreeClassification):
             if ccp_alpha is not None:
-                Model.model = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+                Model.tradeoffmodel = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
             else:
-                Model.model = DecisionTreeClassifier(random_state=0)
+                Model.tradeoffmodel = DecisionTreeClassifier(random_state=0)
         elif isinstance(Model, ISLogisticRegression):
-            Model.model = LogisticRegression(solver='liblinear', random_state=0)
+            Model.tradeoffmodel = LogisticRegression(solver='liblinear', random_state=0)
         
         # Run and time model
         start_time = time.time()
-        Model.model.fit(Model.X_train, Model.y_train)
-        Model.y_pred = Model.model.predict(Model.X_test)
+        Model.tradeoffmodel.fit(Model.X_train, Model.y_train)
+        Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
         end_time = time.time()
         runtime = end_time - start_time
 
     if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
         # Get Metrics
-        cm = confusion_matrix(Model.y_test, Model.y_pred)
+        Model.cm = confusion_matrix(Model.y_test, Model.y_pred)
 
         if print_report:
             report = classification_report(Model.y_test, Model.y_pred, zero_division=0, labels=Model.labels, target_names=Model.classnames)
             print(report)
         else:
             report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True, labels=Model.labels, target_names=Model.classnames)
-            if model is None:
+            if tradeoffmodel is None:
                 report['time'] = runtime # Add time to the report dictionary
 
     # Saving to a JSON file
@@ -401,35 +407,23 @@ def run_model(Model, model=None, ccp_alpha=None, print_report=False, save_files=
         combined_df.to_csv(f'{Model.output_path}/predictions.csv', index=False)
 
         # Save the model
-        Model.save_model(f'{Model.output_path}/{Model.name}_model.pkl')
-
-    if plot_files:
-        # Plot the model
-        if isinstance(Model, ISDecisionTreeClassification):
-            tree_plotter(Model, save_fig=True)
-        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
-            confusion_matrix_plotter(Model, matrix=cm, save_fig=True)
-
-    if get_shap:
-        # Calculate and plot SHAP values
-        Model.calculate_shap_values()
-        Model.plot_shap_values()
+        save_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
 
     # Ensure all figures were closed
     plt.close('all')
 
 def calculate_shap_values(Model, sample_size=1000, return_values=False):
-    # Select a random sample from self.X
+    # Select a random sample from Model.X
     if sample_size < len(Model.X):
         Model.X_sample = Model.X.sample(n=sample_size, random_state=42)
     else:
         Model.X_sample = Model.X
     
     if isinstance(Model, ISDecisionTreeClassification):
-        explainer = shap.TreeExplainer(Model.model)
+        explainer = shap.TreeExplainer(Model.tradeoffmodel)
         shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
     if isinstance(Model, ISLogisticRegression):
-        explainer = shap.LinearExplainer(Model.model, Model.X_train)
+        explainer = shap.LinearExplainer(Model.tradeoffmodel, Model.X_train)
         shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
 
     shap_values_path = f'{Model.output_path}/shap_values.npy'
@@ -438,84 +432,198 @@ def calculate_shap_values(Model, sample_size=1000, return_values=False):
     if return_values:
         return shap_values
     
-def plot_shap_values(self, shap_values=None, shap_explainer_list=None):
+def plot_shap_values(Model, shap_values=None, shap_explainer_list=None):
     if shap_explainer_list is not None:
-        self.shap_explainer_list = shap_explainer_list
+        Model.shap_explainer_list = shap_explainer_list
     if shap_values is not None:
-        self.shap_values = shap_values
-    if self.target == 'international status':
-        # Generate the SHAP bar plot and capture the axes
-        ax = shap.plots.bar(self.shap_values, show=False)
-        
-        # Get the figure from the axes
-        fig = ax.figure
+        Model.shap_values = shap_values
+    if Model.shap_is_list == False:
+        Model.plot_shap_values_one_target(Model.shap_values)
+    else:
+        for i, name in enumerate(Model.classnames):
+            Model.plot_shap_values_one_target(Model.shap_explainer_list[i], name)
 
-        # Set the figure size to be wider
-        fig = plt.gcf()
-        fig.set_size_inches(20, 6)  # Adjust the width and height as needed
+def plot_shap_values_one_target(Model, shap_values, classname=None):
 
-        # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
-        plt.close(fig)
+    if classname is not None:
+        # Ensure proper naming protocol was used
+        classname = classname.replace(' ', '_')
 
-        # Scatter plot for each specific feature
-        for i, column in enumerate(self.X_columns):
-            # Create a figure and axis
-            fig, ax = plt.subplots()
-            # TODO: Fix the width of learning style graphs to match better
-            if column == 'learning style':
-                shap.plots.scatter(self.shap_values[:, 2], show=False, ax=ax)
-                ax.set_xlim(0.488, 0.51)
-            else:
-                shap.plots.scatter(self.shap_values[:, i], show=False, ax=ax)
+    # Generate the SHAP bar plot and capture the axes
+    ax = shap.plots.bar(shap_values, show=False)
+    
+    # Get the figure from the axes
+    fig = ax.figure
 
-            # Adjust the size
-            fig = plt.gcf()
-            fig.set_size_inches(15, 6)
+    # Set the figure size to be wider
+    fig = plt.gcf()
+    fig.set_size_inches(20, 6)  # Adjust the width and height as needed
 
-            # Save the figure
-            plt.savefig(f'{self.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
-            plt.close(fig)
-
-        # Heatmap plot
-        ax = shap.plots.heatmap(self.shap_values, show=False)
-
-        # Get the figure from the axes
-        fig = ax.figure
-
-        # Set the figure size to be wider
-        fig = plt.gcf()
-        fig.set_size_inches(15, 6)  # Adjust the width and height as needed
-
-        # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
-        plt.close(fig)
-
-        # Bee swarm plot
-        ax = shap.plots.beeswarm(self.shap_values, show=False)
-
-        # Get the figure from the axes
-        fig = ax.figure
-
-        # Set the figure size to be wider
-        fig = plt.gcf()
-        fig.set_size_inches(22, 6)  # Adjust the width and height as needed
-
-        # Save the figure
-        fig.savefig(f'{self.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
-        plt.close(fig)
-
-        # Violin plot
-        fig = plt.figure()
-        shap.plots.violin(self.shap_values, show=False)
-
-        # Set the figure size to be wider
-        fig = plt.gcf()
-        fig.set_size_inches(22, 6)  # Adjust the width and height as needed
-
-        # Save the figure
-        plt.savefig(f'{self.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
+    # Save the figure
+    if classname is not None:
+        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bar_plot.png', bbox_inches="tight")
         plt.close(fig)
     else:
-        for i, name in enumerate(self.classnames):
-            self.plot_shap_values_one_target(self.shap_explainer_list[i], name)
+        fig.savefig(f'{Model.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
+        plt.close(fig)
+
+    # Scatter plot for each specific feature
+    for i, column in enumerate(Model.X_columns):
+        # Create a figure and axis
+        fig, ax = plt.subplots()
+        if column == 'learning style':
+            shap.plots.scatter(shap_values[:, 2], show=False, ax=ax)
+            ax.set_xlim(0.488, 0.51)
+        else:
+            shap.plots.scatter(shap_values[:, i], show=False, ax=ax)
+
+        # Adjust the size
+        fig = plt.gcf()
+        fig.set_size_inches(15, 6)
+
+        # Save the figure
+        if classname is not None:
+            plt.savefig(f'{Model.output_path}/graphs/{classname}/feature_scatter_plots/{column}.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            plt.savefig(f'{Model.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
+            plt.close(fig)
+
+    # Heatmap plot
+    ax = shap.plots.heatmap(shap_values, show=False)
+
+    # Get the figure from the axes
+    fig = ax.figure
+
+    # Set the figure size to be wider
+    fig = plt.gcf()
+    fig.set_size_inches(15, 6)
+
+    # Save the figure
+    if classname is not None:
+        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_heatmap.png', bbox_inches="tight")
+        plt.close(fig)
+    else:
+        fig.savefig(f'{Model.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
+        plt.close(fig)
+
+    # Bee swarm plot
+    ax = shap.plots.beeswarm(shap_values, show=False)
+
+    # Get the figure from the axes
+    fig = ax.figure
+
+    # Set the figure size to be wider
+    fig = plt.gcf()
+    fig.set_size_inches(22, 6)  # Adjust the width and height as needed
+
+    # Save the figure
+    if classname is not None:
+        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bee_swarm_plot.png', bbox_inches="tight")
+        plt.close(fig)
+    else:
+        fig.savefig(f'{Model.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
+        plt.close(fig)
+
+    # Violin plot
+    fig = plt.figure()
+    shap.plots.violin(shap_values, show=False)
+
+    # Set the figure size to be wider
+    fig = plt.gcf()
+    fig.set_size_inches(22, 6)  # Adjust the width and height as needed
+
+    # Save the figure
+    if classname is not None:
+        plt.savefig(f'{Model.output_path}/graphs/{classname}/shap_violin_plot.png', bbox_inches="tight")
+        plt.close(fig)
+    else:
+        plt.savefig(f'{Model.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
+        plt.close(fig)
+
+    # Ensure all figures were closed
+    plt.close('all')
+
+def load_shap_values(Model, file_path, return_values=False):
+    if Model.shap_is_list == False:
+        # Load the .npy file
+        Model.shap_values = np.load(file_path, allow_pickle=True)
+        
+        # Extract the SHAP values, base values, and data
+        values = []
+        base_values = []
+        data = []
+
+        for element in Model.shap_values:
+            elem_values = []
+            elem_data = []
+            for item in range(len(element)):
+                elem_values.append(element[item].values)
+                elem_data.append(element[item].data)
+            values.append(elem_values)
+            base_values.append(element[0].base_values)
+            data.append(elem_data)
+
+        # Convert lists to numpy arrays
+        values = np.array(values)
+        base_values = np.array(base_values)
+        data = np.array(data)
+
+        # Create an Explanation object
+        Model.shap_values = shap.Explanation(values=values,base_values=base_values, data=data, feature_names=Model.X_columns)
+
+        if return_values:
+            return Model.shap_values
+    else:
+        # Load the .npy file
+        shap_values = np.load(file_path, allow_pickle=True)
+
+        Model.shap_explainer_list = []
+
+        for i in range(len(Model.classnames)):
+            # Extract the SHAP values, base values, and data
+            values = []
+            base_values = []
+            data = []
+            for element in shap_values:
+                elem_values = []
+                elem_data = []
+                for item in range(len(element)):
+                    elem_values.append(element[item][i].values)
+                    elem_data.append(element[item][i].data)
+                values.append(elem_values)
+                base_values.append(element[0][i].base_values)
+                data.append(elem_data)
+
+            # Convert lists to numpy arrays
+            values = np.array(values)
+            base_values = np.array(base_values)
+            data = np.array(data)
+
+            # Create an Explanation object
+            shap_value_explainer = shap.Explanation(values=values,base_values=base_values, data=data, feature_names=Model.X_columns)
+
+            # Add object to list of explainers, one per target
+            Model.shap_explainer_list.append(shap_value_explainer)
+
+        if return_values:
+            return Model.shap_explainer_list
+
+def save_model(Model, file_path):
+    joblib.dump(Model.tradeoffmodel, file_path)
+
+def load_model(Model, file_path, return_file=False):
+    try:
+        Model.tradeoffmodel = joblib.load(file_path)
+    except Exception as e:
+        logging.error(f"Joblib failed to load the model: {e}")
+        logging.info("Attempting to load with pickle...")
+        try:
+            with open(file_path, 'rb') as f:
+                Model.tradeoffmodel = pickle.load(f)
+        except Exception as pickle_e:
+            logging.error(f"Pickle also failed to load the model: {pickle_e}")
+            raise pickle_e
+        
+    if return_file:
+        return Model.tradeoffmodel
