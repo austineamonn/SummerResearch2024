@@ -76,6 +76,8 @@ class ISLogisticRegression:
         self.tradeoffmodel = None
         self.X_sample = None
         self.cm = None
+        self.shap_values = None
+        self.shap_explainer_list = None
 
         if classnames is not None:
             self.classnames = classnames
@@ -156,6 +158,8 @@ class ISDecisionTreeClassification:
         self.tradeoffmodel = None
         self.X_sample = None
         self.cm = None
+        self.shap_values = None
+        self.shap_explainer_list = None
 
         if classnames is not None:
             self.classnames = classnames
@@ -245,6 +249,7 @@ class ISDecisionTreeRegressification:
         self.tradeoffmodel = None
         self.X_sample = None
         self.cm = None
+        self.shap_values = None
 
         # Attributes for getting the best model
         self.models_data = None
@@ -343,12 +348,15 @@ def score(tradeoffsmodel, X, y, sample_weight=None):
 
     return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
 
-def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
+def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
     # Split the data
     split_data(Model)
 
     # Generate the models with different ccp alphas
-    clf = DecisionTreeClassifier(random_state=0)
+    if isinstance(Model, ISDecisionTreeClassification):
+        clf = DecisionTreeClassifier(random_state=0)
+    elif isinstance(Model, ISDecisionTreeRegressification):
+        clf = DecisionTreeRegressor(random_state=0)
     path = clf.cost_complexity_pruning_path(Model.X_train, Model.y_train)
     Model.ccp_alphas, Model.impurities = path.ccp_alphas, path.impurities
 
@@ -358,15 +366,22 @@ def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, 
     # Fit the models
     clfs = []
     for ccp_alpha in Model.ccp_alphas:
-        clf = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+        if isinstance(Model, ISDecisionTreeClassification):
+            clf = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+        elif isinstance(Model, ISDecisionTreeRegressification):
+            clf = DecisionTreeRegressor(random_state=0, ccp_alpha=ccp_alpha)
         clf.fit(Model.X_train, Model.y_train)
         clfs.append(clf)
     Model.node_counts = [clf.tree_.node_count for clf in clfs]
     Model.depth = [clf.tree_.max_depth for clf in clfs]
 
     # Train the models
-    Model.train_scores = [clf.score(Model.X_train, Model.y_train) for clf in clfs]
-    Model.test_scores = [clf.score(Model.X_test, Model.y_test) for clf in clfs]
+    if isinstance(Model, ISDecisionTreeClassification):
+        Model.train_scores = [clf.score(Model.X_train, Model.y_train) for clf in clfs]
+        Model.test_scores = [clf.score(Model.X_test, Model.y_test) for clf in clfs]
+    elif isinstance(Model, ISDecisionTreeRegressification):
+        Model.train_scores = [score(clf, Model.X_train, Model.y_train) for clf in clfs]
+        Model.test_scores = [score(clf, Model.X_test, Model.y_test) for clf in clfs]
 
     Model.models_data = {
         'models': clfs,
@@ -382,11 +397,11 @@ def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, 
 
     if save_model:
         try:
-            models.to_csv(f'{Model.output_path}/decision_tree_classifier_models.csv', index=False)
+            models.to_csv(f'{Model.output_path}/{Model.name}_models.csv', index=False)
         except OSError:
             make_folders(Model)
             try:
-                models.to_csv(f'{Model.output_path}/decision_tree_classifier_models.csv', index=False)
+                models.to_csv(f'{Model.output_path}/{Model.name}_models.csv', index=False)
             except:
                 raise OSError("The make_folders function is not working. Check to see if the outputs folder can be created.")
 
@@ -408,7 +423,7 @@ def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, 
     elif return_ccp_alpha:
         return_ccp_alpha
 
-def graph_impurities(Model: Union[ISDecisionTreeClassification]):
+def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification]):
     # Impurity vs Effective Alpha
     fig, ax = plt.subplots()
     ax.plot(Model.ccp_alphas[:-1], Model.impurities[:-1], marker="o", drawstyle="steps-post")
@@ -418,7 +433,7 @@ def graph_impurities(Model: Union[ISDecisionTreeClassification]):
     plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_total_impurity.png')
     plt.close()
 
-def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification]):
+def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification]):
     # Model Nodes and Depth vs Alpha
     fig, ax = plt.subplots(2, 1)
     ax[0].plot(Model.ccp_alphas, Model.node_counts, marker="o", drawstyle="steps-post")
@@ -433,7 +448,7 @@ def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification]):
     plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
     plt.close()
 
-def graph_accuracy(Model: Union[ISDecisionTreeClassification]):
+def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification]):
     # Accuracy vs Alpha
     fig, ax = plt.subplots()
     ax.set_xlabel("alpha")
@@ -450,19 +465,26 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification], tradeoffmodel=None,
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
             tradeoffmodel = Model.tradeoffmodel
-        plot_tree(tradeoffmodel, 
-                  feature_names=Model.X_columns, 
-                  class_names=Model.classnames,
-                  filled=True, 
-                  rounded=True,
-                  max_depth=max_depth) # Prevent too much of the tree from being generated
+        if isinstance(Model, ISDecisionTreeClassification):
+            plot_tree(tradeoffmodel, 
+                    feature_names=Model.X_columns, 
+                    class_names=Model.classnames,
+                    filled=True, 
+                    rounded=True,
+                    max_depth=max_depth) # Prevent too much of the tree from being generated
+        elif isinstance(Model, ISDecisionTreeRegressification):
+            plot_tree(tradeoffmodel, 
+                    feature_names=Model.X_columns,
+                    filled=True, 
+                    rounded=True,
+                    max_depth=max_depth) # Prevent too much of the tree from being generated
         if show_fig:
             plt.show()
         if save_fig:
             plt.savefig(f'{Model.output_path}/graphs/{Model.name}.png', bbox_inches="tight")
         plt.close()
 
-def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
+def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISDecisionTreeRegressification], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
         if matrix is None and matrix is None:
             matrix = Model.cm
         elif matrix_path is not None:
@@ -474,8 +496,12 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
             except FileNotFoundError as e:
                 raise ValueError("Undeclared confusion matrix. Add in matrix or matrix path.")
         # Plot the tree using matplotlib
-        plt.figure(figsize = (10,7))
-        sn.heatmap(matrix, annot=True, fmt='d')
+        if isinstance(Model, ISDecisionTreeRegressification):
+            plt.figure(figsize=(20, 15))
+            sn.heatmap(matrix, annot=False, fmt='d')
+        elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+            plt.figure(figsize = (10,7))
+            sn.heatmap(matrix, annot=True, fmt='d')
         plt.xlabel('Predicted')
         plt.ylabel('Truth')
         if show_fig:
@@ -493,6 +519,9 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
     if tradeoffmodel is not None:
         Model.tradeoffmodel = tradeoffmodel
         Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
+        if isinstance(Model, ISDecisionTreeRegressification):
+            # Round the predictions and convert to integers
+            Model.y_pred = np.round(Model.y_pred).astype(int)
     else:
         if isinstance(Model, ISDecisionTreeClassification):
             if ccp_alpha is not None:
@@ -501,33 +530,48 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
                 Model.tradeoffmodel = DecisionTreeClassifier(random_state=0)
         elif isinstance(Model, ISLogisticRegression):
             Model.tradeoffmodel = LogisticRegression(solver='liblinear', random_state=0)
-        
+        elif isinstance(Model, ISDecisionTreeRegressification):
+            if ccp_alpha is not None:
+                Model.tradeoffmodel = DecisionTreeRegressor(random_state=0, ccp_alpha=ccp_alpha)
+            else:
+                Model.tradeoffmodel = DecisionTreeRegressor(random_state=0)
+
         # Run and time model
         start_time = time.time()
         Model.tradeoffmodel.fit(Model.X_train, Model.y_train)
         Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
+        if isinstance(Model, ISDecisionTreeRegressification):
+            # Round the predictions and convert to integers
+            Model.y_pred = np.round(Model.y_pred).astype(int)
         end_time = time.time()
         runtime = end_time - start_time
 
-    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeRegressification):
         # Get Metrics
         Model.cm = confusion_matrix(Model.y_test, Model.y_pred)
 
         if print_report:
-            report = classification_report(Model.y_test, Model.y_pred, zero_division=0, labels=Model.labels, target_names=Model.classnames)
+            if isinstance(Model, ISDecisionTreeRegressification):
+                report = classification_report(Model.y_test, Model.y_pred, zero_division=0)
+            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+                report = classification_report(Model.y_test, Model.y_pred, zero_division=0, labels=Model.labels, target_names=Model.classnames)
             print(report)
         else:
-            report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True, labels=Model.labels, target_names=Model.classnames)
+            if isinstance(Model, ISDecisionTreeRegressification):
+                report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True)
+            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+                report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True, labels=Model.labels, target_names=Model.classnames)
             if tradeoffmodel is None:
                 report['time'] = runtime # Add time to the report dictionary
 
     # Saving to a JSON file
     if save_files:
-        with open(f'{Model.output_path}/classification_report.json', 'w') as json_file:
-            json.dump(report, json_file, indent=4)
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeRegressification):
+            with open(f'{Model.output_path}/classification_report.json', 'w') as json_file:
+                json.dump(report, json_file, indent=4)
 
-        # Save confusion matrix
-        np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
+            # Save confusion matrix
+            np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
 
         # Convert X_test and y_test to DataFrames if they are not already
         X_test_df = pd.DataFrame(Model.X_test)
@@ -564,18 +608,18 @@ def calculate_shap_values(Model, sample_size=1000, return_values=False):
     else:
         Model.X_sample = Model.X
     
-    if isinstance(Model, ISDecisionTreeClassification):
+    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification):
         explainer = shap.TreeExplainer(Model.tradeoffmodel)
-        shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
+        Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
     if isinstance(Model, ISLogisticRegression):
         explainer = shap.LinearExplainer(Model.tradeoffmodel, Model.X_train)
-        shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
+        Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
 
     shap_values_path = f'{Model.output_path}/shap_values.npy'
-    np.save(shap_values_path, shap_values)
+    np.save(shap_values_path, Model.shap_values)
 
     if return_values:
-        return shap_values
+        return Model.shap_values
     
 def plot_shap_values(Model, shap_values=None, shap_explainer_list=None):
     if shap_explainer_list is not None:

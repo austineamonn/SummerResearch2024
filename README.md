@@ -394,16 +394,45 @@ Regressification:
   <li>Train a regression model, then convert predictions to integers, then calculate metrics (like accuracy) using classification methods</li>
 </ul>
 
-Here is a list of the models:
+Each model is represented as a different class. Then a variety of functions can be called depending on the model class. Here is a list of the models:
 
-<ul>
-  <li>Decision Tree Classifier</li>
-  <li>Decision Tree Regressifier</li>
-  <li>Decision Tree Regressor</li>
-  <li>Random Forest Regressor</li>
-  <li>Logistic Regressor (actually a classification model!)</li>
-  <li>Linear Regressor</li>
-</ul>
+<table>
+  <tr>
+    <th>Model</th>
+    <th>Model Type</th>
+    <th>Class Name</th>
+  </tr>
+  <tr>
+    <td>Decision Tree Classifier</td>
+    <td>Classification</td>
+    <td>ISDecisionTreeClassification</td>
+  </tr>
+  <tr>
+    <td>Decision Tree Regressifier</td>
+    <td>Regressification</td>
+    <td>ISDecisionTreeRegressification</td>
+  </tr>
+  <tr>
+    <td>Decision Tree Regressor</td>
+    <td>Regression</td>
+    <td>ISDecisionTreeRegression</td>
+  </tr>
+  <tr>
+    <td>Random Forest Regressor</td>
+    <td>Regression</td>
+    <td>ISRandomForestRegression</td>
+  </tr>
+  <tr>
+    <td>Logistic Regressor</td>
+    <td>Classification</td>
+    <td>ISLogisticRegression</td>
+  </tr>
+  <tr>
+    <td>Linear Regressor</td>
+    <td>Regression</td>
+    <td>ISLinearRegression</td>
+  </tr>
+</table>
 
 More models are to be added.
 
