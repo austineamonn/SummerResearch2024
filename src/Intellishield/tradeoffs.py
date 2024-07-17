@@ -17,6 +17,7 @@ import os
 import pickle
 
 # TODO: Add the other tradeoff classes
+# TODO: Fix error where SHAP values must be saved and reloaded for the graphing to work
 
 # Set the pandas option to avoid silent downcasting
 pd.set_option('future.no_silent_downcasting', True)
@@ -270,7 +271,14 @@ def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, 
     models = pd.DataFrame(Model.models_data)
 
     if save_model:
-        models.to_csv(f'{Model.output_path}/decision_tree_classifier_models.csv', index=False)
+        try:
+            models.to_csv(f'{Model.output_path}/decision_tree_classifier_models.csv', index=False)
+        except OSError:
+            make_folders(Model)
+            try:
+                models.to_csv(f'{Model.output_path}/decision_tree_classifier_models.csv', index=False)
+            except:
+                raise OSError("The make_folders function is not working. Check to see if the outputs folder can be created.")
 
     models_sorted = models.sort_values(by='test scores', ascending=False)
 

@@ -15,7 +15,7 @@ Take student input data and build a privatized version to train a machine learni
 Data privatization techniques are vital for allowing data to be shared without risking exposing the sensitive data to being identifiable by malicious parties. Though this project uses student demographic information as the sensitive data, this work is very applicable to medical data collection and analysis.
 
 ### Warning:
-The file structures are currently going under a major overhaul to match python package best practices. The information contained within this README file still applies but the location of the files may have changed.
+The file structures are currently going under a major overhaul to match python package best practices. The information contained within this README file still applies but the location of the files may have changed. Generally, the same structure is there but just within the src/IntelliShield folder.
 
 ### Table of Contents:
 <ol>
@@ -29,6 +29,8 @@ The file structures are currently going under a major overhaul to match python p
 </ol>
 
 ## Main Functions:
+
+All three of these files were lost in the restructuring but they will be revived soon.
 
 ### [Main - Under Construction](main.py):
 The main file of the framework. What can this file do?
@@ -70,14 +72,14 @@ An interactive Jupyter Notebook that walks through the full data pipeline proces
 
 After you have completed the inital set up there are some additional instructions in the main.ipynb file to finish setup.
 
-### [Config](config.py):
+### [Config - Under Construction](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
 
 ## Data Generation:
 
 There was no available dataset that contained all the information required for this application. Thus, data was generated synthetically with a basis in real data.
 
-### [Datafiles for Data Construction](datafiles_for_data_construction)
+### [Datafiles for Data Construction](src/IntelliShield/data_generation/datafiles_for_data_construction):
 Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file. The following table describes the JSON files of this folder.
 
 <table>
@@ -103,10 +105,10 @@ Various JSON files that have lists of data and feature tuples. This folder also 
   </tr>
 </table>
 
-### [Data](datafiles_for_data_construction/data.py):
+### [Data](src/IntelliShield/data_generation/datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
-### [Data Generation with a CPU](data_generation/data_generation_CPU.py):
+### [Data Generation with a CPU](src/IntelliShield/data_generation/data_generation_CPU.py):
 Generates the synthetic dataset on the computer's CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
@@ -125,7 +127,7 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [Data Generation with a GPU](data_generation/data_generation_GPU.py):
+### [Data Generation with a GPU](src/IntelliShield/data_generation/data_generation_GPU.py):
 Generates the synthetic dataset on the computer's GPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
 ```python
@@ -144,7 +146,7 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [Data Analysis - Under Construction](data_generation/data_analysis.py):
+### [Data Analysis - Under Construction](src/IntelliShield/data_generation/data_analysis.py):
 Takes the synthetic dataset and produces various graphs about the data. For the numerical columns boxplots, distributions, and summary statistics are produced. For all the other columns the top ten highest count items are displayed. Calculates the percentage of empty of NaN values in each column.
 
 ```python
@@ -165,16 +167,16 @@ analyzer.analyze_data()
 analyzer.analyze_data()
 ```
 
-### [Data Analysis Graphs - Under Construction](data_generation/data_analysis_graphs):
+### [Data Analysis Graphs - Under Construction](src/IntelliShield/data_generation/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
-### [Dataset](data_generation/Dataset.csv)
-Synthetic dataset. The file here contains 25,000 'students', but you can generate as much data as you need using the data generation functions. Note that all the other files were created using a 100,000 length dataset.
+### Dataset
+Synthetic dataset. The file was removed because it was too large, but you can generate as much data as you need using the data generation functions. Note that all the example files were created using a 100,000 length dataset.
 
 Note: data category column is explained in the splitting the data section of data preprocessing.
 
 <p align="center">
-  <img src="/graphics/canva_generated_graphs/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/docs/graphics/canva_generated_graphs/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
 </p>
 
 ## Data Preprocessing:
@@ -205,7 +207,7 @@ Preprocessing is needed to convert the data into file types and structures that 
   </tr>
 </table>
 
-### [Preprocessing](data_preprocessing/preprocessing.py):
+### [Preprocessing](src/IntelliShield/data_preprocessing/preprocessing.py):
 preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.
 
 run_RNN_models() - Takes in a preprocessed dataset. For each list in each column, the lists are padded so they become the same length. Then an RNN is run to reduce dimensionality such that each column becomes 1 dimensional. There are 3 RNN types (Simple, GRU, ans LSTM) and they can run with different numbers of layers (1-4).
@@ -235,10 +237,10 @@ preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
 preprocessor.create_RNN_models(preprocessed_dataset, save_files=True)
 ```
 
-### [Preprocessed Dataset](data_preprocessing/Preprocessed_Dataset.csv):
+### [Preprocessed Dataset](src/IntelliShield/data_preprocessing/Preprocessed_Dataset.csv):
 All feature columns and utility columns have been converted into either binary lists or numerical lists. Contains 100,000 'students' in the CSV.
 
-### [Processing the Private Columns](calculating_tradeoffs/processing_private_columns.py):
+### [Processing the Private Columns](src/IntelliShield/calculating_tradeoffs/processing_private_columns.py):
 The private data are converted into numbered lists. This currently only converts ethnoracial group, gender, and international status.
 
 ```python
@@ -257,7 +259,7 @@ private_cols = PrivateColumns(data, config)
 private_cols.get_private_cols(synthetic_dataset)
 ```
 
-### [Alternative Future Topic Preprocessing](data_preprocessing/alternate_future_topics.py):
+### [Alternative Future Topic Preprocessing](src/IntelliShield/data_preprocessing/alternate_future_topics.py):
 In this alternative preprocessing method, future topics are split into 5 columns with each column containing one of the five recommended future topics per student. Take the preprocessed dataset as an input
 
 ```python
@@ -278,7 +280,7 @@ alt_topics_getter = AltFutureTopics(privatization_type, RNN_model)
 alt_topics_getter.int_list_to_separate_cols(preprocessed_dataset)
 ```
 
-### [Reduced Dimensionality Files](data_preprocessing/reduced_dimensionality_data):
+### [Reduced Dimensionality Files](src/IntelliShield/data_preprocessing/reduced_dimensionality_data):
 In this folder, the different RNN models for dimensionality reduction can be found. They are organized by privatization method. Within each is the three methods Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns and utility columns while the regular versions do not. The reduced dimension utility columns can be found on their own in the 'NoPrivatization' folder.
 
 ## Data Privatization
@@ -292,10 +294,10 @@ There are two main methods:
 Overall, there is wide flexibility in the options for privatization method. The sensitivity for the differential privacy is calculated using the mean method.
 
 <p align="center">
-  <img src="/graphics/canva_generated_graphs/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
+  <img src="/docs/graphics/canva_generated_graphs/privatization_methods.png" width="1080" title="Privatization Methods Flowchart" alt="A flowchart showing the different data privatization methods">
 </p>
 
-### [Privatization](data_privatization/privatization.py):
+### [Privatization](src/IntelliShield/data_privatization/privatization.py):
 Generates the privatized dataset based on the preprocessed dataset using one of the various methods listed above.
 
 ```python
@@ -327,7 +329,7 @@ There are a variety of privatized datasets including differential privacy with l
 
 Note that changing privatization parameters in config can allow you to make different variations of these methods.
 
-### [Privacy Metrics - Under Construction](data_privatization/privacy_metrics.py):
+### [Privacy Metrics - Under Construction](src/IntelliShield/data_privatization/privacy_metrics.py):
 Calculates the level of data privatization using various metrics: Mean comparison, STD comparison, and Sum comparison. Also outputs the privatization method used and the parameters of the method.
 
 ```python
@@ -347,7 +349,7 @@ metrics = PrivacyMetrics(config)
 metrics.calculate_privacy_metrics(preprocessed_dataset, privatized_dataset)
 ```
 
-## Calculating Tradeoffs:
+## [Calculating Tradeoffs](src/IntelliShield/tradeoffs.py):
 
 This is where the privacy - utility tradeoff calculations are run on all the different privatization styles. This is done through several model types:
 
@@ -387,7 +389,7 @@ Here is a list of the models:
 
 More models are to be added.
 
-### [Decision Tree Classifier](calculating_tradeoffs/classification/decision_tree_classifier/decision_tree_classifier.py):
+### Decision Tree Classifier:
 Takes a dataset and uses a decision tree classifier to see how well the X columns can predict each private column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -414,9 +416,11 @@ ccp_alpha = classifier.get_best_model(return_model=False)
 classifier.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Classifier Outputs](calculating_tradeoffs/classification/decision_tree_classifier/outputs):
+### Decision Tree Classifier Outputs
 
-Contains a variety of outputs from the decision tree classification function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
+When the ISDecisionTreeClassifier class is run a variety of outputs can be produced. For outputs to be produced <em> an output path MUST be declared </em>.
+
+The recommended organization method, is to organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
 <ul>
   <li>All the models (unfitted) from the ccp alpha calculation are saved with some statistics like accuracy, depth, and nodes</li>
@@ -431,7 +435,63 @@ Contains a variety of outputs from the decision tree classification function. Or
 
 Note that what items are made and saved can be changed by altering inputs for the functions.
 
-### [Decision Tree Alternate](calculating_tradeoffs/alternate/alt_classification/decision_tree_alternate/decision_tree_alternate.py):
+Here are some examples of what the graphs could look like for the basic differntial privacy method X GRU 1 layer dimensionality reduction model X target: ethnoracial group. Similar graphics can be produced for other combinations.
+
+Alpha vs Accuracy:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Accuracy" alt="A graph comparing alpha and accuracy">
+</p>
+
+Alpha vs Graph Nodes and Depth:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Graph Nodes and Depth" alt="Two graphs, one comparing alpha and graph nodes, the other comparing alpha and tree depth">
+</p>
+
+Alpha vs Total Impurity:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Total Impurity" alt="A graph comparing alpha and impurity">
+</p>
+
+The first few splits of the best decision tree.
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Decision Tree Example" alt="A graphic showing the organization of a decision tree">
+</p>
+
+These SHAP value plots are specific to the Multiracial ethnoracial group. The same type of graphs can be created for all the other ethnoracial groups.
+
+SHAP Feature Importance:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/shap_bar_plot.png" width="1080" title="Decision Tree SHAP Feature Importance" alt="A bar chart comparing the feature importances for the decision tree model">
+</p>
+
+SHAP Bee Swarm Plot:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/shap_bee_swarm_plot.png" width="1080" title="Decision Tree SHAP Bee Swarm Plot" alt="A bee swarm plot comparing the feature importances for the decision tree model">
+</p>
+
+SHAP Heatmap Plot:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/shap_heatmap.png" width="1080" title="Decision Tree SHAP Heatmap Plot" alt="A heatmap comparing the feature importances for the decision tree model">
+</p>
+
+SHAP Violin Plot:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/shap_violin_plot.png" width="1080" title="Decision Tree SHAP Violin Plot" alt="A violin plot comparing the feature importances for the decision tree model">
+</p>
+
+There are also scatter plots for each feature that compare feature value and SHAP value.
+
+Course Subject Scatter Plot:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/feature_scatter_plots/course subjects.png" width="1080" title="Course Subject Scatter Plot" alt="A scatter plot for the course subject feature of the model">
+</p>
+
+Student Semester Scatter Plot:
+<p align="center">
+  <img src="/docs/graphics/decision_tree_classifier_example/feature_scatter_plots/student semester.png" width="1080" title="Student Semester Scatter Plot" alt="A scatter plot for the student semester feature of the model">
+</p>
+
+### Decision Tree Alternate:
 Takes a dataset and uses a decision tree alternate to see how well the X columns can predict future topics as five split columns. This builds off of the alternate preprocessing path for the future topics column that split it into 5 columns. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -458,7 +518,7 @@ ccp_alpha = alternate.get_best_model(return_model=False)
 alternate.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Alternate Outputs](calculating_tradeoffs/alternate/alt_classification/decision_tree_alternate/outputs):
+### Decision Tree Alternate Outputs:
 
 Contains a variety of outputs from the decision tree alternate function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
@@ -475,7 +535,7 @@ Contains a variety of outputs from the decision tree alternate function. Organiz
 
 Note that what items are made and saved can be changed by altering inputs for the functions.
 
-### [Decision Tree Regressor](calculating_tradeoffs/regression/decision_tree_regression/decision_tree_regression.py):
+### Decision Tree Regressor:
 Takes a dataset and uses a decision tree regressor to see how well the X columns can predict each utility column. Specify the privatization method, private column target, and the dimensionality reduction method. The classifier can get the best ccp alpha value (based on maximum x test accuracy) and can also run a single decision tree based on the ccp alpha value. For both you need to specify how much data you want to read in and then run the test-train split.
 
 The model, various graphs, and the predicted y values are all saved in the outputs folder.
@@ -502,7 +562,7 @@ ccp_alpha = regressor.get_best_model(return_model=False)
 classifier.run_model(ccp_alpha=ccp_alpha)
 ```
 
-### [Decision Tree Regressor Outputs](calculating_tradeoffs/regression/decision_tree_regression/outputs):
+### Decision Tree Regressor Outputs:
 
 Contains a variety of outputs from the decision tree regression function. Organized first by privatization type, then by dimensionality reduction type, and then by target. What is saved in each folder:
 
@@ -523,13 +583,13 @@ Note that what items are made and saved can be changed by altering inputs for th
 
 Now that we have various models trained on the various datasets we need to compare them to decide which dimensionality reduction method was best and which privatization method was best.
 
-### [Classification Comparison](model_comparison/classification/comparison_classification.py):
+### [Classification Comparison](src/IntelliShield/model_comparison/classification/comparison_classification.py):
 This file compares the classification metrics of the various classification machine learning models.
 
-### [Classification Regression](model_comparison/regression/comparison_regression.py):
+### [Classification Regression](src/IntelliShield/model_comparison/regression/comparison_regression.py):
 This file compares the regression metrics of the various regression machine learning models.
 
-### [Classification Alternate](model_comparison/alternate/comparison_alternate.py):
+### [Classification Alternate](src/IntelliShield/model_comparison/alternate/comparison_alternate.py):
 This file compares the alternate metrics (same as classification) of the various alternate machine learning models.
 
 ## Sources and Acknowledgments:
