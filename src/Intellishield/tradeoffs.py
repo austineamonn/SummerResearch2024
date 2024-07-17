@@ -25,32 +25,35 @@ pd.set_option('future.no_silent_downcasting', True)
 # Classification Models
 
 class ISLogisticRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None):
-        # Either data or data path must be declared
-        if data is None and data_path is None:
-            raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
         
         # Initialize inputs
         self.privatization_type = privatization_type
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
-
-        # Get the Data
-        if data is None:
-            self.data = pd.read_csv(data_path, converters={
-                'learning style': literal_eval,
-                'major': literal_eval,
-                'previous courses': literal_eval,
-                'course types': literal_eval,
-                'course subjects': literal_eval,
-                'subjects of interest': literal_eval,
-                'extracurricular activities': literal_eval,
-                'career aspirations': literal_eval,
-                'future topics': literal_eval
-            })
-        else:
-            self.data = data
 
         # Output paths
         if output_path is not None:
@@ -81,57 +84,67 @@ class ISLogisticRegression:
 
         if classnames is not None:
             self.classnames = classnames
+            # Assumes multi-target for SHAP explainer object construction
+            self.shap_is_list = True
+            self.feature_importance = []
         elif target == 'ethnoracial group':
             self.classnames = [
                 'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
             ]
             self.shap_is_list = True
+            self.feature_importance = []
         elif target == 'gender':
             self.classnames = [
                 'Female', "Male", 'Nonbinary'
             ]
             self.shap_is_list = True
+            self.feature_importance = []
         elif target == 'international status':
             self.classnames = [
                 'Domestic', 'International'
             ]
             self.shap_is_list = False
+            self.feature_importance = None
         elif target == 'socioeconomic status':
             self.classnames = [
                 'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
             ]
             self.shap_is_list = True
+            self.feature_importance = []
         else:
             raise ValueError(f"Incorrect target column name {target} for a classification model")
         self.labels = list(range(len(self.classnames)))
 
 class ISDecisionTreeClassification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None):
-        # Either data or data path must be declared
-        if data is None and data_path is None:
-            raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
         
         # Initialize inputs
         self.privatization_type = privatization_type
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
-
-        # Get the Data
-        if data is None:
-            self.data = pd.read_csv(data_path, converters={
-                'learning style': literal_eval,
-                'major': literal_eval,
-                'previous courses': literal_eval,
-                'course types': literal_eval,
-                'course subjects': literal_eval,
-                'subjects of interest': literal_eval,
-                'extracurricular activities': literal_eval,
-                'career aspirations': literal_eval,
-                'future topics': literal_eval
-            })
-        else:
-            self.data = data
 
         # Output paths
         if output_path is not None:
@@ -142,6 +155,7 @@ class ISDecisionTreeClassification:
         # Additional Attributes
         self.name = 'decision_tree_classifier'
         self.shap_is_list = True
+        self.feature_importance = []
         if X_columns is None:
             self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
         else:
@@ -196,34 +210,36 @@ class ISDecisionTreeClassification:
 # Regressification Models
 
 class ISDecisionTreeRegressification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None):
-        # Either data or data path must be declared
-        if data is None and data_path is None:
-            raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+            self.data = self.data.dropna(subset=[target])
         
         # Initialize inputs
         self.privatization_type = privatization_type
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
-
-        # Get the Data
-        if data is None:
-            self.data = pd.read_csv(data_path, converters={
-                'learning style': literal_eval,
-                'major': literal_eval,
-                'previous courses': literal_eval,
-                'course types': literal_eval,
-                'course subjects': literal_eval,
-                'subjects of interest': literal_eval,
-                'extracurricular activities': literal_eval,
-                'career aspirations': literal_eval,
-                'future topics': literal_eval
-            })
-        else:
-            self.data = data
-
-        self.data = self.data.dropna(subset=[target])
 
         # Output paths
         if output_path is not None:
@@ -234,6 +250,7 @@ class ISDecisionTreeRegressification:
         # Additional Attributes
         self.name = 'decision_tree_regressifier'
         self.shap_is_list = False
+        self.feature_importance = None
         if X_columns is None:
             self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
         else:
@@ -264,32 +281,35 @@ class ISDecisionTreeRegressification:
 # Regression Models
 
 class ISDecisionTreeRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None):
-        # Either data or data path must be declared
-        if data is None and data_path is None:
-            raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
         
         # Initialize inputs
         self.privatization_type = privatization_type
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
-
-        # Get the Data
-        if data is None:
-            self.data = pd.read_csv(data_path, converters={
-                'learning style': literal_eval,
-                'major': literal_eval,
-                'previous courses': literal_eval,
-                'course types': literal_eval,
-                'course subjects': literal_eval,
-                'subjects of interest': literal_eval,
-                'extracurricular activities': literal_eval,
-                'career aspirations': literal_eval,
-                'future topics': literal_eval
-            })
-        else:
-            self.data = data
 
         # Output paths
         if output_path is not None:
@@ -300,6 +320,7 @@ class ISDecisionTreeRegression:
         # Additional Attributes
         self.name = 'decision_tree_regressor'
         self.shap_is_list = False
+        self.feature_importance = None
         if X_columns is None:
             self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
         else:
@@ -329,6 +350,8 @@ class ISDecisionTreeRegression:
         self.node_counts = None
         self.depth = None
 
+# General Functions
+
 def make_folders(Model, output_path=None):
     if output_path is None:
         output_path = Model.output_path
@@ -341,11 +364,14 @@ def make_folders(Model, output_path=None):
     else:
         for name in Model.classnames:
             name = name.replace(' ', '_')
-            directory = os.path.dirname(f'{output_path}/graphs/{name}/feature_scatter_plots/example.py')
+            main_directory = os.path.dirname(f'{output_path}/{name}/example.py')
+            graph_directory = os.path.dirname(f'{output_path}/graphs/{name}/feature_scatter_plots/example.py')
 
-            # Create the directory if it doesn't exist
-            if not os.path.exists(directory):
-                os.makedirs(directory, exist_ok=True)
+            # Create the directories if they doesn't exist
+            if not os.path.exists(graph_directory):
+                os.makedirs(graph_directory, exist_ok=True)
+            if not os.path.exists(main_directory):
+                os.makedirs(main_directory, exist_ok=True)
 
 def split_data(Model, full_model=False):
         if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
@@ -924,12 +950,47 @@ def load_prediction(Model, file_path, return_predictions=False):
 
     if return_predictions:
         return Model.y_pred
+    
+def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
+    if shap_explainer_list is not None:
+        Model.shap_explainer_list = shap_explainer_list
+    if shap_values is not None:
+        Model.shap_values = shap_values
+    if Model.shap_is_list == False:
+        Model.feature_importance = get_single_feature_importance(Model, Model.shap_values, return_df=True)
+    else:
+        for i, name in enumerate(Model.classnames):
+            Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
 
-def load_metrics(Model: Union[ISDecisionTreeRegression], file_path):
-    pass
+def get_single_feature_importance(Model, shap_values, return_df=False, classname=None):
+    # Summarize the feature importance
+    feature_importance = np.abs(shap_values.values).mean(axis=0)
 
-def load_classification_report(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISLogisticRegression], file_path):
-    pass
+    # Get feature names if available
+    feature_names = shap_values.feature_names if shap_values.feature_names is not None else [f'Feature {i}' for i in range(len(feature_importance))]
+
+    # Create a DataFrame to display feature importance
+    import pandas as pd
+    feature_importance_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Importance': feature_importance
+    }).sort_values(by='Importance', ascending=False)
+
+    # Save the figure
+    if classname is not None:
+        feature_importance_df.to_csv(f'{Model.output_path}/{classname}/feature_importance.csv', index=False)
+    else:
+        feature_importance_df.to_csv(f'{Model.output_path}/feature_importance.csv', index=False)
+
+    # Return the DataFrame
+    if return_df:
+        return feature_importance_df
+    
+def load_feature_importance(Model, file_path, return_df=False):
+    Model.feature_importance = pd.read_csv(file_path)
+    
+    if return_df:
+        return Model.feature_importance
 
 def save_model(Model, file_path):
     joblib.dump(Model.tradeoffmodel, file_path)
@@ -983,6 +1044,9 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False):
         calculate_shap_values(Model)
         load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
         plot_shap_values(Model)
+
+        # Get feature importance
+        get_feature_importance(Model)
     
     # The graphing pipeline
     if plot_graphs:
@@ -1011,3 +1075,4 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False):
         calculate_shap_values(Model)
         load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
         plot_shap_values(Model)
+        get_feature_importance(Model)

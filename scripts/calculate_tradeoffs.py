@@ -119,7 +119,7 @@ def get_tradeoffs_ISDecisionTreeClassification(data_folder, output_path=None):
                 target_path = f'{output_path}/outputs/{privatization_type}/{RNN_model}/{target_name}'
 
                 # Initiate classifier
-                classifier = ISDecisionTreeClassification('NoPrivatization', 'GRU1', 'ethnoracial group', data=data, output_path=target_path)
+                classifier = ISDecisionTreeClassification(privatization_type, RNN_model, target, data=data, output_path=target_path)
                 get_best_model(classifier)
                 make_folders(classifier)
                 run_model(classifier)
