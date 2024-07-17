@@ -69,6 +69,7 @@ class ISLogisticRegression:
         self.stratified_data = None
         self.tradeoffmodel = None
         self.X_sample = None
+        self.cm = None
 
         if target == 'ethnoracial group':
             self.classnames = [
@@ -143,6 +144,7 @@ class ISDecisionTreeClassification:
         self.stratified_data = None
         self.tradeoffmodel = None
         self.X_sample = None
+        self.cm = None
 
         if target == 'ethnoracial group':
             self.classnames = [
@@ -174,8 +176,10 @@ class ISDecisionTreeClassification:
         self.node_counts = None
         self.depth = None
         
-def make_folders(Model, output_path):
-    if Model.target == 'international status':
+def make_folders(Model, output_path=None):
+    if output_path is None:
+        output_path = Model.output_path
+    if Model.shap_is_list == False:
         directory = os.path.dirname(f'{output_path}/graphs/feature_scatter_plots/example.py')
 
         # Create the directory if it doesn't exist
@@ -190,9 +194,9 @@ def make_folders(Model, output_path):
             if not os.path.exists(directory):
                 os.makedirs(directory, exist_ok=True)
 
-def split_data(Model, data, full_model=False):
+def split_data(Model, full_model=False):
         # Define y
-        Model.y = data[[Model.target]]
+        Model.y = Model.data[[Model.target]]
 
         # Stratify the data by taking only the number of elements the least common values has
         least_common_count = Model.y.value_counts().min()
@@ -230,7 +234,7 @@ def split_data(Model, data, full_model=False):
 
 def get_best_model(Model:Union[ISDecisionTreeClassification], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
     # Split the data
-    Model.split_data()
+    split_data(Model)
 
     # Generate the models with different ccp alphas
     clf = DecisionTreeClassifier(random_state=0)
@@ -341,9 +345,16 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification], tradeoffmodel=None,
         plt.close()
 
 def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
-        if matrix_path is not None:
+        if matrix is None and matrix is None:
+            matrix = Model.cm
+        elif matrix_path is not None:
             # Loading the matrix
             matrix = np.load(matrix_path)
+        if matrix is None:
+            try:
+                matrix = np.load(f'{Model.output_path}/confusion_matrix.npy', allow_pickle=True)
+            except FileNotFoundError as e:
+                raise ValueError("Undeclared confusion matrix. Add in matrix or matrix path.")
         # Plot the tree using matplotlib
         plt.figure(figsize = (10,7))
         sn.heatmap(matrix, annot=True, fmt='d')
@@ -357,9 +368,9 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
         else:
             plt.close()
 
-def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, plot_files=True):
+def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True):
     # Split the data
-    Model.split_data(full_model=True)
+    split_data(Model, full_model=True)
 
     if tradeoffmodel is not None:
         Model.tradeoffmodel = tradeoffmodel
@@ -397,6 +408,9 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
         with open(f'{Model.output_path}/classification_report.json', 'w') as json_file:
             json.dump(report, json_file, indent=4)
 
+        # Save confusion matrix
+        np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
+
         # Convert X_test and y_test to DataFrames if they are not already
         X_test_df = pd.DataFrame(Model.X_test)
         y_test_df = pd.DataFrame(Model.y_test, columns=[f'Actual Class: {Model.target}'])
@@ -408,9 +422,6 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
 
         # Save the model
         save_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
-
-    # Ensure all figures were closed
-    plt.close('all')
 
 def calculate_shap_values(Model, sample_size=1000, return_values=False):
     # Select a random sample from Model.X
@@ -438,10 +449,10 @@ def plot_shap_values(Model, shap_values=None, shap_explainer_list=None):
     if shap_values is not None:
         Model.shap_values = shap_values
     if Model.shap_is_list == False:
-        Model.plot_shap_values_one_target(Model.shap_values)
+        plot_shap_values_one_target(Model, Model.shap_values)
     else:
         for i, name in enumerate(Model.classnames):
-            Model.plot_shap_values_one_target(Model.shap_explainer_list[i], name)
+            plot_shap_values_one_target(Model, Model.shap_explainer_list[i], name)
 
 def plot_shap_values_one_target(Model, shap_values, classname=None):
 

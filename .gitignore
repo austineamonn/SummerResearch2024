@@ -159,6 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# Outputs Folder
+outputs/
+
+# Large Files
 calculating_tradeoffs/regression/random_forest_regression/outputs/Complete_Shuffling/Simple1/future_topics/random_forest_regressor_model.pkl
 calculating_tradeoffs/regression/random_forest_regression/outputs/Complete_Shuffling/Simple1/career_aspirations/random_forest_regressor_model.pkl
 calculating_tradeoffs/regression/random_forest_regression/outputs/Complete_Shuffling/GRU1/future_topics/random_forest_regressor_model.pkl
