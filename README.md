@@ -181,7 +181,7 @@ analyzer.analyze_data()
 analyzer.analyze_data()
 ```
 
-### [Data Analysis Graphs - Under Construction](src/IntelliShield/data_generation/data_analysis_graphs):
+### [Data Analysis Graphs - Under Construction](outputs/examples/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
 ### Dataset
@@ -251,7 +251,7 @@ preprocessed_dataset = preprocesser.preprocess_dataset(synthetic_dataset)
 preprocessor.create_RNN_models(preprocessed_dataset, save_files=True)
 ```
 
-### [Preprocessed Dataset](src/IntelliShield/data_preprocessing/Preprocessed_Dataset.csv):
+### [Preprocessed Dataset](outputs/examples/preprocessed_data/Preprocessed_Dataset.csv):
 All feature columns and utility columns have been converted into either binary lists or numerical lists. Contains 100,000 'students' in the CSV.
 
 ### [Processing the Private Columns](src/IntelliShield/calculating_tradeoffs/processing_private_columns.py):
@@ -294,7 +294,7 @@ alt_topics_getter = AltFutureTopics(privatization_type, RNN_model)
 alt_topics_getter.int_list_to_separate_cols(preprocessed_dataset)
 ```
 
-### [Reduced Dimensionality Files](src/IntelliShield/data_preprocessing/reduced_dimensionality_data):
+### [Reduced Dimensionality Files](outputs/examples/reduced_dimensionality_data):
 In this folder, the different RNN models for dimensionality reduction can be found. They are organized by privatization method. Within each is the three methods Simple , GRU and LSTM all with 1 layer. The combined versions contain the preprocessed private columns and utility columns while the regular versions do not. The reduced dimension utility columns can be found on their own in the 'NoPrivatization' folder.
 
 ## Data Privatization
@@ -335,7 +335,7 @@ privatizer = Privatizer(data, config, 'basic differential privacy', True)
 privatizer.privatize_dataset(preprocessed_dataset)
 ```
 
-### Privatized Datasets
+### [Privatized Datasets](outputs/examples/privatized_datasets):
 There are a variety of privatized datasets including differential privacy with laplace and uniform noise addition and with and without list length changing (LLC) as well as the random shuffling at 10% and 100%. Here are the models that are saved in this section:
 
 <ul>
@@ -457,7 +457,7 @@ Here are some examples of what the graphs could look like for the basic differnt
 
 Alpha vs Accuracy:
 <p align="center">
-  <img src="/docs/graphics/decision_tree_classifier_example/decision_tree_classifier.png" width="1080" title="Alpha vs Accuracy" alt="A graph comparing alpha and accuracy">
+  <img src="/docs/graphics/decision_tree_classifier_example/effective_alpha_vs_accuracy.png" width="1080" title="Alpha vs Accuracy" alt="A graph comparing alpha and accuracy">
 </p>
 
 Alpha vs Graph Nodes and Depth:
@@ -467,7 +467,7 @@ Alpha vs Graph Nodes and Depth:
 
 Alpha vs Total Impurity:
 <p align="center">
-  <img src="/docs/graphics/decision_tree_classifier_example/effective_alpha_vs_graph_nodes_and_depth.png" width="1080" title="Alpha vs Total Impurity" alt="A graph comparing alpha and impurity">
+  <img src="/docs/graphics/decision_tree_classifier_example/effective_alpha_vs_total_impurity.png" width="1080" title="Alpha vs Total Impurity" alt="A graph comparing alpha and impurity">
 </p>
 
 The first few splits of the best decision tree.

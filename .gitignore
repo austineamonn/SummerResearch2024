@@ -166,7 +166,7 @@ past_work/
 future_work/
 
 # Outputs Folder
-outputs/
+outputs/testing_tradeoffs/
 
 # Large Files
 calculating_tradeoffs/regression/random_forest_regression/outputs/Complete_Shuffling/Simple1/future_topics/random_forest_regressor_model.pkl

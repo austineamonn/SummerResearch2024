@@ -758,10 +758,16 @@ def load_prediction(Model, file_path, return_predictions=False):
     """
     Loads in the y prediction and y test values as two dataframes
     """
-    prediction = pd.read_csv(file_path, converters={
-        f'Actual Class: {Model.target}': literal_eval,
-        f'Predicted Class: {Model.target}': literal_eval
-    })
+    try:
+        prediction = pd.read_csv(file_path, converters={
+            f'Actual Class: {Model.target}': literal_eval,
+            f'Predicted Class: {Model.target}': literal_eval
+        })
+    except KeyError: # Legacy CSV style
+        prediction = pd.read_csv(file_path, converters={
+            f'{Model.target}': literal_eval,
+            f'Predicted Class: {Model.target}': literal_eval
+        })
 
     Model.y_pred = prediction.iloc[:, -1].to_frame()
     Model.test = prediction.iloc[:, -2].to_frame()
