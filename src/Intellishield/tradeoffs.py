@@ -61,6 +61,7 @@ class ISDecisionTreeClassification:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -154,6 +155,7 @@ class ISLogisticRegression:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -246,6 +248,7 @@ class ISRandomForestClassification:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -332,6 +335,7 @@ class ISDecisionTreeRegressification:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -401,6 +405,7 @@ class ISLinearRegressification:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -460,6 +465,7 @@ class ISRandomForestRegressification:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -520,6 +526,7 @@ class ISDecisionTreeRegression:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -590,6 +597,7 @@ class ISLinearRegression:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -652,6 +660,7 @@ class ISRandomForestRegression:
         self.RNN_model = RNN_model
         self.target = target
         self.target_name = target.replace(' ', '_')
+        self.target_name = self.target_name.replace('/', '_')
 
         # Output paths
         if output_path is not None:
@@ -700,6 +709,7 @@ def make_folders(Model, output_path: str = None):
     else:
         for name in Model.classnames:
             name = name.replace(' ', '_')
+            name = name.replace('/', '_')
             directory = os.path.dirname(f'{output_path}/graphs/{name}/feature_scatter_plots/example.py')
 
             # Create the directories if they doesn't exist
@@ -1188,6 +1198,7 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
     if classname is not None:
         # Ensure proper naming protocol was used
         classname = classname.replace(' ', '_')
+        classname = classname.replace('/', '_')
 
     # Generate the SHAP bar plot and capture the axes
     ax = shap.plots.bar(shap_values, show=False)
@@ -1378,14 +1389,23 @@ def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
     if Model.shap_is_list == False:
         Model.feature_importance = get_single_feature_importance(Model, Model.shap_values, return_df=True)
     else:
+        feature_importance_list = []
+        names = []
         for i, name in enumerate(Model.classnames):
-            Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
+            feature_importance_list.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True))
+            # Ensure proper naming protocol was used
+            name = name.replace(' ', '_')
+            name = name.replace('/', '_')
+            names.append(name)
+        Model.feature_importance = pd.concat(feature_importance_list, keys=names)
 
-def get_single_feature_importance(Model, shap_values, return_df: bool = False, classname: str = None):
-    if classname is not None:
-        # Ensure proper naming protocol was used
-        classname = classname.replace(' ', '_')
+        # Reset index to turn multi-index into columns
+        Model.feature_importance.reset_index(level=0, inplace=True)
+        Model.feature_importance.rename(columns={'level_0': 'Target'}, inplace=True)
 
+    Model.feature_importance.to_csv(f'{Model.output_path}/feature_importance.csv', index=False)
+
+def get_single_feature_importance(Model, shap_values, return_df: bool = False):
     # Summarize the feature importance
     feature_importance = np.abs(shap_values.values).mean(axis=0)
 
@@ -1398,12 +1418,6 @@ def get_single_feature_importance(Model, shap_values, return_df: bool = False, c
         'Feature': feature_names,
         'Importance': feature_importance
     }).sort_values(by='Importance', ascending=False)
-
-    # Save the figure
-    if classname is not None:
-        feature_importance_df.to_csv(f'{Model.output_path}/{classname}/feature_importance.csv', index=False)
-    else:
-        feature_importance_df.to_csv(f'{Model.output_path}/feature_importance.csv', index=False)
 
     # Return the DataFrame
     if return_df:

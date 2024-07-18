@@ -122,6 +122,18 @@ Various JSON files that have lists of data and feature tuples. This folder also 
 ### [Data](src/IntelliShield/data_generation/datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
+### Data Generation:
+
+Both CPU and GPU dataset generation generate the dataset in the same way. One is just optimized for CPU usage and the other is optimized for GPU usage. The following flowchart explains how one sample is generated.
+
+<p align="center">
+  <img src="/docs/graphics/canva_generated/data_generation_flowchart.png" width="1080" title="Data Generation Flowchart" alt="A flowchart chart explaining how the synthetic data is generated.">
+</p>
+
+For the Semester Loop, the elements inside are iterated for every semester the student has been at the school. Each iteration they all impact one another.
+
+For the Pre-Loop Features, student semester impacts GPA only in that a 0th semester student, one who has not started school yet, cannot have a GPA.
+
 ### [Data Generation with a CPU](src/IntelliShield/data_generation/data_generation_CPU.py):
 Generates the synthetic dataset on the computer's CPU. The dataset contains the following elements: first name, last name, race or ethnicity, gender, international student status, socioeconomic status, learning style(s), gpa, student semester, major(s), previous courses, previous course types, course subjects, subjects of interest, career aspirations, extracurricular activities, and future topics.
 
@@ -190,7 +202,7 @@ Synthetic dataset. The file was removed because it was too large, but you can ge
 Note: data category column is explained in the splitting the data section of data preprocessing.
 
 <p align="center">
-  <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A chart giving the details of each data column">
+  <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A table giving the details of each data column.">
 </p>
 
 ## Data Preprocessing:
@@ -220,6 +232,12 @@ Preprocessing is needed to convert the data into file types and structures that 
     <td>Xu columns are left alone. These utility columns are the targets for the neural network.</td>
   </tr>
 </table>
+
+The following chart gives an overview for how the data is preprocessed and turned into two datasets. One dataset is used for the classification and regression models. The other dataset is used for the regressification models.
+
+<p align="center">
+  <img src="/docs/graphics/canva_generated/data_preprocessing.gif" width="1080" title="Data Preprocessing" alt="A flowchart explaining how the data is preprocessed.">
+</p>
 
 ### [Preprocessing](src/IntelliShield/data_preprocessing/preprocessing.py):
 preprocess_dataset() - Takes in a synthetic dataset. Xp is cut out, X and Xu are converted from lists of strings to lists of numbers. Outputs a preprocessed dataset.

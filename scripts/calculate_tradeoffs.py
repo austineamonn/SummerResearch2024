@@ -527,7 +527,7 @@ data_folder = 'outputs/examples/reduced_dimensionality_data' # Add path to reduc
 
 # Linear Models
 #get_tradeoffs_ISLinearRegression(data_folder, 'past_work/calculating_tradeoffs/regression/linear_regression')
-get_tradeoffs_ISLinearRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/linear_alternate')
+#get_tradeoffs_ISLinearRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/linear_alternate')
 #get_tradeoffs_ISLogisticRegression(data_folder, 'past_work/calculating_tradeoffs/classification/logistic_regression')
 
 # Decision Trees
@@ -537,5 +537,5 @@ get_tradeoffs_ISLinearRegressification(data_folder, 'past_work/calculating_trade
 
 # Random Forest
 #get_tradeoffs_ISRandomForestRegression(data_folder, 'past_work/calculating_tradeoffs/regression/random_forest_regression')
-get_tradeoffs_ISRandomForestRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/random_forest_alternate')
+#get_tradeoffs_ISRandomForestRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/random_forest_alternate')
 get_tradeoffs_ISRandomForestClassification(data_folder, 'past_work/calculating_tradeoffs/classification/random_forest_classifier')

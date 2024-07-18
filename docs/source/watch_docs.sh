@@ -1,0 +1,1 @@
+find . -name "*.rst" | entr -s "make html"
