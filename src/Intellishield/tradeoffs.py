@@ -2,6 +2,7 @@ import logging
 from ast import literal_eval
 import pandas as pd
 from typing import Union
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
 from sklearn.model_selection import train_test_split
@@ -23,97 +24,6 @@ import pickle
 pd.set_option('future.no_silent_downcasting', True)
 
 # Classification Models
-
-class ISLogisticRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
-        if model_ran:
-            self.data = None
-        else:
-            # Either data or data path must be declared is the model has not already been run
-            if data is None and data_path is None:
-                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
-            
-            # Get the Data
-            if data is None:
-                self.data = pd.read_csv(data_path, converters={
-                    'learning style': literal_eval,
-                    'major': literal_eval,
-                    'previous courses': literal_eval,
-                    'course types': literal_eval,
-                    'course subjects': literal_eval,
-                    'subjects of interest': literal_eval,
-                    'extracurricular activities': literal_eval,
-                    'career aspirations': literal_eval,
-                    'future topics': literal_eval
-                })
-            else:
-                self.data = data
-        
-        # Initialize inputs
-        self.privatization_type = privatization_type
-        self.RNN_model = RNN_model
-        self.target = target
-        self.target_name = target.replace(' ', '_')
-
-        # Output paths
-        if output_path is not None:
-            self.output_path = output_path
-        else:
-            logging.info("no output path given, so no data will be saved!")
-
-        # Additional Attributes
-        self.name = 'logistic_regressor'
-        if X_columns is None:
-            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
-        else:
-            self.X_columns = X_columns
-
-        # Initialize empty attributes to be filled.
-        self.X = None
-        self.X_train = None
-        self.X_test = None
-        self.y = None
-        self.y_train = None
-        self.y_test = None
-        self.stratified_data = None
-        self.tradeoffmodel = None
-        self.X_sample = None
-        self.cm = None
-        self.shap_values = None
-        self.shap_explainer_list = None
-
-        if classnames is not None:
-            self.classnames = classnames
-            # Assumes multi-target for SHAP explainer object construction
-            self.shap_is_list = True
-            self.feature_importance = []
-        elif target == 'ethnoracial group':
-            self.classnames = [
-                'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
-            ]
-            self.shap_is_list = True
-            self.feature_importance = []
-        elif target == 'gender':
-            self.classnames = [
-                'Female', "Male", 'Nonbinary'
-            ]
-            self.shap_is_list = True
-            self.feature_importance = []
-        elif target == 'international status':
-            self.classnames = [
-                'Domestic', 'International'
-            ]
-            self.shap_is_list = False
-            self.feature_importance = None
-        elif target == 'socioeconomic status':
-            self.classnames = [
-                'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
-            ]
-            self.shap_is_list = True
-            self.feature_importance = []
-        else:
-            raise ValueError(f"Incorrect target column name {target} for a classification model")
-        self.labels = list(range(len(self.classnames)))
 
 class ISDecisionTreeClassification:
     def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
@@ -173,6 +83,7 @@ class ISDecisionTreeClassification:
         self.X_sample = None
         self.cm = None
         self.shap_values = None
+        self.feature_importance = None
         self.shap_explainer_list = None
 
         if classnames is not None:
@@ -206,7 +117,182 @@ class ISDecisionTreeClassification:
         self.impurities = None
         self.node_counts = None
         self.depth = None
+
+class ISLogisticRegression:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
         
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'logistic_regressor'
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.stratified_data = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.cm = None
+        self.shap_values = None
+        self.feature_importance = None
+        self.shap_explainer_list = None
+
+        if classnames is not None:
+            self.classnames = classnames
+            # Assumes multi-target for SHAP explainer object construction
+            self.shap_is_list = True
+            self.feature_importance = []
+        elif target == 'ethnoracial group':
+            self.classnames = [
+                'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
+            ]
+            self.shap_is_list = True
+            self.feature_importance = []
+        elif target == 'gender':
+            self.classnames = [
+                'Female', "Male", 'Nonbinary'
+            ]
+            self.shap_is_list = True
+            self.feature_importance = []
+        elif target == 'international status':
+            self.classnames = [
+                'Domestic', 'International'
+            ]
+            self.shap_is_list = False
+            self.feature_importance = None
+        elif target == 'socioeconomic status':
+            self.classnames = [
+                'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
+            ]
+            self.shap_is_list = True
+            self.feature_importance = []
+        else:
+            raise ValueError(f"Incorrect target column name {target} for a classification model")
+        self.labels = list(range(len(self.classnames)))
+
+class ISRandomForestClassification:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'random_forest_classifier'
+        self.shap_is_list = True
+        self.feature_importance = []
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.stratified_data = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.cm = None
+        self.shap_values = None
+        self.feature_importance = None
+        self.shap_explainer_list = None
+
+        if classnames is not None:
+            self.classnames = classnames
+        elif target == 'ethnoracial group':
+            self.classnames = [
+                'European American or white', 'Latino/a/x American', 'African American or Black', 'Asian American', 'Multiracial', 'American Indian or Alaska Native', 'Pacific Islander'
+            ]
+        elif target == 'gender':
+            self.classnames = [
+                'Female', "Male", 'Nonbinary'
+            ]
+        elif target == 'international status':
+            self.classnames = [
+                'Domestic', 'International'
+            ]
+        elif target == 'socioeconomic status':
+            self.classnames = [
+                'In poverty', 'Near poverty', 'Lower-middle income', 'Middle income', 'Higher income'
+            ]
+        else:
+            raise ValueError(f"Incorrect target column name {target} for a classification model")
+        self.labels = list(range(len(self.classnames)))
+
 # Regressification Models
 
 class ISDecisionTreeRegressification:
@@ -278,6 +364,124 @@ class ISDecisionTreeRegressification:
         self.node_counts = None
         self.depth = None
 
+class ISLinearRegressification:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+            self.data = self.data.dropna(subset=[target])
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'linear_regressifier'
+        self.shap_is_list = False
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.cm = None
+        self.shap_values = None
+        self.feature_importance = None
+
+class ISRandomForestRegressification:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+            self.data = self.data.dropna(subset=[target])
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'random_forest_regressifier'
+        self.shap_is_list = False
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.cm = None
+        self.shap_values = None
+        self.feature_importance = None
+
 # Regression Models
 
 class ISDecisionTreeRegression:
@@ -337,6 +541,7 @@ class ISDecisionTreeRegression:
         self.tradeoffmodel = None
         self.X_sample = None
         self.shap_values = None
+        self.feature_importance = None
         self.r2 = None
 
         # Attributes for getting the best model
@@ -406,8 +611,69 @@ class ISLinearRegression:
         self.tradeoffmodel = None
         self.X_sample = None
         self.shap_values = None
+        self.feature_importance = None
         self.m = None
         self.b = None
+        self.r2 = None
+
+class ISRandomForestRegression:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'random_forest_regressor'
+        self.shap_is_list = False
+        self.feature_importance = None
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.final_data = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.shap_values = None
+        self.feature_importance = None
         self.r2 = None
 
 # General Functions
@@ -438,7 +704,7 @@ def make_folders(Model, output_path=None):
                 os.makedirs(main_directory, exist_ok=True)
 
 def split_data(Model, full_model=False):
-        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification):
             # Define y
             Model.y = Model.data[[Model.target]]
 
@@ -453,7 +719,7 @@ def split_data(Model, full_model=False):
             # Set up X
             Model.X = Model.stratified_data[Model.X_columns]
 
-        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
+        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISRandomForestRegression):
             if full_model:
                 Model.final_data = Model.data
             else:
@@ -461,25 +727,28 @@ def split_data(Model, full_model=False):
             # Set up X
             Model.X = Model.final_data[Model.X_columns]
 
+        else:
+            raise ValueError("Need a proper Model object")
+
         # Change the lists into just the elements within them if the element is a list otherwise just take the element
         for column in Model.X_columns:
             Model.X.loc[:, column] = Model.X[column].apply(lambda x: x[0] if isinstance(x, list) else x)
 
-        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression):
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISLinearRegressification):
             # Fill NaN values with the mean of each column
             Model.X = Model.X.fillna(Model.X.mean())
 
             # Infer objects to avoid future warning
             Model.X = Model.X.infer_objects(copy=False)
 
-        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification):
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISRandomForestClassification):
             # Set up y post stratification
             Model.y = Model.stratified_data[[Model.target]]
 
             # Change the doubles into integers (1.0 -> 1)
             Model.y = Model.y.astype(int)
 
-        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
+        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISRandomForestRegression):
             # Set up y post stratification
             Model.y = Model.final_data[[Model.target]]
 
@@ -487,10 +756,13 @@ def split_data(Model, full_model=False):
             for column in Model.y.columns:
                 Model.y.loc[:, column] = Model.y[column].apply(lambda x: x[0] if isinstance(x, list) else (int(x) if not np.isnan(x) else x))
 
+        else:
+            raise ValueError("Need a proper Model object")
+
         # Test - Train Split
         Model.X_train, Model.X_test, Model.y_train, Model.y_test = train_test_split(Model.X, Model.y, train_size = 0.8, random_state = 1234)
 
-        if isinstance(Model, ISLogisticRegression):
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestRegression) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestClassification):
             # Reshape ys to be 1-dimensional
             Model.y_train = Model.y_train.values.ravel()
 
@@ -631,7 +903,7 @@ def graph_R2(Model: Union[ISDecisionTreeRegression]):
     plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_r2.png')
     plt.close()
 
-def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], tradeoffmodel=None, save_fig=False, show_fig=False, max_depth=2):
+def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig=False, show_fig=False, max_depth=2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
@@ -643,9 +915,22 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegres
                     filled=True, 
                     rounded=True,
                     max_depth=max_depth) # Prevent too much of the tree from being generated
-        else:
+        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
             plot_tree(tradeoffmodel, 
                     feature_names=Model.X_columns,
+                    filled=True, 
+                    rounded=True,
+                    max_depth=max_depth) # Prevent too much of the tree from being generated
+        elif isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
+            plot_tree(tradeoffmodel.estimators_[0],
+                  feature_names=Model.X_columns,
+                  filled=True, 
+                  rounded=True,
+                  max_depth=max_depth) # Prevent too much of the tree from being generated
+        elif isinstance(Model, ISRandomForestClassification):
+            plot_tree(tradeoffmodel.estimators_[0],
+                    feature_names=Model.X_columns, 
+                    class_names=Model.classnames,
                     filled=True, 
                     rounded=True,
                     max_depth=max_depth) # Prevent too much of the tree from being generated
@@ -655,7 +940,7 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegres
             plt.savefig(f'{Model.output_path}/graphs/{Model.name}.png', bbox_inches="tight")
         plt.close()
 
-def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISDecisionTreeRegressification], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
+def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISRandomForestClassification, ISDecisionTreeRegressification, ISLinearRegressification, ISRandomForestRegressification], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
         if matrix is None and matrix is None:
             matrix = Model.cm
         elif matrix_path is not None:
@@ -667,7 +952,7 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
             except FileNotFoundError as e:
                 raise ValueError("Undeclared confusion matrix. Add in matrix or matrix path.")
         # Plot the tree using matplotlib
-        if isinstance(Model, ISDecisionTreeRegressification):
+        if isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
             plt.figure(figsize=(20, 15))
             sn.heatmap(matrix, annot=False, fmt='d')
         elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
@@ -725,14 +1010,14 @@ def lr_plotter_one_target(Model: Union[ISLinearRegression], column, tradeoffmode
         else:
             plt.close(fig)
 
-def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, print_results=False):
+def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, print_results=False, n_estimators=100, min_samples_split=10):
     # Split the data
     split_data(Model, full_model=True)
 
     if tradeoffmodel is not None:
         Model.tradeoffmodel = tradeoffmodel
         Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
-        if isinstance(Model, ISDecisionTreeRegressification):
+        if isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
             # Round the predictions and convert to integers
             Model.y_pred = np.round(Model.y_pred).astype(int)
     else:
@@ -748,14 +1033,19 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
                 Model.tradeoffmodel = DecisionTreeRegressor(random_state=0, ccp_alpha=ccp_alpha)
             else:
                 Model.tradeoffmodel = DecisionTreeRegressor(random_state=0)
-        elif isinstance(Model, ISLinearRegression):
+        elif isinstance(Model, ISLinearRegressification) or isinstance(Model, ISLinearRegression):
             Model.tradeoffmodel = LinearRegression(fit_intercept=True)
-
+        elif isinstance(Model, ISRandomForestRegression) or isinstance(Model, ISRandomForestRegressification):
+            Model.tradeoffmodel = RandomForestRegressor(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0)
+        elif isinstance(Model, ISRandomForestClassification):
+            Model.tradeoffmodel = RandomForestClassifier(n_estimators=n_estimators, min_samples_split=min_samples_split, random_state=0)
+        else:
+            raise ValueError("Need a proper Model object")
         # Run and time model
         start_time = time.time()
         Model.tradeoffmodel.fit(Model.X_train, Model.y_train)
         Model.y_pred = Model.tradeoffmodel.predict(Model.X_test)
-        if isinstance(Model, ISDecisionTreeRegressification):
+        if isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
             # Round the predictions and convert to integers
             Model.y_pred = np.round(Model.y_pred).astype(int)
         end_time = time.time()
@@ -767,23 +1057,23 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
         Model.b = Model.tradeoffmodel.intercept_[0]
 
     # Get Metrics
-    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeRegressification):
+    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
         Model.cm = confusion_matrix(Model.y_test, Model.y_pred)
 
         if print_report:
-            if isinstance(Model, ISDecisionTreeRegressification):
+            if isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
                 report = classification_report(Model.y_test, Model.y_pred, zero_division=0)
-            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification):
                 report = classification_report(Model.y_test, Model.y_pred, zero_division=0, labels=Model.labels, target_names=Model.classnames)
             print(report)
         else:
-            if isinstance(Model, ISDecisionTreeRegressification):
+            if isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
                 report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True)
-            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression):
+            elif isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification):
                 report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True, labels=Model.labels, target_names=Model.classnames)
             if tradeoffmodel is None:
                 report['time'] = runtime # Add time to the report dictionary
-    elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
+    elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISRandomForestRegression):
         # Get Metrics
         mse = mean_squared_error(Model.y_test, Model.y_pred, multioutput='raw_values')[0]
         rmse = np.sqrt(mse)
@@ -798,7 +1088,7 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
             results = {
                 "Slope": [Model.m], "Y-intercept": [Model.b], "MSE": [mse], "RMSE": [rmse], "MAE": [mae], "MedAE": [medae], "R2": [Model.r2], "Explained Variance": [evs], "MBD": [mbd], "Runtime": [runtime]
             }
-        elif isinstance(Model, ISDecisionTreeRegression):
+        elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestRegression):
             results = {
                 "MSE": [mse], "RMSE": [rmse], "MAE": [mae], "MedAE": [medae], "R2": [Model.r2], "Explained Variance": [evs], "MBD": [mbd], "Runtime": [runtime]
             }
@@ -807,18 +1097,24 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
 
         if print_results:
             print(results)
+    
+    else:
+        raise ValueError("Need a proper Model object")
 
     # Saving to a JSON file
     if save_files:
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeRegressification):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestRegressification):
             with open(f'{Model.output_path}/classification_report.json', 'w') as json_file:
                 json.dump(report, json_file, indent=4)
 
             # Save confusion matrix
             np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
 
-        elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
+        elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISRandomForestRegression):
             results_df.to_csv(f'{Model.output_path}/metrics.csv', index=False)
+
+        else:
+            raise ValueError("Need a proper Model object")
 
         # Convert X_test and y_test to DataFrames if they are not already
         X_test_df = pd.DataFrame(Model.X_test)
@@ -858,12 +1154,14 @@ def calculate_shap_values(Model, sample_size=1000, return_values=False):
     else:
         Model.X_sample = Model.X
     
-    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+    if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
         explainer = shap.TreeExplainer(Model.tradeoffmodel)
         Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
-    if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression):
+    elif isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression) or isinstance(Model, ISLinearRegressification):
         explainer = shap.LinearExplainer(Model.tradeoffmodel, Model.X_train)
         Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
+    else:
+        raise ValueError("Need a proper Model object")
 
     shap_values_path = f'{Model.output_path}/shap_values.npy'
     np.save(shap_values_path, Model.shap_values)
@@ -1081,6 +1379,10 @@ def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
             Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
 
 def get_single_feature_importance(Model, shap_values, return_df=False, classname=None):
+    if classname is not None:
+        # Ensure proper naming protocol was used
+        classname = classname.replace(' ', '_')
+
     # Summarize the feature importance
     feature_importance = np.abs(shap_values.values).mean(axis=0)
 
@@ -1152,10 +1454,10 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False, feature_i
         # Run the main model
         run_model(Model)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
             tree_plotter(Model, save_fig=True)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
             confusion_matrix_plotter(Model, save_fig=True)
 
         if isinstance(Model, ISLinearRegression):
@@ -1172,14 +1474,14 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False, feature_i
     # The graphing pipeline
     if plot_graphs:
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
             try:
                 load_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
             except FileNotFoundError:
                 raise FileNotFoundError("You need to run the model or adjust the given output path.")
             tree_plotter(Model, save_fig=True)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression):
+        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
             try:
                 load_prediction(Model, f'{Model.output_path}/predictions.csv')
             except FileNotFoundError:
