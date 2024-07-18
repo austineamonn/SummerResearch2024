@@ -6,12 +6,18 @@ class AltFutureTopics:
         self.privatization_type = privatization_type
         self.RNN_model = RNN_model
 
-    def get_paths(self):
-        self.preprocessed_path = 'Preprocessed_Dataset.csv'
+    def get_paths(self, preprocessed_path: str = None, combined_path: str = None, save_path: str = None):
+        if preprocessed_path is None:
+            self.preprocessed_path = preprocessed_path
+        preprocessed_path = 'Preprocessed_Dataset.csv'
 
-        self.combined_col_path = f'reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_combined.csv'
+        if combined_path is None:
+            combined_path = self.combined_col_path
+        combined_path = f'reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_combined.csv'
 
-        self.save_path = f'reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_alt_future_topics.csv'
+        if save_path is None:
+            save_path = self.save_path
+        save_path = f'reduced_dimensionality_data/{self.privatization_type}/{self.RNN_model}_alt_future_topics.csv'
 
     def int_list_to_separate_cols(self, dataset_take, dataset_add=None, target='future topics', new_name='future topic'):
         # Split the list column into separate columns

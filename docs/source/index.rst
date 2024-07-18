@@ -10,7 +10,14 @@ Welcome to IntelliShield's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   introduction
+   usage
+   data_generation
+   data_preprocessing
+   data_privatization
+   calculating_tradeoffs
+   model_comparison
+   sources_acknowledgments
 
 Indices and tables
 ==================

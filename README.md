@@ -418,6 +418,16 @@ Each model is represented as a different class. Then a variety of functions can 
     <td>ISDecisionTreeRegression</td>
   </tr>
   <tr>
+    <td>Random Forest Classifier</td>
+    <td>Classification</td>
+    <td>ISRandomForestClassification</td>
+  </tr>
+   <tr>
+    <td>Random Forest Regressifier</td>
+    <td>Regressification</td>
+    <td>ISRandomForestRegressification</td>
+  </tr>
+   <tr>
     <td>Random Forest Regressor</td>
     <td>Regression</td>
     <td>ISRandomForestRegression</td>
@@ -426,6 +436,11 @@ Each model is represented as a different class. Then a variety of functions can 
     <td>Logistic Regressor</td>
     <td>Classification</td>
     <td>ISLogisticRegression</td>
+  </tr>
+  <tr>
+    <td>Linear Regressifier</td>
+    <td>Regressification</td>
+    <td>ISLinearRegressification</td>
   </tr>
   <tr>
     <td>Linear Regressor</td>
@@ -640,22 +655,25 @@ This file compares the regression metrics of the various regression machine lear
 This file compares the alternate metrics (same as classification) of the various alternate machine learning models.
 
 ## Sources and Acknowledgments:
-https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.
 
-https://educationdata.org/college-enrollment-statistics - College Demographic Statistics
+### Data Sources:
 
-https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics
+A variety of sources were used to generate the synthetic dataset. More details can be found in the Dataset Generation - Dataset section.
 
-https://data.world/len/us-first-names-database - First and Last Names Database
+<ol>
+  <li>https://discovery.cs.illinois.edu/dataset/course-catalog/ - Course Catalog with Course Names, Course Types, and Course Subject Abbreviations.</li>
+  <li>https://educationdata.org/college-enrollment-statistics - College Demographic Statistics</li>
+  <li>https://files.eric.ed.gov/fulltext/EJ1192524.pdf - Learning Style Statistics</li>
+  <li>https://data.world/len/us-first-names-database - First and Last Names Database</li>
+  <li>https://www.pewresearch.org/social-trends/2019/05/22/a-rising-share-of-undergraduates-are-from-poor-families-especially-at-less-selective-colleges/ - College Family Income Statistics</li>
+  <li>https://williamsinstitute.law.ucla.edu/publications/nonbinary-lgbtq-adults-us/ - Nonbinary Statistics</li>
+  <li>https://nces.ed.gov - Gender College Statistics</li>
+  <li>https://courses.illinois.edu/schedule/DEFAULT/DEFAULT - Course Subject Abbreviation to Course Subject Mapping</li>
+  <li>https://bigeconomics.org/college-majors-explorer/ - List of Majors, Careers</li>
+</ol>
 
-https://www.pewresearch.org/social-trends/2019/05/22/a-rising-share-of-undergraduates-are-from-poor-families-especially-at-less-selective-colleges/ - College Family Income Statistics
+### Acknowledgements:
 
-https://williamsinstitute.law.ucla.edu/publications/nonbinary-lgbtq-adults-us/ - Nonbinary Statistics
+We thank the support of NSF REU #1852042 and #2149956, and the support from the Office of Vice Chancellor of Research at the University of Tennessee at Chattanooga.
 
-https://nces.ed.gov - Gender College Statistics
-
-https://courses.illinois.edu/schedule/DEFAULT/DEFAULT - Course Subject Abbreviation to Course Subject Mapping
-
-https://bigeconomics.org/college-majors-explorer/ - List of Majors, Careers
-
-Python GPT and Chat GPT4o assisted in the programming process
+Python GPT and Chat GPT4o assisted in the programming process.

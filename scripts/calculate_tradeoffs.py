@@ -207,7 +207,7 @@ def get_tradeoffs_ISDecisionTreeRegressification(data_folder, output_path=None):
             logging.info(f"Starting {RNN_model}")
             
             # Data Path
-            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_combined.csv'
+            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_alt_future_topics.csv'
 
             # Data
             data = pd.read_csv(data_path, converters={
@@ -263,7 +263,7 @@ def get_tradeoffs_ISLinearRegressification(data_folder, output_path=None):
             logging.info(f"Starting {RNN_model}")
             
             # Data Path
-            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_combined.csv'
+            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_alt_future_topics.csv'
 
             # Data
             data = pd.read_csv(data_path, converters={
@@ -319,7 +319,7 @@ def get_tradeoffs_ISRandomForestRegressification(data_folder, output_path=None):
             logging.info(f"Starting {RNN_model}")
             
             # Data Path
-            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_combined.csv'
+            data_path = f'{data_folder}/{privatization_type}/{RNN_model}_alt_future_topics.csv'
 
             # Data
             data = pd.read_csv(data_path, converters={
@@ -523,19 +523,19 @@ def get_tradeoffs_ISRandomForestRegression(data_folder, output_path=None):
 
 # List of Functions to run
 
-data_folder = '' # Add path to reduced dimensionality data
+data_folder = 'outputs/examples/reduced_dimensionality_data' # Add path to reduced dimensionality data
 
 # Linear Models
-get_tradeoffs_ISLinearRegression(data_folder)
-get_tradeoffs_ISLinearRegressification(data_folder)
-get_tradeoffs_ISLogisticRegression(data_folder)
+#get_tradeoffs_ISLinearRegression(data_folder, 'past_work/calculating_tradeoffs/regression/linear_regression')
+get_tradeoffs_ISLinearRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/linear_alternate')
+#get_tradeoffs_ISLogisticRegression(data_folder, 'past_work/calculating_tradeoffs/classification/logistic_regression')
 
 # Decision Trees
-get_tradeoffs_ISDecisionTreeRegression(data_folder)
-get_tradeoffs_ISDecisionTreeRegressification(data_folder)
-get_tradeoffs_ISDecisionTreeClassification(data_folder)
+#get_tradeoffs_ISDecisionTreeRegression(data_folder, 'past_work/calculating_tradeoffs/regression/decision_tree_regression')
+#get_tradeoffs_ISDecisionTreeRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/decision_tree_alternate')
+#get_tradeoffs_ISDecisionTreeClassification(data_folder, 'past_work/calculating_tradeoffs/classification/decision_tree_classifier')
 
 # Random Forest
-get_tradeoffs_ISRandomForestRegression(data_folder)
-get_tradeoffs_ISRandomForestRegressification(data_folder)
-get_tradeoffs_ISRandomForestClassification(data_folder)
+#get_tradeoffs_ISRandomForestRegression(data_folder, 'past_work/calculating_tradeoffs/regression/random_forest_regression')
+get_tradeoffs_ISRandomForestRegressification(data_folder, 'past_work/calculating_tradeoffs/alternate/random_forest_alternate')
+get_tradeoffs_ISRandomForestClassification(data_folder, 'past_work/calculating_tradeoffs/classification/random_forest_classifier')

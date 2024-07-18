@@ -4,14 +4,18 @@ import matplotlib.pyplot as plt
 
 from IntelliShield.tradeoffs import ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISLogisticRegression, load_feature_importance
 
+# TODO: Combine comparisons and just switch the list order
+# TODO: Make a list of functions that can be called. Use model_path_dict to get the model path for example the key-value pair ISDecisionTreeRegression: 'decision_tree_regression'
+
 class Comparison:
-    def __init__(self, privatization_list: list, reduction_list: list, target_list: list, input_path, output_path):
+    def __init__(self, privatization_list: list, reduction_list: list, target_list: list, input_path: str, output_path: str, model_path_dict: dict):
         # Initalize inputs
         self.privatization_list = privatization_list
         self.reduction_list = reduction_list
         self.target_list = target_list
         self.input_path = input_path
         self.output_path = output_path
+        self.model_path_dict = model_path_dict
 
 def compare_dimensionality_reduction(Comparison: Comparison):
     # Classification Models

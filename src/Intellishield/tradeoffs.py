@@ -19,6 +19,12 @@ import pickle
 
 # TODO: Add the other tradeoff classes
 # TODO: Fix error where SHAP values must be saved and reloaded for the graphing to work
+# TODO: Fix feature importance error: 
+
+"""File "/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/src/IntelliShield/tradeoffs.py", line 1379, in get_feature_importance
+    Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'append'"""
 
 # Set the pandas option to avoid silent downcasting
 pd.set_option('future.no_silent_downcasting', True)
@@ -26,7 +32,7 @@ pd.set_option('future.no_silent_downcasting', True)
 # Classification Models
 
 class ISDecisionTreeClassification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -119,7 +125,7 @@ class ISDecisionTreeClassification:
         self.depth = None
 
 class ISLogisticRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -211,7 +217,7 @@ class ISLogisticRegression:
         self.labels = list(range(len(self.classnames)))
 
 class ISRandomForestClassification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -296,7 +302,7 @@ class ISRandomForestClassification:
 # Regressification Models
 
 class ISDecisionTreeRegressification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -365,7 +371,7 @@ class ISDecisionTreeRegressification:
         self.depth = None
 
 class ISLinearRegressification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -424,7 +430,7 @@ class ISLinearRegressification:
         self.feature_importance = None
 
 class ISRandomForestRegressification:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -485,7 +491,7 @@ class ISRandomForestRegressification:
 # Regression Models
 
 class ISDecisionTreeRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -555,7 +561,7 @@ class ISDecisionTreeRegression:
         self.depth = None
 
 class ISLinearRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -617,7 +623,7 @@ class ISLinearRegression:
         self.r2 = None
 
 class ISRandomForestRegression:
-    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
         if model_ran:
             self.data = None
         else:
@@ -678,7 +684,7 @@ class ISRandomForestRegression:
 
 # General Functions
 
-def make_folders(Model, output_path=None):
+def make_folders(Model, output_path: str = None):
     if output_path is None:
         output_path = Model.output_path
     if Model.shap_is_list == False:
@@ -694,16 +700,13 @@ def make_folders(Model, output_path=None):
     else:
         for name in Model.classnames:
             name = name.replace(' ', '_')
-            main_directory = os.path.dirname(f'{output_path}/{name}/example.py')
-            graph_directory = os.path.dirname(f'{output_path}/graphs/{name}/feature_scatter_plots/example.py')
+            directory = os.path.dirname(f'{output_path}/graphs/{name}/feature_scatter_plots/example.py')
 
             # Create the directories if they doesn't exist
-            if not os.path.exists(graph_directory):
-                os.makedirs(graph_directory, exist_ok=True)
-            if not os.path.exists(main_directory):
-                os.makedirs(main_directory, exist_ok=True)
+            if not os.path.exists(directory):
+                os.makedirs(directory, exist_ok=True)
 
-def split_data(Model, full_model=False):
+def split_data(Model, full_model: bool = False):
         if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification):
             # Define y
             Model.y = Model.data[[Model.target]]
@@ -776,7 +779,7 @@ def score(tradeoffsmodel, X, y, sample_weight=None):
 
     return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
 
-def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model=True):
+def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs: bool = True, return_model: bool = True, return_ccp_alpha: bool = True, save_model:bool = True):
     # Split the data
     split_data(Model)
 
@@ -903,7 +906,7 @@ def graph_R2(Model: Union[ISDecisionTreeRegression]):
     plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_r2.png')
     plt.close()
 
-def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig=False, show_fig=False, max_depth=2):
+def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig: bool = False, show_fig: bool = False, max_depth: int = 2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
@@ -940,7 +943,7 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegres
             plt.savefig(f'{Model.output_path}/graphs/{Model.name}.png', bbox_inches="tight")
         plt.close()
 
-def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISRandomForestClassification, ISDecisionTreeRegressification, ISLinearRegressification, ISRandomForestRegressification], matrix=None, matrix_path=None, save_fig=False, show_fig=False):
+def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISRandomForestClassification, ISDecisionTreeRegressification, ISLinearRegressification, ISRandomForestRegressification], matrix: np.array = None, matrix_path: str = None, save_fig: bool = False, show_fig: bool = False):
         if matrix is None and matrix is None:
             matrix = Model.cm
         elif matrix_path is not None:
@@ -973,7 +976,7 @@ def linear_regression_plotter(Model: Union[ISLinearRegression]):
     for name in Model.X_columns:
         lr_plotter_one_target(Model, name, save_fig=True)
 
-def lr_plotter_one_target(Model: Union[ISLinearRegression], column, tradeoffmodel=None, save_fig=False, show_fig=False):
+def lr_plotter_one_target(Model: Union[ISLinearRegression], column: str, tradeoffmodel=None, save_fig: bool = False, show_fig: bool = False):
         # Plot the regression using matplotlib
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
@@ -1010,7 +1013,7 @@ def lr_plotter_one_target(Model: Union[ISLinearRegression], column, tradeoffmode
         else:
             plt.close(fig)
 
-def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, print_results=False, n_estimators=100, min_samples_split=10):
+def run_model(Model, tradeoffmodel=None, ccp_alpha: float = None, print_report: bool = False, save_files: bool = True, print_results: bool = False, n_estimators: int = 100, min_samples_split: int = 10):
     # Split the data
     split_data(Model, full_model=True)
 
@@ -1128,7 +1131,7 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
         # Save the model
         save_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
 
-def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix=False):
+def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix: bool = False):
     if y_pred is None or y_test is None:
         y_pred = Model.y_pred
         y_test = Model.y_test
@@ -1144,7 +1147,7 @@ def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix=Fa
     if return_matrix:
         return Model.cm
     
-def calculate_shap_values(Model, sample_size=1000, return_values=False):
+def calculate_shap_values(Model, sample_size: int = 1000, return_values: bool = False):
     # Ensure the model has been run
     if Model.tradeoffmodel is None:
         raise ValueError("You need to run the model or load the model.")
@@ -1180,7 +1183,7 @@ def plot_shap_values(Model, shap_values=None, shap_explainer_list=None):
         for i, name in enumerate(Model.classnames):
             plot_shap_values_one_target(Model, Model.shap_explainer_list[i], name)
 
-def plot_shap_values_one_target(Model, shap_values, classname=None):
+def plot_shap_values_one_target(Model, shap_values, classname: str = None):
 
     if classname is not None:
         # Ensure proper naming protocol was used
@@ -1281,7 +1284,7 @@ def plot_shap_values_one_target(Model, shap_values, classname=None):
     # Ensure all figures were closed
     plt.close('all')
 
-def load_shap_values(Model, file_path, return_values=False):
+def load_shap_values(Model, file_path: str, return_values: bool = False):
     if Model.shap_is_list == False:
         # Load the .npy file
         Model.shap_values = np.load(file_path, allow_pickle=True)
@@ -1346,7 +1349,7 @@ def load_shap_values(Model, file_path, return_values=False):
         if return_values:
             return Model.shap_explainer_list
 
-def load_prediction(Model, file_path, return_predictions=False):
+def load_prediction(Model, file_path: str, return_predictions: bool = False):
     """
     Loads in the y prediction and y test values as two dataframes
     """
@@ -1378,7 +1381,7 @@ def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
         for i, name in enumerate(Model.classnames):
             Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
 
-def get_single_feature_importance(Model, shap_values, return_df=False, classname=None):
+def get_single_feature_importance(Model, shap_values, return_df: bool = False, classname: str = None):
     if classname is not None:
         # Ensure proper naming protocol was used
         classname = classname.replace(' ', '_')
@@ -1406,16 +1409,16 @@ def get_single_feature_importance(Model, shap_values, return_df=False, classname
     if return_df:
         return feature_importance_df
     
-def load_feature_importance(Model, file_path, return_df=False):
+def load_feature_importance(Model, file_path: str, return_df: bool = False):
     Model.feature_importance = pd.read_csv(file_path)
     
     if return_df:
         return Model.feature_importance
 
-def save_model(Model, file_path):
+def save_model(Model, file_path: str):
     joblib.dump(Model.tradeoffmodel, file_path)
 
-def load_model(Model, file_path, return_file=False):
+def load_model(Model, file_path: str, return_file: bool = False):
     try:
         Model.tradeoffmodel = joblib.load(file_path)
     except Exception as e:
@@ -1431,79 +1434,86 @@ def load_model(Model, file_path, return_file=False):
     if return_file:
         return Model.tradeoffmodel
     
-def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False, feature_importance=False):
+def pipeline(Model, full_run: bool = False, run_shap: bool = False, plot_graphs: bool = False, feature_importance: bool = False, pipeline_list: list = None):
     """
     Pipeline function that runs the basic variations. Always saves all the files.
     """
-    # Ensure at least one pipeline was chosen
-    if not (full_run or run_shap or plot_graphs):
-        raise ValueError("At least one of 'full_run', 'run_shap', or 'plot_graphs' must be set to True or the pipeline will do nothing.")
-    
-    # Ensure the output path was declared
-    if Model.output_path is None:
-        raise ValueError("Pipeline function requires output path as all files are saved.")
-    
-    # Make the folders
-    make_folders(Model)
-
-    # The full pipeline
-    if full_run:
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
-            get_best_model(Model)
+    if pipeline_list is not None:
+        for function in pipeline_list:
+            try:
+                function(Model)
+            except TypeError:
+                raise TypeError(f"{function} needs more than just the model as an input. This function cannot be used in a user generated pipeline.")
+    else:
+        # Ensure at least one pipeline was chosen
+        if not (full_run or run_shap or plot_graphs or feature_importance):
+            raise ValueError("At least one of 'full_run', 'run_shap', 'plot_graphs', or 'feature_importance' must be set to True or the pipeline will do nothing.")
         
-        # Run the main model
-        run_model(Model)
+        # Ensure the output path was declared
+        if Model.output_path is None:
+            raise ValueError("Pipeline function requires output path as all files are saved.")
+        
+        # Make the folders
+        make_folders(Model)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
-            tree_plotter(Model, save_fig=True)
+        # The full pipeline
+        if full_run:
+            if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+                get_best_model(Model)
+            
+            # Run the main model
+            run_model(Model)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
-            confusion_matrix_plotter(Model, save_fig=True)
+            if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
+                tree_plotter(Model, save_fig=True)
 
-        if isinstance(Model, ISLinearRegression):
-            linear_regression_plotter(Model)
+            if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
+                confusion_matrix_plotter(Model, save_fig=True)
 
-        # Get the SHAP values
-        calculate_shap_values(Model)
-        load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
-        plot_shap_values(Model)
+            if isinstance(Model, ISLinearRegression):
+                linear_regression_plotter(Model)
 
-        # Get feature importance
-        get_feature_importance(Model)
-    
-    # The graphing pipeline
-    if plot_graphs:
+            # Get the SHAP values
+            calculate_shap_values(Model)
+            load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
+            plot_shap_values(Model)
 
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
+            # Get feature importance
+            get_feature_importance(Model)
+        
+        # The graphing pipeline
+        if plot_graphs:
+
+            if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification) or isinstance(Model, ISRandomForestRegression):
+                try:
+                    load_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
+                except FileNotFoundError:
+                    raise FileNotFoundError("You need to run the model or adjust the given output path.")
+                tree_plotter(Model, save_fig=True)
+
+            if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
+                try:
+                    load_prediction(Model, f'{Model.output_path}/predictions.csv')
+                except FileNotFoundError:
+                    raise FileNotFoundError("You need to run the model or adjust the given output path.")
+                calculate_confusion_matrix(Model)
+                confusion_matrix_plotter(Model, save_fig=True)
+
+        # The SHAP values pipeline
+        if run_shap:
             try:
                 load_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
             except FileNotFoundError:
                 raise FileNotFoundError("You need to run the model or adjust the given output path.")
-            tree_plotter(Model, save_fig=True)
-
-        if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegressification) or isinstance(Model, ISRandomForestClassification) or isinstance(Model, ISRandomForestRegressification):
-            try:
-                load_prediction(Model, f'{Model.output_path}/predictions.csv')
-            except FileNotFoundError:
-                raise FileNotFoundError("You need to run the model or adjust the given output path.")
-            calculate_confusion_matrix(Model)
-            confusion_matrix_plotter(Model, save_fig=True)
-
-    # The SHAP values pipeline
-    if run_shap:
-        try:
-            load_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
-        except FileNotFoundError:
-            raise FileNotFoundError("You need to run the model or adjust the given output path.")
-        calculate_shap_values(Model)
-        load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
-        plot_shap_values(Model)
-        get_feature_importance(Model)
-
-    # The feature importance pipeline
-    if feature_importance:
-        try:
+            calculate_shap_values(Model)
             load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
-        except FileNotFoundError:
-            raise FileNotFoundError("You need to calculate the SHAP values or adjust the given output path.")
-        get_feature_importance(Model)
+            plot_shap_values(Model)
+            get_feature_importance(Model)
+
+        # The feature importance pipeline
+        if feature_importance:
+            try:
+                load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
+            except FileNotFoundError:
+                raise FileNotFoundError("You need to calculate the SHAP values or adjust the given output path.")
+            get_feature_importance(Model)

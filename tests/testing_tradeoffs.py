@@ -364,6 +364,6 @@ def testingtradeoffs_ISRandomForestRegression(output_path=None):
 #testingtradeoffs_ISDecisionTreeRegression()
 #testingtradeoffs_ISLinearRegression()
 #testingtradeoffs_ISRandomForestRegression()
-#testingtradeoffs_ISRandomForestClassification()
+testingtradeoffs_ISRandomForestClassification()
 #testingtradeoffs_ISLinearRegressification()
-testingtradeoffs_ISRandomForestRegressification()
+#testingtradeoffs_ISRandomForestRegressification()
