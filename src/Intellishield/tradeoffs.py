@@ -2,7 +2,7 @@ import logging
 from ast import literal_eval
 import pandas as pd
 from typing import Union
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, mean_squared_error, mean_absolute_error, r2_score, explained_variance_score, median_absolute_error
@@ -250,7 +250,6 @@ class ISDecisionTreeRegressification:
         # Additional Attributes
         self.name = 'decision_tree_regressifier'
         self.shap_is_list = False
-        self.feature_importance = None
         if X_columns is None:
             self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
         else:
@@ -267,6 +266,7 @@ class ISDecisionTreeRegressification:
         self.X_sample = None
         self.cm = None
         self.shap_values = None
+        self.feature_importance = None
 
         # Attributes for getting the best model
         self.models_data = None
@@ -333,12 +333,11 @@ class ISDecisionTreeRegression:
         self.y = None
         self.y_train = None
         self.y_test = None
-        self.stratified_data = None
+        self.final_data = None
         self.tradeoffmodel = None
         self.X_sample = None
-        self.cm = None
         self.shap_values = None
-        self.shap_explainer_list = None
+        self.r2 = None
 
         # Attributes for getting the best model
         self.models_data = None
@@ -350,17 +349,82 @@ class ISDecisionTreeRegression:
         self.node_counts = None
         self.depth = None
 
+class ISLinearRegression:
+    def __init__(self, privatization_type, RNN_model, target, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
+        if model_ran:
+            self.data = None
+        else:
+            # Either data or data path must be declared is the model has not already been run
+            if data is None and data_path is None:
+                raise ValueError("At least one of 'data' or 'data_path' must be provided.")
+            
+            # Get the Data
+            if data is None:
+                self.data = pd.read_csv(data_path, converters={
+                    'learning style': literal_eval,
+                    'major': literal_eval,
+                    'previous courses': literal_eval,
+                    'course types': literal_eval,
+                    'course subjects': literal_eval,
+                    'subjects of interest': literal_eval,
+                    'extracurricular activities': literal_eval,
+                    'career aspirations': literal_eval,
+                    'future topics': literal_eval
+                })
+            else:
+                self.data = data
+        
+        # Initialize inputs
+        self.privatization_type = privatization_type
+        self.RNN_model = RNN_model
+        self.target = target
+        self.target_name = target.replace(' ', '_')
+
+        # Output paths
+        if output_path is not None:
+            self.output_path = output_path
+        else:
+            logging.info("no output path given, so no data will be saved!")
+
+        # Additional Attributes
+        self.name = 'linear_regressor'
+        self.shap_is_list = False
+        self.feature_importance = None
+        if X_columns is None:
+            self.X_columns = ['gpa', 'student semester', 'learning style', 'major', 'previous courses', 'course types', 'course subjects', 'subjects of interest', 'extracurricular activities']
+        else:
+            self.X_columns = X_columns
+
+        # Initialize empty attributes to be filled.
+        self.X = None
+        self.X_train = None
+        self.X_test = None
+        self.y = None
+        self.y_train = None
+        self.y_test = None
+        self.final_data = None
+        self.tradeoffmodel = None
+        self.X_sample = None
+        self.shap_values = None
+        self.m = None
+        self.b = None
+        self.r2 = None
+
 # General Functions
 
 def make_folders(Model, output_path=None):
     if output_path is None:
         output_path = Model.output_path
     if Model.shap_is_list == False:
-        directory = os.path.dirname(f'{output_path}/graphs/feature_scatter_plots/example.py')
+        directories = []
+        directories.append(os.path.dirname(f'{output_path}/graphs/feature_scatter_plots/example.py'))
+        if isinstance(Model, ISLinearRegression):
+            directories.append(os.path.dirname(f'{output_path}/graphs/feature_linear_plots/example.py'))
 
-        # Create the directory if it doesn't exist
-        if not os.path.exists(directory):
-            os.makedirs(directory, exist_ok=True)
+        for directory in directories:
+            # Create the directory if it doesn't exist
+            if not os.path.exists(directory):
+                os.makedirs(directory, exist_ok=True)
     else:
         for name in Model.classnames:
             name = name.replace(' ', '_')
@@ -389,7 +453,7 @@ def split_data(Model, full_model=False):
             # Set up X
             Model.X = Model.stratified_data[Model.X_columns]
 
-        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
             if full_model:
                 Model.final_data = Model.data
             else:
@@ -401,7 +465,7 @@ def split_data(Model, full_model=False):
         for column in Model.X_columns:
             Model.X.loc[:, column] = Model.X[column].apply(lambda x: x[0] if isinstance(x, list) else x)
 
-        if isinstance(Model, ISLogisticRegression):
+        if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression):
             # Fill NaN values with the mean of each column
             Model.X = Model.X.fillna(Model.X.mean())
 
@@ -415,7 +479,7 @@ def split_data(Model, full_model=False):
             # Change the doubles into integers (1.0 -> 1)
             Model.y = Model.y.astype(int)
 
-        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
+        elif isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
             # Set up y post stratification
             Model.y = Model.final_data[[Model.target]]
 
@@ -619,6 +683,48 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
         else:
             plt.close()
 
+def linear_regression_plotter(Model: Union[ISLinearRegression]):
+    # Plot the model
+    for name in Model.X_columns:
+        lr_plotter_one_target(Model, name, save_fig=True)
+
+def lr_plotter_one_target(Model: Union[ISLinearRegression], column, tradeoffmodel=None, save_fig=False, show_fig=False):
+        # Plot the regression using matplotlib
+        plt.figure(figsize=(20,10))
+        if tradeoffmodel is None:
+            tradeoffmodel = Model.tradeoffmodel
+        fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize = (10,7))
+
+        X_col = Model.X[[column]]
+
+        ax.scatter(X_col, Model.y, color='black')
+
+        ax.plot(X_col, tradeoffmodel.predict(Model.X), color='red',linewidth=3)
+        ax.grid(True,
+                axis = 'both',
+                zorder = 0,
+                linestyle = ':',
+                color = 'k')
+        ax.tick_params(labelsize = 18)
+        ax.set_xlabel('x', fontsize = 24)
+        ax.set_ylabel('y', fontsize = 24)
+
+        # Extract single values for formatting
+        m_value = Model.m[0][0] if isinstance(Model.m, np.ndarray) else Model.m
+        b_value = Model.b[0] if isinstance(Model.b, np.ndarray) else Model.b
+        r2_value = Model.r2[0] if isinstance(Model.r2, np.ndarray) else Model.r2
+
+
+        ax.set_title("Linear Regression Line with Intercept y = {:.2f}x + {:.2f} (R2 = {:.2f})".format(m_value, b_value, r2_value), fontsize = 16 )
+        fig.tight_layout()
+        if show_fig:
+            plt.show()
+        if save_fig:
+            plt.savefig(f'{Model.output_path}/graphs/feature_linear_plots/{column}.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            plt.close(fig)
+
 def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, print_results=False):
     # Split the data
     split_data(Model, full_model=True)
@@ -642,6 +748,8 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
                 Model.tradeoffmodel = DecisionTreeRegressor(random_state=0, ccp_alpha=ccp_alpha)
             else:
                 Model.tradeoffmodel = DecisionTreeRegressor(random_state=0)
+        elif isinstance(Model, ISLinearRegression):
+            Model.tradeoffmodel = LinearRegression(fit_intercept=True)
 
         # Run and time model
         start_time = time.time()
@@ -652,6 +760,11 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
             Model.y_pred = np.round(Model.y_pred).astype(int)
         end_time = time.time()
         runtime = end_time - start_time
+
+     # Get Equation of the line
+    if isinstance(Model, ISLinearRegression):
+        Model.m = Model.tradeoffmodel.coef_[0][0]
+        Model.b = Model.tradeoffmodel.intercept_[0]
 
     # Get Metrics
     if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISDecisionTreeRegressification):
@@ -670,21 +783,27 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
                 report = classification_report(Model.y_test, Model.y_pred, zero_division=0, output_dict=True, labels=Model.labels, target_names=Model.classnames)
             if tradeoffmodel is None:
                 report['time'] = runtime # Add time to the report dictionary
-    elif isinstance(Model, ISDecisionTreeRegression):
+    elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
         # Get Metrics
-        mse = mean_squared_error(Model.y_test, Model.y_pred, multioutput='raw_values')
+        mse = mean_squared_error(Model.y_test, Model.y_pred, multioutput='raw_values')[0]
         rmse = np.sqrt(mse)
-        mae = mean_absolute_error(Model.y_test, Model.y_pred, multioutput='raw_values')
+        mae = mean_absolute_error(Model.y_test, Model.y_pred, multioutput='raw_values')[0]
         medae = median_absolute_error(Model.y_test, Model.y_pred)
-        r2 = r2_score(Model.y_test, Model.y_pred, multioutput='raw_values')
-        evs = explained_variance_score(Model.y_test, Model.y_pred, multioutput='raw_values')
+        Model.r2 = r2_score(Model.y_test, Model.y_pred, multioutput='raw_values')[0]
+        evs = explained_variance_score(Model.y_test, Model.y_pred, multioutput='raw_values')[0]
         mbd = np.mean(np.array(Model.y_pred) - np.array(Model.y_test)) # Mean Bias Deviation
 
         # Put the resutls into a dataframe
-        results = {
-            "MSE": mse.tolist(), "RMSE": rmse.tolist(), "MAE": mae.tolist(), "MedAE": medae.tolist(), 
-            "R2": r2.tolist(), "Explained Variance": evs.tolist(), "MBD": mbd.tolist(), "Runtime": runtime
-        }
+        if isinstance(Model, ISLinearRegression):
+            results = {
+                "Slope": [Model.m], "Y-intercept": [Model.b], "MSE": [mse], "RMSE": [rmse], "MAE": [mae], "MedAE": [medae], "R2": [Model.r2], "Explained Variance": [evs], "MBD": [mbd], "Runtime": [runtime]
+            }
+        elif isinstance(Model, ISDecisionTreeRegression):
+            results = {
+                "MSE": [mse], "RMSE": [rmse], "MAE": [mae], "MedAE": [medae], "R2": [Model.r2], "Explained Variance": [evs], "MBD": [mbd], "Runtime": [runtime]
+            }
+        
+        results_df = pd.DataFrame(results)
 
         if print_results:
             print(results)
@@ -698,8 +817,7 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, sav
             # Save confusion matrix
             np.save(f'{Model.output_path}/confusion_matrix.npy', Model.cm)
 
-        elif isinstance(Model, ISDecisionTreeRegression):
-            results_df = pd.DataFrame(results)
+        elif isinstance(Model, ISDecisionTreeRegression) or isinstance(Model, ISLinearRegression):
             results_df.to_csv(f'{Model.output_path}/metrics.csv', index=False)
 
         # Convert X_test and y_test to DataFrames if they are not already
@@ -743,7 +861,7 @@ def calculate_shap_values(Model, sample_size=1000, return_values=False):
     if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISDecisionTreeRegression):
         explainer = shap.TreeExplainer(Model.tradeoffmodel)
         Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
-    if isinstance(Model, ISLogisticRegression):
+    if isinstance(Model, ISLogisticRegression) or isinstance(Model, ISLinearRegression):
         explainer = shap.LinearExplainer(Model.tradeoffmodel, Model.X_train)
         Model.shap_values = explainer(Model.X_sample)  # Obtain SHAP values as an Explanation object
 
@@ -1011,7 +1129,7 @@ def load_model(Model, file_path, return_file=False):
     if return_file:
         return Model.tradeoffmodel
     
-def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False):
+def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False, feature_importance=False):
     """
     Pipeline function that runs the basic variations. Always saves all the files.
     """
@@ -1039,6 +1157,9 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False):
 
         if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISDecisionTreeRegressification) or isinstance(Model, ISLogisticRegression):
             confusion_matrix_plotter(Model, save_fig=True)
+
+        if isinstance(Model, ISLinearRegression):
+            linear_regression_plotter(Model)
 
         # Get the SHAP values
         calculate_shap_values(Model)
@@ -1075,4 +1196,12 @@ def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False):
         calculate_shap_values(Model)
         load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
         plot_shap_values(Model)
+        get_feature_importance(Model)
+
+    # The feature importance pipeline
+    if feature_importance:
+        try:
+            load_shap_values(Model, f'{Model.output_path}/shap_values.npy')
+        except FileNotFoundError:
+            raise FileNotFoundError("You need to calculate the SHAP values or adjust the given output path.")
         get_feature_importance(Model)
