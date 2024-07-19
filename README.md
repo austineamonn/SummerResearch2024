@@ -44,7 +44,7 @@ The file structures are currently going under a major overhaul to match python p
 
 ## Main Functions:
 
-All three of these files were lost in the restructuring but they will be revived soon.
+All main and config were lost in the restructuring but they will be revived soon. Main interactive notebook was also lost but has been revived.
 
 ### [Main - Under Construction](main.py):
 The main file of the framework. What can this file do?
@@ -60,7 +60,7 @@ The main file of the framework. What can this file do?
 </ul>
 Use the config file to change which of the above parts of the file are run during main. You don't need to run all of them but they will run in this order.
 
-### [Interactive Main - Under Construction](main.ipynb):
+### [Interactive Main - Under Construction](notebooks/main.ipynb):
 An interactive Jupyter Notebook that walks through the full data pipeline process from data generation to privacy - utility tradeoffs. Essentially, this notebook follows what 'main.py' does but on a smaller, more informative, and more interactive scale. This file is just to explain how the code works. <em>None of the files produced are saved</em>. There are two ways to run this code:
 
 <table>
