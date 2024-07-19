@@ -10,17 +10,26 @@ import seaborn as sns
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class DataAnalysis:
-    def __init__(self, config, data):
+    def __init__(self, data, output_dir: str, string_cols: list = None, list_cols: list = None, numerical_cols: str = None):
         # Output Directory
-        self.output_dir = config["data_analysis"]["output_dir"]
+        self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
         # Dataset
         self.data = data
-        self.string_cols = config["data_analysis"]["string_cols"]
-        self.list_cols = config["data_analysis"]["list_cols"]
+        if string_cols is None:
+            self.string_cols = ['first name','last name','ethnoracial group','gender','international status','socioeconomic status']
+        else:
+            self.string_cols = string_cols
+        if list_cols is None:
+            self.list_cols = ['learning style','major','previous courses','course types','course subjects','subjects of interest','extracurricular activities','career aspirations','future topics']
+        else:
+            self.list_cols = list_cols
         self.total_cols = self.string_cols + self.list_cols
-        self.numerical_columns = self.data.select_dtypes(include=['float64', 'int64'])
+        if numerical_cols is None:
+            self.numerical_cols = ['gpa', 'student semester']
+        else:
+            self.numerical_cols = numerical_cols
     
     def wrap_labels(self, labels, width):
         return ['\n'.join(textwrap.wrap(label, width)) for label in labels]
@@ -28,15 +37,15 @@ class DataAnalysis:
     def clean_label(self, label):
         return label.strip("[]").replace("'", "")
     
-    def analyze_numerical_columns(self):
-        summary_stats_numerical = self.numerical_columns.describe()
+    def analyze_numerical_cols(self):
+        summary_stats_numerical = self.numerical_cols.describe()
         
         summary_stats_numerical.to_csv(os.path.join(self.output_dir, 'numerical_summary_statistics.csv'))
         
-        for column in self.numerical_columns.columns:
+        for column in self.numerical_cols.columns:
             plt.figure(figsize=(10, 6))
-            if self.numerical_columns[column].dtype == 'int64':
-                value_counts = self.numerical_columns[column].dropna().value_counts().sort_index()
+            if self.numerical_cols[column].dtype == 'int64':
+                value_counts = self.numerical_cols[column].dropna().value_counts().sort_index()
                 value_counts.plot(kind='bar')
                 plt.title(f'Distribution of {column}')
                 plt.xlabel(column)
@@ -44,7 +53,7 @@ class DataAnalysis:
                 for idx, count in enumerate(value_counts):
                     plt.text(idx, count, str(count), ha='center', va='bottom', fontsize=8)
             else:
-                plt.hist(self.numerical_columns[column].dropna(), bins=30, edgecolor='k')
+                plt.hist(self.numerical_cols[column].dropna(), bins=30, edgecolor='k')
                 plt.title(f'Distribution of {column}')
                 plt.xlabel(column)
                 plt.ylabel('Frequency')
@@ -150,9 +159,9 @@ class DataAnalysis:
         plt.close()
 
     def outlier_detection(self):
-        for column in self.numerical_columns.columns:
+        for column in self.numerical_cols.columns:
             plt.figure(figsize=(10, 6))
-            sns.boxplot(x=self.numerical_columns[column])
+            sns.boxplot(x=self.numerical_cols[column])
             plt.title(f'Boxplot of {column}')
             plt.xlabel(column)
             plt.tight_layout()
@@ -160,7 +169,7 @@ class DataAnalysis:
             plt.close()
 
     def analyze_data(self):
-        self.analyze_numerical_columns()
+        self.analyze_numerical_cols()
         self.analyze_columns()
         self.analyze_special_columns()
         self.calculate_missing_percentage()
@@ -168,13 +177,9 @@ class DataAnalysis:
         self.outlier_detection()
 
 if __name__ == "__main__":
-    # Import necessary dependencies
-    from SummerResearch2024.src.Intellishield.config import load_config
-
     # Load configuration and data
-    config = load_config()
-    data_path = config["running_model"]["data path"]
+    data_path = 'Dataset.csv'
     data = pd.read_csv(data_path)
 
-    analyzer = DataAnalysis(config, data)
+    analyzer = DataAnalysis(data)
     analyzer.analyze_data()

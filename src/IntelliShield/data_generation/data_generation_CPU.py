@@ -2,22 +2,15 @@ import pandas as pd
 import numpy as np
 import random
 import logging
-import sys
 import ast
-import os
 from collections import Counter
 import json
-
-# Add the SummerResearch2024 directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from IntelliShield.data_generation.data import Data
 
 class DataGenerator:
-    def __init__(self, data, config=None):
+    def __init__(self, data: Data, logger = None, dist_dict: dict = None):
         # Set up logging
-        if config is not None:
-            logging.basicConfig(level=config["logging"]["level"], format=config["logging"]["format"])
-        else:
-            logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.logger = logger
 
         # First Names
         first_names_data = data.first_name()
@@ -31,8 +24,8 @@ class DataGenerator:
         ethnoracial_data = data.ethnoracial_group()
         self.ethnoracial_stats = ethnoracial_data['ethnoracial_stats']
         self.ethnoracial_to_activities = ethnoracial_data['ethnoracial_to_activities']
-        if config is not None:
-            self.ethnoracial_dist = config["synthetic_data"]["ethnoracial_group"]
+        if dist_dict is not None:
+            self.ethnoracial_dist = dist_dict["ethnoracial_group"]
         else:
             self.ethnoracial_dist = "real"
 
@@ -40,8 +33,8 @@ class DataGenerator:
         gender_data = data.gender()
         self.gender_stats = gender_data['gender']
         self.gender_to_activities = gender_data['gender_to_activities']
-        if config is not None:
-            self.gender_dist = config["synthetic_data"]["gender"]
+        if dist_dict is not None:
+            self.gender_dist = dist_dict["gender"]
         else:
             self.gender_dist = "real"
 
@@ -49,8 +42,8 @@ class DataGenerator:
         international_data = data.international_status()
         self.international_stats = international_data['international']
         self.international_to_activities = international_data['student_status_to_activities']
-        if config is not None:
-            self.international_dist = config["synthetic_data"]["international_status"]
+        if dist_dict is not None:
+            self.international_dist = dist_dict["international_status"]
         else:
             self.international_dist = "real"
 
@@ -60,16 +53,16 @@ class DataGenerator:
         # Socioeconomic Status
         SES_data = data.socioeconomics_status()
         self.socioeconomic_stats = SES_data['socioeconomic']
-        if config is not None:
-            self.socioeconomic_dist = config["synthetic_data"]["socioeconomic_status"]
+        if dist_dict is not None:
+            self.socioeconomic_dist = dist_dict["socioeconomic_status"]
         else:
             self.socioeconomic_dist = "real"
 
         # Learning Styles
         LS_data = data.learning_style()
         self.learning_style_stats = LS_data['learning_style']
-        if config is not None:
-            self.learning_style_dist = config["synthetic_data"]["learning_style"]
+        if dist_dict is not None:
+            self.learning_style_dist = dist_dict["learning_style"]
         else:
             self.learning_style_dist = "real"
 
@@ -786,24 +779,23 @@ if __name__ == "__main__":
     import cProfile
     import pstats
     # Import necessary dependencies
-    from datafiles_for_data_construction.data import Data
-    from SummerResearch2024.src.Intellishield.config import load_config
+    from IntelliShield.logger import setup_logger
 
-    # Load configuration and data
-    config = load_config()
+    # Load logger and data
+    logger = setup_logger('data_generation_CPU_logger', 'data_generation_CPU.log')
     data = Data()
 
-    if logging.getLogger().isEnabledFor(logging.DEBUG):
-        logging.debug("Script started")
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug("Script started")
     
     # Initialize data generator class
-    data_generator = DataGenerator(data, config)
+    data_generator = DataGenerator(data, logger)
 
     # Get config values
-    num_samples = config["synthetic_data"]["num_samples"]
-    batch_size = config["synthetic_data"]["batch_size"]
-    rewrite = config["synthetic_data"]["rewrite"]
-    data_path = config["running_model"]["data path"]
+    num_samples = 1000
+    batch_size = 100
+    rewrite = False
+    data_path = 'Dataset.csv'
 
     profiler = cProfile.Profile()
     profiler.enable()
@@ -818,16 +810,16 @@ if __name__ == "__main__":
         stats = pstats.Stats(profiler, stream=f).sort_stats('cumtime')
         stats.print_stats()
 
-    logging.info("Profiling stats saved to %s", profile_stats_file)
+    logger.info("Profiling stats saved to %s", profile_stats_file)
 
-    if logging.getLogger().isEnabledFor(logging.DEBUG):
+    if logger.isEnabledFor(logging.DEBUG):
         logging.debug("Dataset generated")
     print(synthetic_data.head())
 
     # Rewrite the file or add to it
     if rewrite:
         synthetic_data.to_csv(data_path, index=False)
-        logging.info("Synthetic dataset saved to Dataset.csv")
+        logger.info("Synthetic dataset saved to Dataset.csv")
     else:
         synthetic_data.to_csv(data_path, mode='a', header=False, index=False)
-        logging.info("New synthetic data added to Dataset.csv")
+        logger.info("New synthetic data added to Dataset.csv")

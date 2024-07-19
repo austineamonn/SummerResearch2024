@@ -1,3 +1,4 @@
+import os
 import json
 
 class Data:
@@ -7,12 +8,18 @@ class Data:
     This class is called by the 'data_generation.py' file so that it can access the lists and maps
     while making the dataset.
     """
-    def __init__(self) -> None:
-        pass
+    def __init__(self, base_dir: str = None, data_dir: str = 'datafiles'):
+        # Determine the directory of the current script if it is not given
+        if base_dir is None:
+            base_dir = os.path.dirname(__file__)
+        # Set the datafiles directory if it is not given assume it is in a folder called 'datafiles'
+        self.data_dir = os.path.join(base_dir, data_dir)
 
     def first_name(self):
+        # Construct the full path to the JSON file
+        file_path = os.path.join(self.data_dir, 'first_names.json')
         # Reading from a JSON file
-        with open('first_names.json', 'r') as f:
+        with open(file_path, 'r') as f:
             first_names = json.load(f)
 
         first_name = {
@@ -22,8 +29,10 @@ class Data:
         return first_name
     
     def last_name(self):
+        # Construct the full path to the JSON file
+        file_path = os.path.join(self.data_dir, 'last_names.json')
         # Reading from a JSON file
-        with open('last_names.json', 'r') as f:
+        with open(file_path, 'r') as f:
             last_names = json.load(f)
 
         last_name = {
@@ -129,8 +138,10 @@ class Data:
         return LS
     
     def major(self):
+        # Construct the full path to the JSON file
+        file_path = os.path.join(self.data_dir, 'majors.json')
         # Reading from a JSON file
-        with open('majors.json', 'r') as f:
+        with open(file_path, 'r') as f:
             # Tuple structure: ['Major' 'Percent Female' 'Popularity Ranking' 'Field' 'Top 5 Careers']
             major_tuples = json.load(f)
 
@@ -841,8 +852,10 @@ class Data:
         return major
     
     def course(self):
+        # Construct the full path to the JSON file
+        file_path = os.path.join(self.data_dir, 'courses.json')
         # Reading from a JSON file
-        with open('courses.json', 'r') as f:
+        with open(file_path, 'r') as f:
             # Tuple structure: ['Name', 'Number', 'Type(s)', 'Subject', 'Count']
             course_tuples = json.load(f)
         

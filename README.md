@@ -46,6 +46,8 @@ The file structures are currently going under a major overhaul to match python p
 
 All main and config were lost in the restructuring but they will be revived soon. Main interactive notebook was also lost but has been revived.
 
+Config will be replaced with the logger file.
+
 ### [Main - Under Construction](main.py):
 The main file of the framework. What can this file do?
 <ul>
