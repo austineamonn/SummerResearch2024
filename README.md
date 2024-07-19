@@ -205,6 +205,8 @@ Note: data category column is explained in the splitting the data section of dat
   <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A table giving the details of each data column.">
 </p>
 
+&ast; Chosen uniformly from 2.0 to 4.0.
+
 ## Data Preprocessing:
 
 Preprocessing is needed to convert the data into file types and structures that the machine learning models used in the tradeoffs section can easily learn from.

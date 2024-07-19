@@ -138,7 +138,7 @@ class PreProcessing:
             model.add(Bidirectional(SimpleRNN(50, return_sequences=True)))
             model.add(Dropout(dropout_rate))
 
-        model.add(SimpleRNN(50, return_sequences=False))
+        model.add(Bidirectional(SimpleRNN(50, return_sequences=False)))
         model.add(Dense(output_dim, activation='linear'))
         model.compile(optimizer='adam', loss='mse')
         return model

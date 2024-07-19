@@ -983,6 +983,8 @@ def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogist
 
 def linear_regression_plotter(Model: Union[ISLinearRegression]):
     # Plot the model
+    # TODO: Add capability to load metrics CSV to get the m,b,r2 values
+    # TODO: Add connection to load_predictions CSV so that the X and y can be loaded
     for name in Model.X_columns:
         lr_plotter_one_target(Model, name, save_fig=True)
 
@@ -998,6 +1000,7 @@ def lr_plotter_one_target(Model: Union[ISLinearRegression], column: str, tradeof
         ax.scatter(X_col, Model.y, color='black')
 
         ax.plot(X_col, tradeoffmodel.predict(Model.X), color='red',linewidth=3)
+        # TODO: could tradeoffmodel.predict(Model.X) be replaced with Model.y_pred?
         ax.grid(True,
                 axis = 'both',
                 zorder = 0,
