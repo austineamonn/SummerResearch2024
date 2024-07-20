@@ -789,7 +789,7 @@ def score(tradeoffsmodel, X, y, sample_weight=None):
 
     return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
 
-def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs: bool = True, return_model: bool = True, return_ccp_alpha: bool = True, save_model:bool = True):
+def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs: bool = True, return_model: bool = True, return_ccp_alpha: bool = True, save_model:bool = True, show_fig: bool = False, save_fig: bool = True):
     # Split the data
     split_data(Model)
 
@@ -852,12 +852,12 @@ def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegr
     Model.tradeoffmodel, Model.ccp_alpha = models_sorted.iloc[0, 0:2]
 
     if make_graphs:
-        graph_impurities(Model)
-        graph_nodes_and_depth(Model)
+        graph_impurities(Model, show_fig, save_fig)
+        graph_nodes_and_depth(Model, show_fig, save_fig)
         if isinstance(Model, ISDecisionTreeRegression):
-            graph_R2(Model)
+            graph_R2(Model, show_fig, save_fig)
         else:
-            graph_accuracy(Model)
+            graph_accuracy(Model, show_fig, save_fig)
 
     # Return the best model and the ccp_alpha
     if return_model and return_ccp_alpha:
@@ -867,17 +867,20 @@ def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegr
     elif return_ccp_alpha:
         return_ccp_alpha
 
-def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression]):
+def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
     # Impurity vs Effective Alpha
     fig, ax = plt.subplots()
     ax.plot(Model.ccp_alphas[:-1], Model.impurities[:-1], marker="o", drawstyle="steps-post")
     ax.set_xlabel("effective alpha")
     ax.set_ylabel("total impurity of leaves")
     ax.set_title("Total Impurity vs effective alpha for training set")
-    plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_total_impurity.png')
+    if show_fig:
+        plt.show()
+    if save_fig:
+        plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_total_impurity.png')
     plt.close()
 
-def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression]):
+def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
     # Model Nodes and Depth vs Alpha
     fig, ax = plt.subplots(2, 1)
     ax[0].plot(Model.ccp_alphas, Model.node_counts, marker="o", drawstyle="steps-post")
@@ -889,10 +892,13 @@ def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionT
     ax[1].set_ylabel("depth of tree")
     ax[1].set_title("Depth vs alpha")
     fig.tight_layout()
-    plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
+    if show_fig:
+        plt.show()
+    if save_fig:
+        plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
     plt.close()
 
-def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification]):
+def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification], show_fig: bool = False, save_fig: bool = True):
     # Accuracy vs Alpha
     fig, ax = plt.subplots()
     ax.set_xlabel("alpha")
@@ -901,10 +907,13 @@ def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegr
     ax.plot(Model.ccp_alphas, Model.train_scores, marker="o", label="train", drawstyle="steps-post")
     ax.plot(Model.ccp_alphas, Model.test_scores, marker="o", label="test", drawstyle="steps-post")
     ax.legend()
-    plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_accuracy.png')
+    if show_fig:
+        plt.show()
+    if save_fig:
+        plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_accuracy.png')
     plt.close()
 
-def graph_R2(Model: Union[ISDecisionTreeRegression]):
+def graph_R2(Model: Union[ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
     # Accuracy vs Alpha
     fig, ax = plt.subplots()
     ax.set_xlabel("alpha")
@@ -913,7 +922,10 @@ def graph_R2(Model: Union[ISDecisionTreeRegression]):
     ax.plot(Model.ccp_alphas, Model.train_scores, marker="o", label="train", drawstyle="steps-post")
     ax.plot(Model.ccp_alphas, Model.test_scores, marker="o", label="test", drawstyle="steps-post")
     ax.legend()
-    plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_r2.png')
+    if show_fig:
+        plt.show()
+    if save_fig:
+        plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_r2.png')
     plt.close()
 
 def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig: bool = False, show_fig: bool = False, max_depth: int = 2):

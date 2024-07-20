@@ -1,48 +1,35 @@
 import logging
 import numpy as np
 import pandas as pd
-import sys
 import os
 import ast
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Embedding, SimpleRNN, Dense, Bidirectional, LSTM, GRU, Dropout # type: ignore
 from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
 from tensorflow.keras.callbacks import EarlyStopping # type: ignore
-
-# Add the SummerResearch2024 directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from IntelliShield.data_generation.data import Data
 
 class PreProcessing:
-    def __init__(self, data, privatization_type=None, config=None):
+    def __init__(self, data: Data, privatization_type: str = None, logger=None):
         # Set up logging
-        if config is not None:
-            logging_level = config["logging"]["level"]
-            logging.basicConfig(level=logging_level, format=config["logging"]["format"])
-        else:
-            logging.basicConfig(level='INFO', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.logger = logger
 
         # Privatized - Utility split
-        if config is not None:
-            self.Xp = config["privacy"]["Xp_list"]
-            self.X = config["privacy"]["X_list"]
-            self.Xu = config["privacy"]["Xu_list"]
-            self.numerical_cols = config["privacy"]["numerical_columns"]
-        else:
-            self.Xp = [
-                'first name','last name','ethnoracial group','gender',
-                'international status','socioeconomic status'
-            ]
-            self.X = [
-                'learning style', 'gpa', 'student semester' ,'major' ,
-                'previous courses','course types','course subjects',
-                'subjects of interest', 'extracurricular activities'
-            ]
-            self.Xu = [
-                'career aspirations', 'future topics'
-            ]
-            self.numerical_cols = [
-                "gpa", "student semester"
-            ]
+        self.Xp = [
+            'first name','last name','ethnoracial group','gender',
+            'international status','socioeconomic status'
+        ]
+        self.X = [
+            'learning style', 'gpa', 'student semester' ,'major' ,
+            'previous courses','course types','course subjects',
+            'subjects of interest', 'extracurricular activities'
+        ]
+        self.Xu = [
+            'career aspirations', 'future topics'
+        ]
+        self.numerical_cols = [
+            "gpa", "student semester"
+        ]
 
         # Data
         self.data = data
@@ -250,28 +237,28 @@ class PreProcessing:
 
         return df_copy
     
-    def create_RNN_models(self, df, end_range=1, save_files=False, utility=False, simple=True, LSTM=True, GRU=True):
+    def create_RNN_models(self, df, end_range=1, save_files=False, utility=False, simple=True, LSTM=True, GRU=True, dir_path: str = None):
         results = []
 
         for layer in range(1, end_range + 1):
             if simple:
                 simple_df = self.run_RNN_models(df, 'Simple', layer, utility)
                 if save_files:
-                    simple_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
+                    simple_df.to_csv(os.path.join(dir_path, 'reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
                 else:
                     results.append(simple_df)
 
             if LSTM:
                 LSTM_df = self.run_RNN_models(df, 'LSTM', layer, utility)
                 if save_files:
-                    LSTM_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
+                    LSTM_df.to_csv(os.path.join(dir_path, 'reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
                 else:
                     results.append(LSTM_df)
 
             if GRU:
                 GRU_df = self.run_RNN_models(df, 'GRU', layer, utility)
                 if save_files:
-                    GRU_df.to_csv(os.path.join('reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
+                    GRU_df.to_csv(os.path.join(dir_path,'reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
                 else:
                     results.append(GRU_df)
         
@@ -281,22 +268,21 @@ class PreProcessing:
 # Main execution
 if __name__ == "__main__":
     # Import necessary dependencies
-    from datafiles_for_data_construction.data import Data
-    from SummerResearch2024.src.Intellishield.config import load_config
+    from IntelliShield.logger import setup_logger
 
-    # Load configuration and data
-    config = load_config()
+    # Load logger and data
+    logger = setup_logger('preprocessing_logger', 'preprocessing.log')
     data = Data()
 
     # Options: NoPrivatization, Basic_DP, Basic_DP_LLC, Uniform, Uniform_LLC, Shuffling, Complete_Shuffling
     privatization_type = 'NoPrivatization'
 
     # Import synthetic dataset and preprocess it
-    df = pd.read_csv(config["running_model"]["data path"])
-    preprocessor = PreProcessing(data, privatization_type, config)
+    df = pd.read_csv('../data_generation/Dataset')
+    preprocessor = PreProcessing(data, privatization_type, logger)
     df = preprocessor.preprocess_dataset(df)
-    df.to_csv(config["running_model"]["preprocessed data path"], index=False)
+    df.to_csv('../../../outputs/examples/preprocessed_data/Preprocessed_Dataset.csv')
 
     # Dimensionality Reduction for each privatization type
-    df = pd.read_csv(config["running_model"][privatization_type])
+    df = pd.read_csv(f'../../../outputs/examples/privatized_datasets/{privatization_type}_Dataset')
     preprocessor.create_RNN_models(df, save_files=True)

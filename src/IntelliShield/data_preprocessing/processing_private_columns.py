@@ -1,15 +1,12 @@
-import os
-import sys
 import pandas as pd
 import logging
 import ast
-
-# Add the SummerResearch2024 directory to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from IntelliShield.data_generation.data import Data
 
 class PrivateColumns:
-    def __init__(self, data) -> None:
+    def __init__(self, data: Data, logger = None) -> None:
         self.data = data
+        self.logger = logger
 
     def string_to_numberedlist(self, stringlist, col):
         numberedlist = []
@@ -63,51 +60,50 @@ class PrivateColumns:
 # Main execution
 if __name__ == "__main__":
     # Import necessary dependencies
-    from datafiles_for_data_construction.data import Data
-    from SummerResearch2024.src.Intellishield.config import load_config
+    from IntelliShield.logger import setup_logger
 
     # Load configuration and data
-    config = load_config()
+    logger = setup_logger('private_columns_logger', 'private_columns.log')
     data = Data()
 
     # Import synthetic dataset
-    df = pd.read_csv(config["running_model"]["data_generation_paths"]["data path"])
+    df = pd.read_csv('../data_generation/Dataset.csv')
 
     # Create private columns class
-    private_cols = PrivateColumns(data)
+    private_cols = PrivateColumns(data, logger)
 
     # Get Private Columns and save them
     privacy_cols_df = private_cols.get_private_cols(df)
-    privacy_cols_df.to_csv(config["running_model"]["preprocessed_data_paths"]["private columns path"], index=False)
+    privacy_cols_df.to_csv('../../../outputs/examples/preprocessed_data/Private_Columns.csv', index=False)
 
     # Combine dimensionality reduced data with privatized columns and utility columns
     privatization_type_list = ['NoPrivatization', 'Basic_DP', 'Basic_DP_LLC', 'Uniform', 'Uniform_LLC', 'Shuffling', 'Complete_Shuffling']
     layers = [1]
 
     # Utility Column Pathways
-    GRU_utility_cols_df = pd.read_csv('reduced_dimensionality_data/NoPrivatization/GRU_Utility_Cols.csv')
+    GRU_utility_cols_df = pd.read_csv('../../../outputs/examples/reduced_dimensionality_data/NoPrivatization/GRU_Utility_Cols.csv')
     GRU_utility_cols_df = GRU_utility_cols_df[['career aspirations','future topics']]
     
-    LSTM_utility_cols_df = pd.read_csv('reduced_dimensionality_data/NoPrivatization/LSTM_Utility_Cols.csv')
+    LSTM_utility_cols_df = pd.read_csv('../../../outputs/examples/reduced_dimensionality_data/NoPrivatization/LSTM_Utility_Cols.csv')
     LSTM_utility_cols_df = LSTM_utility_cols_df[['career aspirations','future topics']]
     
-    Simple_utility_cols_df = pd.read_csv('reduced_dimensionality_data/NoPrivatization/Simple_Utility_Cols.csv')
+    Simple_utility_cols_df = pd.read_csv('../../../outputs/examples/reduced_dimensionality_data/NoPrivatization/Simple_Utility_Cols.csv')
     Simple_utility_cols_df = Simple_utility_cols_df[['career aspirations','future topics']]
 
     # Combine the Pathways
     for privatization_type in privatization_type_list:
         for layer in layers:
-            GRU_df = pd.read_csv(f'reduced_dimensionality_data/{privatization_type}/GRU{layer}.csv')
+            GRU_df = pd.read_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/GRU{layer}.csv')
             GRU_df = GRU_df[['learning style','gpa','student semester','major','previous courses','course types','course subjects','subjects of interest','extracurricular activities']]
             GRU_combined_df = pd.concat([GRU_df, GRU_utility_cols_df,privacy_cols_df], axis=1)
-            GRU_combined_df.to_csv(f'reduced_dimensionality_data/{privatization_type}/GRU{layer}_combined.csv', index=False)
+            GRU_combined_df.to_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/GRU{layer}_combined.csv', index=False)
 
-            LSTM_df = pd.read_csv(f'reduced_dimensionality_data/{privatization_type}/LSTM{layer}.csv')
+            LSTM_df = pd.read_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/LSTM{layer}.csv')
             LSTM_df = LSTM_df[['learning style','gpa','student semester','major','previous courses','course types','course subjects','subjects of interest','extracurricular activities']]
             LSTM_combined_df = pd.concat([LSTM_df, LSTM_utility_cols_df, privacy_cols_df], axis=1)
-            LSTM_combined_df.to_csv(f'reduced_dimensionality_data/{privatization_type}/LSTM{layer}_combined.csv', index=False)
+            LSTM_combined_df.to_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/LSTM{layer}_combined.csv', index=False)
 
-            Simple_df = pd.read_csv(f'reduced_dimensionality_data/{privatization_type}/Simple{layer}.csv')
+            Simple_df = pd.read_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/Simple{layer}.csv')
             Simple_df = Simple_df[['learning style','gpa','student semester','major','previous courses','course types','course subjects','subjects of interest','extracurricular activities']]
             Simple_combined_df = pd.concat([Simple_df, Simple_utility_cols_df, privacy_cols_df], axis=1)
-            Simple_combined_df.to_csv(f'reduced_dimensionality_data/{privatization_type}/Simple{layer}_combined.csv', index=False)
+            Simple_combined_df.to_csv(f'../../../outputs/examples/reduced_dimensionality_data/{privatization_type}/Simple{layer}_combined.csv', index=False)
