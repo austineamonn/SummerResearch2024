@@ -4,18 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import logging
 
-from IntelliShield.tradeoffs import (
-    ISDecisionTreeClassification,
-    ISLogisticRegression,
-    ISRandomForestClassification,
-    ISDecisionTreeRegressification,
-    ISLinearRegressification,
-    ISRandomForestRegressification,
-    ISDecisionTreeRegression,
-    ISLinearRegression,
-    ISRandomForestRegression,
-    load_feature_importance
-)
+from IntelliShield.tradeoffs import load_feature_importance
 
 # TODO: Combine comparisons and just switch the list order
 # TODO: Make a list of functions that can be called. Use model_path_dict to get the model path for example the key-value pair ISDecisionTreeRegression: 'decision_tree_regression'
@@ -76,6 +65,10 @@ def make_comparison(Comparison: Comparison, order: list, save_files=True, return
 
                     tradeoff_model = model(privatization_type, reduction_type, target, output_path=output_path, model_ran=True)
                     metrics, importance = load_model_metrics(tradeoff_model)
+
+                    # Remove target column from importance (only present in some classification models)
+                    if 'Target' in importance.columns:
+                        importance.drop(columns=['Target'], inplace=True)
 
                     # Append the outputs
                     metrics_df_list.append(metrics)
@@ -178,7 +171,7 @@ def plot_metrics(Comparison: Comparison, comparison_df, comparison_type, metrics
         plt.savefig(f'{Comparison.output_path}{metric}_importance_comparison.png', bbox_inches='tight')
         plt.close()
 
-def load_model_metrics(Model, classname=None) -> tuple:
+def load_model_metrics(Model, ave_type='macro') -> tuple:
     # Mapping of class names to expected classes
     classification_regressification_class_names = {
         'ISDecisionTreeClassification',
@@ -195,24 +188,29 @@ def load_model_metrics(Model, classname=None) -> tuple:
         'ISRandomForestRegression'
     }
 
-    # Get the filepath
-    if classname is not None:
-        file_path = f'{Model.output_path}/{classname}'
-    else:
-        file_path = Model.output_path
-
     # Get feature importance
-    importance = load_feature_importance(Model, f'{file_path}/feature_importance.csv', return_df=True)
+    importance = load_feature_importance(Model, f'{Model.output_path}/feature_importance.csv', return_df=True)
 
     # Check for classification and regressification models
     if Model.__class__.__name__ in classification_regressification_class_names:
-        with open(f'{file_path}/classification_report.json', 'r') as file:
+        with open(f'{Model.output_path}/classification_report.json', 'r') as file:
             report = json.load(file)
-        return report, importance
+        
+        # Extract relevant values from the file
+        metrics = {
+            'accuracy': report.get('accuracy'),
+            'precision': report.get(f'{ave_type} avg').get('precision'),
+            'recall': report.get(f'{ave_type} avg').get('recall'),
+            'f1-score': report.get(f'{ave_type} avg').get('f1-score'),
+            'support': report.get(f'{ave_type} avg').get('support'),
+            'time': report.get('time')
+        }
+        report_df = pd.DataFrame(metrics, index=[0])
+        return report_df, importance
     
     # Check for regression models
     if Model.__class__.__name__ in regression_class_names:
-        metrics = pd.read_csv(f'{file_path}/metrics.csv')
+        metrics = pd.read_csv(f'{Model.output_path}/metrics.csv')
         return metrics, importance
     
     # Raise error if Model is not recognized
