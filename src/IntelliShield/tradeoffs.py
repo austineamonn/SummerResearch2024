@@ -17,14 +17,7 @@ import time
 import os
 import pickle
 
-# TODO: Add the other tradeoff classes
 # TODO: Fix error where SHAP values must be saved and reloaded for the graphing to work
-# TODO: Fix feature importance error: 
-
-"""File "/Users/austinnicolas/Documents/SummerREU2024/SummerResearch2024/src/IntelliShield/tradeoffs.py", line 1379, in get_feature_importance
-    Model.feature_importance.append(get_single_feature_importance(Model, Model.shap_explainer_list[i], return_df=True, classname=name))
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'NoneType' object has no attribute 'append'"""
 
 # Set the pandas option to avoid silent downcasting
 pd.set_option('future.no_silent_downcasting', True)
@@ -32,7 +25,7 @@ pd.set_option('future.no_silent_downcasting', True)
 # Classification Models
 
 class ISDecisionTreeClassification:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, classnames= None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -126,7 +119,7 @@ class ISDecisionTreeClassification:
         self.depth = None
 
 class ISLogisticRegression:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -219,7 +212,7 @@ class ISLogisticRegression:
         self.labels = list(range(len(self.classnames)))
 
 class ISRandomForestClassification:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, classnames: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, classnames=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -305,7 +298,7 @@ class ISRandomForestClassification:
 # Regressification Models
 
 class ISDecisionTreeRegressification:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -375,7 +368,7 @@ class ISDecisionTreeRegressification:
         self.depth = None
 
 class ISLinearRegressification:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -435,7 +428,7 @@ class ISLinearRegressification:
         self.feature_importance = None
 
 class ISRandomForestRegressification:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -497,7 +490,7 @@ class ISRandomForestRegressification:
 # Regression Models
 
 class ISDecisionTreeRegression:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -568,7 +561,7 @@ class ISDecisionTreeRegression:
         self.depth = None
 
 class ISLinearRegression:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -631,7 +624,7 @@ class ISLinearRegression:
         self.r2 = None
 
 class ISRandomForestRegression:
-    def __init__(self, privatization_type: str, RNN_model: str, target: str, data: pd.DataFrame = None, data_path: str = None, output_path: str = None, X_columns: list = None, model_ran: bool = False):
+    def __init__(self, privatization_type: str, RNN_model: str, target: str, data=None, data_path=None, output_path=None, X_columns=None, model_ran=False):
         if model_ran:
             self.data = None
         else:
@@ -693,7 +686,7 @@ class ISRandomForestRegression:
 
 # General Functions
 
-def make_folders(Model, output_path: str = None):
+def make_folders(Model, output_path=None):
     if output_path is None:
         output_path = Model.output_path
     if Model.shap_is_list == False:
@@ -716,7 +709,7 @@ def make_folders(Model, output_path: str = None):
             if not os.path.exists(directory):
                 os.makedirs(directory, exist_ok=True)
 
-def split_data(Model, full_model: bool = False):
+def split_data(Model, full_model=False):
         if isinstance(Model, ISDecisionTreeClassification) or isinstance(Model, ISLogisticRegression) or isinstance(Model, ISRandomForestClassification):
             # Define y
             Model.y = Model.data[[Model.target]]
@@ -789,7 +782,7 @@ def score(tradeoffsmodel, X, y, sample_weight=None):
 
     return accuracy_score(y, y_pred_rounded, sample_weight=sample_weight)
 
-def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs: bool = True, return_model: bool = True, return_ccp_alpha: bool = True, save_model:bool = True, show_fig: bool = False, save_fig: bool = True):
+def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], make_graphs=True, return_model=True, return_ccp_alpha=True, save_model:bool = True, show_fig=False, save_fig=True):
     # Split the data
     split_data(Model)
 
@@ -867,7 +860,7 @@ def get_best_model(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegr
     elif return_ccp_alpha:
         return_ccp_alpha
 
-def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
+def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig=False, save_fig=True):
     # Impurity vs Effective Alpha
     fig, ax = plt.subplots()
     ax.plot(Model.ccp_alphas[:-1], Model.impurities[:-1], marker="o", drawstyle="steps-post")
@@ -880,7 +873,7 @@ def graph_impurities(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRe
         plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_total_impurity.png')
     plt.close()
 
-def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
+def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression], show_fig=False, save_fig=True):
     # Model Nodes and Depth vs Alpha
     fig, ax = plt.subplots(2, 1)
     ax[0].plot(Model.ccp_alphas, Model.node_counts, marker="o", drawstyle="steps-post")
@@ -898,7 +891,7 @@ def graph_nodes_and_depth(Model: Union[ISDecisionTreeClassification, ISDecisionT
         plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_graph_nodes_and_depth.png')
     plt.close()
 
-def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification], show_fig: bool = False, save_fig: bool = True):
+def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification], show_fig=False, save_fig=True):
     # Accuracy vs Alpha
     fig, ax = plt.subplots()
     ax.set_xlabel("alpha")
@@ -913,7 +906,7 @@ def graph_accuracy(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegr
         plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_accuracy.png')
     plt.close()
 
-def graph_R2(Model: Union[ISDecisionTreeRegression], show_fig: bool = False, save_fig: bool = True):
+def graph_R2(Model: Union[ISDecisionTreeRegression], show_fig=False, save_fig=True):
     # Accuracy vs Alpha
     fig, ax = plt.subplots()
     ax.set_xlabel("alpha")
@@ -928,7 +921,7 @@ def graph_R2(Model: Union[ISDecisionTreeRegression], show_fig: bool = False, sav
         plt.savefig(f'{Model.output_path}/graphs/effective_alpha_vs_r2.png')
     plt.close()
 
-def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig: bool = False, show_fig: bool = False, max_depth: int = 2):
+def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegressification, ISDecisionTreeRegression, ISRandomForestClassification, ISRandomForestRegressification, ISRandomForestRegression], tradeoffmodel=None, save_fig=False, show_fig=False, max_depth: int = 2):
         # Plot the tree using matplotlib
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
@@ -965,7 +958,7 @@ def tree_plotter(Model: Union[ISDecisionTreeClassification, ISDecisionTreeRegres
             plt.savefig(f'{Model.output_path}/graphs/{Model.name}.png', bbox_inches="tight")
         plt.close()
 
-def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISRandomForestClassification, ISDecisionTreeRegressification, ISLinearRegressification, ISRandomForestRegressification], matrix: np.array = None, matrix_path: str = None, save_fig: bool = False, show_fig: bool = False):
+def confusion_matrix_plotter(Model: Union[ISDecisionTreeClassification, ISLogisticRegression, ISRandomForestClassification, ISDecisionTreeRegressification, ISLinearRegressification, ISRandomForestRegressification], matrix: np.array = None, matrix_path=None, save_fig=False, show_fig=False):
         if matrix is None and matrix is None:
             matrix = Model.cm
         elif matrix_path is not None:
@@ -1000,7 +993,7 @@ def linear_regression_plotter(Model: Union[ISLinearRegression]):
     for name in Model.X_columns:
         lr_plotter_one_target(Model, name, save_fig=True)
 
-def lr_plotter_one_target(Model: Union[ISLinearRegression], column: str, tradeoffmodel=None, save_fig: bool = False, show_fig: bool = False):
+def lr_plotter_one_target(Model: Union[ISLinearRegression], column: str, tradeoffmodel=None, save_fig=False, show_fig=False):
         # Plot the regression using matplotlib
         plt.figure(figsize=(20,10))
         if tradeoffmodel is None:
@@ -1038,7 +1031,7 @@ def lr_plotter_one_target(Model: Union[ISLinearRegression], column: str, tradeof
         else:
             plt.close(fig)
 
-def run_model(Model, tradeoffmodel=None, ccp_alpha: float = None, print_report: bool = False, save_files: bool = True, print_results: bool = False, n_estimators: int = 100, min_samples_split: int = 10):
+def run_model(Model, tradeoffmodel=None, ccp_alpha=None, print_report=False, save_files=True, print_results=False, n_estimators: int = 100, min_samples_split: int = 10):
     # Split the data
     split_data(Model, full_model=True)
 
@@ -1156,7 +1149,7 @@ def run_model(Model, tradeoffmodel=None, ccp_alpha: float = None, print_report: 
         # Save the model
         save_model(Model, f'{Model.output_path}/{Model.name}_model.pkl')
 
-def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix: bool = False):
+def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix=False):
     if y_pred is None or y_test is None:
         y_pred = Model.y_pred
         y_test = Model.y_test
@@ -1172,7 +1165,7 @@ def calculate_confusion_matrix(Model, y_test=None, y_pred=None, return_matrix: b
     if return_matrix:
         return Model.cm
     
-def calculate_shap_values(Model, sample_size: int = 1000, return_values: bool = False):
+def calculate_shap_values(Model, sample_size: int = 1000, return_values=False, save_values=True):
     # Ensure the model has been run
     if Model.tradeoffmodel is None:
         raise ValueError("You need to run the model or load the model.")
@@ -1191,24 +1184,25 @@ def calculate_shap_values(Model, sample_size: int = 1000, return_values: bool = 
     else:
         raise ValueError("Need a proper Model object")
 
-    shap_values_path = f'{Model.output_path}/shap_values.npy'
-    np.save(shap_values_path, Model.shap_values)
+    if save_values:
+        shap_values_path = f'{Model.output_path}/shap_values.npy'
+        np.save(shap_values_path, Model.shap_values)
 
     if return_values:
         return Model.shap_values
     
-def plot_shap_values(Model, shap_values=None, shap_explainer_list=None):
+def plot_shap_values(Model, shap_values=None, shap_explainer_list=None, save_figs=True):
     if shap_explainer_list is not None:
         Model.shap_explainer_list = shap_explainer_list
     if shap_values is not None:
         Model.shap_values = shap_values
     if Model.shap_is_list == False:
-        plot_shap_values_one_target(Model, Model.shap_values)
+        plot_shap_values_one_target(Model, Model.shap_values, save_figs=save_figs)
     else:
         for i, name in enumerate(Model.classnames):
-            plot_shap_values_one_target(Model, Model.shap_explainer_list[i], name)
+            plot_shap_values_one_target(Model, Model.shap_explainer_list[i], name, save_figs=save_figs)
 
-def plot_shap_values_one_target(Model, shap_values, classname: str = None):
+def plot_shap_values_one_target(Model, shap_values, classname=None, save_figs=True):
 
     if classname is not None:
         # Ensure proper naming protocol was used
@@ -1226,11 +1220,14 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
     fig.set_size_inches(20, 6)  # Adjust the width and height as needed
 
     # Save the figure
-    if classname is not None:
-        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bar_plot.png', bbox_inches="tight")
-        plt.close(fig)
+    if save_figs:
+        if classname is not None:
+            fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bar_plot.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            fig.savefig(f'{Model.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
+            plt.close(fig)
     else:
-        fig.savefig(f'{Model.output_path}/graphs/shap_bar_plot.png', bbox_inches="tight")
         plt.close(fig)
 
     # Scatter plot for each specific feature
@@ -1248,11 +1245,14 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
         fig.set_size_inches(15, 6)
 
         # Save the figure
-        if classname is not None:
-            plt.savefig(f'{Model.output_path}/graphs/{classname}/feature_scatter_plots/{column}.png', bbox_inches="tight")
-            plt.close(fig)
+        if save_figs:
+            if classname is not None:
+                plt.savefig(f'{Model.output_path}/graphs/{classname}/feature_scatter_plots/{column}.png', bbox_inches="tight")
+                plt.close(fig)
+            else:
+                plt.savefig(f'{Model.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
+                plt.close(fig)
         else:
-            plt.savefig(f'{Model.output_path}/graphs/feature_scatter_plots/{column}.png', bbox_inches="tight")
             plt.close(fig)
 
     # Heatmap plot
@@ -1266,11 +1266,14 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
     fig.set_size_inches(15, 6)
 
     # Save the figure
-    if classname is not None:
-        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_heatmap.png', bbox_inches="tight")
-        plt.close(fig)
+    if save_figs:
+        if classname is not None:
+            fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_heatmap.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            fig.savefig(f'{Model.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
+            plt.close(fig)
     else:
-        fig.savefig(f'{Model.output_path}/graphs/shap_heatmap.png', bbox_inches="tight")
         plt.close(fig)
 
     # Bee swarm plot
@@ -1284,11 +1287,14 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
     fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
     # Save the figure
-    if classname is not None:
-        fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bee_swarm_plot.png', bbox_inches="tight")
-        plt.close(fig)
+    if save_figs:
+        if classname is not None:
+            fig.savefig(f'{Model.output_path}/graphs/{classname}/shap_bee_swarm_plot.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            fig.savefig(f'{Model.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
+            plt.close(fig)
     else:
-        fig.savefig(f'{Model.output_path}/graphs/shap_bee_swarm_plot.png', bbox_inches="tight")
         plt.close(fig)
 
     # Violin plot
@@ -1300,17 +1306,20 @@ def plot_shap_values_one_target(Model, shap_values, classname: str = None):
     fig.set_size_inches(22, 6)  # Adjust the width and height as needed
 
     # Save the figure
-    if classname is not None:
-        plt.savefig(f'{Model.output_path}/graphs/{classname}/shap_violin_plot.png', bbox_inches="tight")
-        plt.close(fig)
+    if save_figs:
+        if classname is not None:
+            plt.savefig(f'{Model.output_path}/graphs/{classname}/shap_violin_plot.png', bbox_inches="tight")
+            plt.close(fig)
+        else:
+            plt.savefig(f'{Model.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
+            plt.close(fig)
     else:
-        plt.savefig(f'{Model.output_path}/graphs/shap_violin_plot.png', bbox_inches="tight")
         plt.close(fig)
 
     # Ensure all figures were closed
     plt.close('all')
 
-def load_shap_values(Model, file_path: str, return_values: bool = False):
+def load_shap_values(Model, file_path: str, return_values=False):
     if Model.shap_is_list == False:
         # Load the .npy file
         Model.shap_values = np.load(file_path, allow_pickle=True)
@@ -1375,7 +1384,7 @@ def load_shap_values(Model, file_path: str, return_values: bool = False):
         if return_values:
             return Model.shap_explainer_list
 
-def load_prediction(Model, file_path: str, return_predictions: bool = False):
+def load_prediction(Model, file_path: str, return_predictions=False):
     """
     Loads in the y prediction and y test values as two dataframes
     """
@@ -1396,7 +1405,7 @@ def load_prediction(Model, file_path: str, return_predictions: bool = False):
     if return_predictions:
         return Model.y_pred
     
-def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
+def get_feature_importance(Model, shap_values=None, shap_explainer_list=None, save_values=True):
     if shap_explainer_list is not None:
         Model.shap_explainer_list = shap_explainer_list
     if shap_values is not None:
@@ -1417,10 +1426,11 @@ def get_feature_importance(Model, shap_values=None, shap_explainer_list=None):
         # Reset index to turn multi-index into columns
         Model.feature_importance.reset_index(level=0, inplace=True)
         Model.feature_importance.rename(columns={'level_0': 'Target'}, inplace=True)
+    
+    if save_values:
+        Model.feature_importance.to_csv(f'{Model.output_path}/feature_importance.csv', index=False)
 
-    Model.feature_importance.to_csv(f'{Model.output_path}/feature_importance.csv', index=False)
-
-def get_single_feature_importance(Model, shap_values, return_df: bool = False):
+def get_single_feature_importance(Model, shap_values, return_df=False):
     # Summarize the feature importance
     feature_importance = np.abs(shap_values.values).mean(axis=0)
 
@@ -1438,7 +1448,7 @@ def get_single_feature_importance(Model, shap_values, return_df: bool = False):
     if return_df:
         return feature_importance_df
     
-def load_feature_importance(Model, file_path: str, return_df: bool = False):
+def load_feature_importance(Model, file_path: str, return_df=False):
     Model.feature_importance = pd.read_csv(file_path)
     
     if return_df:
@@ -1447,7 +1457,7 @@ def load_feature_importance(Model, file_path: str, return_df: bool = False):
 def save_model(Model, file_path: str):
     joblib.dump(Model.tradeoffmodel, file_path)
 
-def load_model(Model, file_path: str, return_file: bool = False):
+def load_model(Model, file_path: str, return_file=False):
     try:
         Model.tradeoffmodel = joblib.load(file_path)
     except Exception as e:
@@ -1463,7 +1473,7 @@ def load_model(Model, file_path: str, return_file: bool = False):
     if return_file:
         return Model.tradeoffmodel
     
-def pipeline(Model, full_run: bool = False, run_shap: bool = False, plot_graphs: bool = False, feature_importance: bool = False, pipeline_list: list = None):
+def pipeline(Model, full_run=False, run_shap=False, plot_graphs=False, feature_importance=False, pipeline_list=None):
     """
     Pipeline function that runs the basic variations. Always saves all the files.
     """
