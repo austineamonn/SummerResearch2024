@@ -47,17 +47,15 @@ def pipeline(Comparison: Comparison, compare_models=False, compare_reduction=Fal
     if compare_models:
         order = [Comparison.model_list, Comparison.privatization_list, Comparison.reduction_list, Comparison.target_list]
         make_comparison(Comparison, order)
-    elif compare_reduction:
+    if compare_reduction:
         order = [Comparison.reduction_list, Comparison.privatization_list, Comparison.target_list, Comparison.model_list]
         make_comparison(Comparison, order)
-    elif compare_privatization:
+    if compare_privatization:
         order = [Comparison.privatization_list, Comparison.reduction_list, Comparison.target_list, Comparison.model_list]
         make_comparison(Comparison, order)
-    elif compare_target:
+    if compare_target:
         order = [Comparison.target_list, Comparison.privatization_list, Comparison.reduction_list, Comparison.model_list]
         make_comparison(Comparison, order)
-    elif Comparison.logger is not None:
-        Comparison.logger.warning("No pipeline was chosen, so nothing was run")
 
 def make_comparison(Comparison: Comparison, order: list, save_files=True, return_files=False):
     list_1 = order[0]
@@ -77,7 +75,6 @@ def make_comparison(Comparison: Comparison, order: list, save_files=True, return
                     output_path = get_output_path(Comparison, model, privatization_type, reduction_type, target)
 
                     tradeoff_model = model(privatization_type, reduction_type, target, output_path=output_path, model_ran=True)
-                    print(type(tradeoff_model))
                     metrics, importance = load_model_metrics(tradeoff_model)
 
                     # Append the outputs
@@ -103,8 +100,13 @@ def make_comparison(Comparison: Comparison, order: list, save_files=True, return
 
         # Save as CSVs
         if save_files:
-            final_metrics_df.to_csv(f'{Comparison.output_path}/{folder_name}/combined_metrics.csv', index=True)
-            final_features_df.to_csv(f'{Comparison.output_path}/{folder_name}/combined_feature_importance.csv', index=True)
+            output_directory = f'{Comparison.output_path}/{folder_name}'
+             # Create the output directory if it doesn't exist
+            if not os.path.exists(output_directory):
+                os.makedirs(output_directory, exist_ok=True)
+
+            final_metrics_df.to_csv(f'{output_directory}/combined_metrics.csv', index=True)
+            final_features_df.to_csv(f'{output_directory}/combined_feature_importance.csv', index=True)
         
         # Return the files
         if return_files:
@@ -114,20 +116,25 @@ def get_elements(Comparison: Comparison, elem_1, elem_2, elem_3, elem_4):
     # Combine the elements into one list
     elem_list = [elem_1, elem_2, elem_3, elem_4]
 
-    for elem in elem_list:
+    # Associate each element with the proper list and name the folder based on the first element
+    for i, elem in enumerate(elem_list):
         if elem in Comparison.reduction_list:
             reduction_type = elem
-            folder_name = f'dimensinality_reduction/{elem}'
+            if i == 0:
+                folder_name = f'dimensionality_reduction/{elem}'
         elif elem in Comparison.privatization_list:
             privatization_type = elem
-            folder_name = f'privatization/{elem}'
+            if i == 0:
+                folder_name = f'privatization/{elem}'
         elif elem in Comparison.target_list:
             target = elem
-            folder_name = f'target/{elem}'
+            if i == 0:
+                folder_name = f'target/{elem}'
         elif elem in Comparison.model_list:
             model = elem
-            model_name = Comparison.model_path_dict.get(model)[0]
-            folder_name = f'model/{model_name}'
+            if i == 0:
+                model_name = Comparison.model_path_dict.get(model)[0]
+                folder_name = f'model/{model_name}'
 
     return model, privatization_type, reduction_type, target, folder_name
 
@@ -172,8 +179,6 @@ def plot_metrics(Comparison: Comparison, comparison_df, comparison_type, metrics
         plt.close()
 
 def load_model_metrics(Model, classname=None) -> tuple:
-    print(f"Model type: {type(Model)}")  # Debug print to see the actual type of Model
-
     # Mapping of class names to expected classes
     classification_regressification_class_names = {
         'ISDecisionTreeClassification',
@@ -190,22 +195,24 @@ def load_model_metrics(Model, classname=None) -> tuple:
         'ISRandomForestRegression'
     }
 
-    # Get feature importance
+    # Get the filepath
     if classname is not None:
-        file_path = f'{Model.output_path}/{classname}/feature_importance.csv'
+        file_path = f'{Model.output_path}/{classname}'
     else:
-        file_path = f'{Model.output_path}/feature_importance.csv'
-    importance = load_feature_importance(Model, file_path, return_df=True)
+        file_path = Model.output_path
+
+    # Get feature importance
+    importance = load_feature_importance(Model, f'{file_path}/feature_importance.csv', return_df=True)
 
     # Check for classification and regressification models
     if Model.__class__.__name__ in classification_regressification_class_names:
-        with open(file_path, 'r') as file:
+        with open(f'{file_path}/classification_report.json', 'r') as file:
             report = json.load(file)
         return report, importance
     
     # Check for regression models
     if Model.__class__.__name__ in regression_class_names:
-        metrics = pd.read_csv(file_path)
+        metrics = pd.read_csv(f'{file_path}/metrics.csv')
         return metrics, importance
     
     # Raise error if Model is not recognized
