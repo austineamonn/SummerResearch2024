@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import logging
 import seaborn as sns
+from scipy.stats import f_oneway, kruskal, ttest_ind
 
 from IntelliShield.tradeoffs import load_feature_importance
 
@@ -208,20 +209,16 @@ def load_model_metrics(Model, ave_type='macro') -> tuple:
     # Raise error if Model is not recognized
     raise ValueError("Need a proper Model object")
 
-def find_and_load_csv_files_as_dataframe(directory, filename):
+def load_files(directory, filename):
     """
-    Iterates through the directory and its subdirectories, finds all CSV files with the specified name,
-    and loads their content into pandas DataFrames. The result is a DataFrame with one column
-    containing lists of folder names representing the path to each found file, and another column
-    containing the DataFrames of these files.
+    Iterates through the directory and its subdirectories, finds all CSV files with the specified name, and loads their content into pandas DataFrames. The result is a DataFrame with one column containing lists of folder names representing the path to each found file, and another column containing the DataFrames of these files.
     
     Parameters:
     - directory (str): The root directory to start the search.
     - filename (str): The name of the CSV files to search for.
     
     Returns:
-    - pd.DataFrame: A DataFrame where one column contains lists of folder names representing the path to the found files
-                    and another column contains the DataFrames of these files.
+    - pd.DataFrame: A DataFrame where one column contains lists of folder names representing the path to the found files and another column contains the DataFrames of these files.
     """
     folder_paths = []
     dataframes = []
@@ -235,110 +232,162 @@ def find_and_load_csv_files_as_dataframe(directory, filename):
                 folder_paths.append(folder_path)
                 dataframes.append(df)
     
-    result_df = pd.DataFrame({
-        'Folder List': folder_paths,
-        'DataFrame Content': dataframes
-    })
+    # Find the maximum depth of folder paths
+    max_depth = max(len(path) for path in folder_paths)
     
+    # Create columns for each level in the path
+    columns = {f'Folder_Level_{i+1}': [] for i in range(max_depth)}
+    columns['DataFrame_Content'] = dataframes
+    
+    # Populate the columns with folder paths
+    for path in folder_paths:
+        for i in range(max_depth):
+            if i < len(path):
+                columns[f'Folder_Level_{i+1}'].append(path[i])
+            else:
+                columns[f'Folder_Level_{i+1}'].append(None)  # Use None for missing levels
+    
+    result_df = pd.DataFrame(columns)
+
     return result_df
 
-def load_files(Comparison: Comparison):
-    pass
+def boxplot(Comparison: Comparison, feature_name='combined_feature_importance.csv', metrics_name='combined_metrics.csv', save_files=True, show_figs=False, make_graphs=True, get_stats=True):
+    importance_files_df = load_files(Comparison.output_path, feature_name)
+    metrics_files_df = load_files(Comparison.output_path, metrics_name)
 
-def boxplot(Comparison: Comparison):
-    pass
+    # Group the DataFrame by the outer folder column
+    grouped_importance = importance_files_df.groupby('Folder_Level_1')
+    grouped_metrics = metrics_files_df.groupby('Folder_Level_1')
 
-# Load the CSV files
-gru_file_path = '/mnt/data/combined_feature_importance_GRU.csv'
-lstm_file_path = '/mnt/data/combined_feature_importance_LSTM.csv'
-simple_file_path = '/mnt/data/combined_feature_importance_Simple.csv'
+    # Create a list to hold the split DataFrames and their categories
+    split_i_dfs_list = []
+    split_m_dfs_list = []
+    categories_list = []
 
-gru_data = pd.read_csv(gru_file_path)
-lstm_data = pd.read_csv(lstm_file_path)
-simple_data = pd.read_csv(simple_file_path)
+    # Iterate over the groups, add a new column, and store in the list
+    for category, group in grouped_importance:
+        instances = group[['Folder_Level_2', 'DataFrame_Content']]
+        category_name = category.title()
+        instance_list = []
 
-# Add a column to identify the model type in each dataset
-gru_data['Model'] = 'GRU'
-lstm_data['Model'] = 'LSTM'
-simple_data['Model'] = 'Simple'
+        # Edit the dataframes
+        for instance in instances.itertuples(index=True, name='Comparison_Instance'):
+            instance_name = instance.Folder_Level_2.title()
+            dataframe = instance.DataFrame_Content
+            dataframe[category_name] = instance_name
+            instance_list.append(dataframe)
+        
+        # Make the boxplots
+        if make_graphs:
+            get_features_plot(Comparison, instance_list, category_name, show_plot=show_figs, save_plot=save_files)
+        split_i_dfs_list.append(instance_list)
 
-# Combine all datasets into a single DataFrame
-combined_data = pd.concat([gru_data, lstm_data, simple_data])
+        # Only add the categories once
+        categories_list.append(category_name)
+    for category, group in grouped_metrics:
+        instances = group[['Folder_Level_2', 'DataFrame_Content']]
+        category_name = category.title()
+        instance_list = []
 
-# Drop the unnamed index column
-combined_data = combined_data.drop(columns=['Unnamed: 0'])
+        # Edit the dataframes
+        for instance in instances.itertuples(index=True, name='Comparison_Instance'):
+            instance_name = instance.Folder_Level_2.title()
+            dataframe = instance.DataFrame_Content
+            dataframe[category_name] = instance_name
+            instance_list.append(dataframe)
 
-# Create a box plot
-plt.figure(figsize=(14, 8))
-sns.boxplot(x='Feature', y='Importance', hue='Model', data=combined_data, palette="Set3")
+        # Make the boxplots
+        if make_graphs:
+            get_metrics_plot(Comparison, instance_list, category_name, show_plot=show_figs, save_plot=save_files)
+        split_m_dfs_list.append(instance_list)
 
-plt.title('Box Plot of Feature Importance by Model')
-plt.xlabel('Feature')
-plt.ylabel('Importance')
-plt.xticks(rotation=45)
-plt.legend(title='Model')
-plt.tight_layout()
+    # Run the statistical tests functions
+    if get_stats:
+        for i in range(len(split_m_dfs_list)):
+            metrics_results_df, features_results_df, pairwise_results_df = perform_statistical_tests(split_m_dfs_list[i], split_i_dfs_list[i], categories_list[i])
+            if save_files:
+                category_folder = categories_list[i].lower().replace(' ', '_')
+                metrics_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/metrics_stats.csv', index=True)
+                features_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/features_stats.csv', index=True)
+                pairwise_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/significant_stats.csv', index=True)
 
-# Display the plot
-plt.show()
+def list_to_df(instance_list: list):
+    # Combine all datasets into a single DataFrame
+    combined_data = pd.concat(instance_list)
 
+    # Drop the unnamed index column
+    combined_data = combined_data.drop(columns=['Unnamed: 0'])
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+    return combined_data
 
-# Load the CSV files for metrics
-gru_metrics_file_path = '/mnt/data/combined_metrics_GRU.csv'
-lstm_metrics_file_path = '/mnt/data/combined_metrics_LSTM.csv'
-simple_metrics_file_path = '/mnt/data/combined_metrics_Simple.csv'
+def get_features_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False,save_plot=True):
+    # Prepare the data
+    combined_data = list_to_df(instance_list)
 
-gru_metrics = pd.read_csv(gru_metrics_file_path)
-lstm_metrics = pd.read_csv(lstm_metrics_file_path)
-simple_metrics = pd.read_csv(simple_metrics_file_path)
+    # Create a box plot
+    plt.figure(figsize=(14, 8))
+    sns.boxplot(x='Feature', y='Importance', hue=category_name, data=combined_data, palette="Set3")
 
-# Add a column to identify the model type in each metrics dataset
-gru_metrics['Model'] = 'GRU'
-lstm_metrics['Model'] = 'LSTM'
-simple_metrics['Model'] = 'Simple'
+    plt.title(f'Box Plot of Feature Importance by {category_name}')
+    plt.xlabel('Feature')
+    plt.ylabel('Importance')
+    plt.xticks(rotation=45)
+    plt.legend(title=f'{category_name}')
+    plt.tight_layout()
 
-# Combine all metrics datasets into a single DataFrame
-combined_metrics = pd.concat([gru_metrics, lstm_metrics, simple_metrics])
+    # Display the plot
+    if show_plot:
+        plt.show()
 
-# Drop the unnamed index column
-combined_metrics = combined_metrics.drop(columns=['Unnamed: 0'])
+    # Save the plot:
+    if save_plot:
+        category_folder = category_name.lower().replace(' ', '_')
+        plt.savefig(f'{Comparison.output_path}/{category_folder}/features_boxplot.png')
+    
+    plt.close()
 
-# Melt the dataframe for easier plotting
-melted_metrics = combined_metrics.melt(id_vars=['Model'], var_name='Metric', value_name='Value')
+def get_metrics_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False,save_plot=True):
+    # Prepare the data
+    combined_data = list_to_df(instance_list)
 
-# Create subplots for each metric
-metrics = melted_metrics['Metric'].unique()
-n_metrics = len(metrics)
+    # Melt the dataframe for easier plotting
+    melted_metrics = combined_data.melt(id_vars=[category_name], var_name='Metric', value_name='Value')
 
-fig, axes = plt.subplots(n_metrics, 1, figsize=(12, 8 * n_metrics))
+    # Create subplots for each metric
+    metrics = melted_metrics['Metric'].unique()
+    n_metrics = len(metrics)
 
-for i, metric in enumerate(metrics):
-    sns.boxplot(ax=axes[i], x='Model', y='Value', data=melted_metrics[melted_metrics['Metric'] == metric], palette="Set3")
-    axes[i].set_title(f'Comparison of {metric} across Models')
-    axes[i].set_xlabel('Model')
-    axes[i].set_ylabel(metric)
+    fig, axes = plt.subplots(n_metrics, 1, figsize=(12, 8 * n_metrics))
 
-plt.tight_layout()
-plt.show()
+    for i, metric in enumerate(metrics):
+        sns.boxplot(
+            ax=axes[i], 
+            x=category_name, 
+            y='Value', 
+            data=melted_metrics[melted_metrics['Metric'] == metric], 
+            hue=category_name, 
+            palette="Set3", 
+            legend=False
+        )
+        metric_name = metric.title()
+        axes[i].set_title(f'Comparison of {metric_name} across {category_name} types')
+        axes[i].set_xlabel(category_name)
+        axes[i].set_ylabel(metric)
 
+    plt.tight_layout()
 
-def perform_statistical_tests(metrics_files, feature_files):
-    import pandas as pd
-    from scipy.stats import f_oneway, kruskal, ttest_ind
+    # Display the plot
+    if show_plot:
+        plt.show()
 
-    def load_and_prepare_data(file_paths, data_type):
-        data_frames = []
-        for model, file_path in file_paths.items():
-            df = pd.read_csv(file_path)
-            df['Model'] = model
-            data_frames.append(df)
-        combined_data = pd.concat(data_frames)
-        combined_data = combined_data.drop(columns=['Unnamed: 0'])
-        return combined_data
+    # Save the plot:
+    if save_plot:
+        category_folder = category_name.lower().replace(' ', '_')
+        plt.savefig(f'{Comparison.output_path}/{category_folder}/metrics_boxplot.png')
+
+    plt.close()
+
+def perform_statistical_tests(metrics_list: list, features_list: list, category_name: str):
 
     def run_anova_kruskal(data, group_column, value_column):
         unique_groups = data[group_column].unique()
@@ -360,17 +409,20 @@ def perform_statistical_tests(metrics_files, feature_files):
                 pairwise_results.append((f'{group1} vs {group2}', t_stat, p_val))
         return pairwise_results
 
-    # Load and prepare data
-    metrics_data = load_and_prepare_data(metrics_files, 'metrics')
-    features_data = load_and_prepare_data(feature_files, 'features')
+    # Prepare the datasets
+    metrics_data = list_to_df(metrics_list)
+    features_data = list_to_df(features_list)
 
     # Metrics tests
-    metrics = ['accuracy', 'precision', 'recall', 'f1-score', 'support', 'time']
+    metrics = ['accuracy', 'precision', 'recall', 'f1-score', 'support', 'time','MSE','RMSE','MAE','MedAE','R2','Explained Variance','MBD','Runtime','Slope','Y-intercept']
     metrics_results = []
     significant_metrics = []
 
     for metric in metrics:
-        anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(metrics_data, 'Model', metric)
+        try: # Only calculate with the metrics that the model collected
+            anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(metrics_data, category_name, metric)
+        except KeyError:
+            continue
         metrics_results.append((metric, anova_stat, anova_p, kruskal_stat, kruskal_p))
         if anova_p < 0.05 or kruskal_p < 0.05:
             significant_metrics.append(metric)
@@ -381,7 +433,7 @@ def perform_statistical_tests(metrics_files, feature_files):
     significant_features = []
 
     for feature in features:
-        anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(features_data[features_data['Feature'] == feature], 'Model', 'Importance')
+        anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(features_data[features_data['Feature'] == feature], category_name, 'Importance')
         features_results.append((feature, anova_stat, anova_p, kruskal_stat, kruskal_p))
         if anova_p < 0.05 or kruskal_p < 0.05:
             significant_features.append(feature)
@@ -390,10 +442,10 @@ def perform_statistical_tests(metrics_files, feature_files):
     pairwise_comparisons = []
 
     for metric in significant_metrics:
-        pairwise_comparisons.extend(run_pairwise_ttests(metrics_data, 'Model', metric))
+        pairwise_comparisons.extend(run_pairwise_ttests(metrics_data, category_name, metric))
 
     for feature in significant_features:
-        pairwise_comparisons.extend(run_pairwise_ttests(features_data[features_data['Feature'] == feature], 'Model', 'Importance'))
+        pairwise_comparisons.extend(run_pairwise_ttests(features_data[features_data['Feature'] == feature], category_name, 'Importance'))
 
     # Combine results into DataFrames
     metrics_results_df = pd.DataFrame(metrics_results, columns=['Metric', 'ANOVA Statistic', 'ANOVA p-value', 'Kruskal-Wallis Statistic', 'Kruskal-Wallis p-value'])
@@ -401,19 +453,3 @@ def perform_statistical_tests(metrics_files, feature_files):
     pairwise_results_df = pd.DataFrame(pairwise_comparisons, columns=['Comparison', 'T-test Statistic', 'p-value'])
 
     return metrics_results_df, features_results_df, pairwise_results_df
-
-# Define the file paths for metrics and features
-metrics_files = {
-    'GRU': '/mnt/data/combined_metrics_GRU.csv',
-    'LSTM': '/mnt/data/combined_metrics_LSTM.csv',
-    'Simple': '/mnt/data/combined_metrics_Simple.csv'
-}
-
-feature_files = {
-    'GRU': '/mnt/data/combined_feature_importance_GRU.csv',
-    'LSTM': '/mnt/data/combined_feature_importance_LSTM.csv',
-    'Simple': '/mnt/data/combined_feature_importance_Simple.csv'
-}
-
-# Run the statistical tests function
-metrics_results_df, features_results_df, pairwise_results_df = perform_statistical_tests(metrics_files, feature_files)

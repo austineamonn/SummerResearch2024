@@ -1,6 +1,6 @@
 import logging
 
-from src.IntelliShield.comparison import Comparison, pipeline
+from src.IntelliShield.comparison import Comparison, pipeline, boxplot
 from src.IntelliShield.tradeoffs import (
     ISDecisionTreeClassification,
     ISLogisticRegression,
@@ -29,7 +29,8 @@ def test_comparison_regression(logger=None):
 
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
-    pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    boxplot(comparison)
     logger.info("regression comparison complete")
 
 def test_comparison_regressification(logger=None):
@@ -47,7 +48,8 @@ def test_comparison_regressification(logger=None):
 
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
-    pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    boxplot(comparison)
     logger.info("regressification comparison complete")
 
 def test_comparison_classification(logger=None):
@@ -65,7 +67,8 @@ def test_comparison_classification(logger=None):
 
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
-    pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
+    boxplot(comparison, make_graphs=False)
     logger.info("classification comparison complete")
 
 
@@ -74,4 +77,4 @@ logger = setup_logger('testing_comparison_logger', 'testing_comparison.log', lev
 
 test_comparison_regression(logger)
 test_comparison_regressification(logger)
-test_comparison_classification(logger)
+#test_comparison_classification(logger)

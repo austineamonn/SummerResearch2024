@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import ast
+import joblib
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Embedding, SimpleRNN, Dense, Bidirectional, LSTM, GRU, Dropout # type: ignore
 from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
@@ -207,7 +208,7 @@ class PreProcessing:
                 
         return new_df
     
-    def run_RNN_models(self, df, model, layers=2, utility=False):
+    def run_RNN_models(self, df, model, layers=2, utility=False, save_models=True, dir_path=None):
         df_copy = df.copy()
 
         if utility: # Reduce dimensionality of utility columns
@@ -235,6 +236,10 @@ class PreProcessing:
                 transformed_sequences = rnn_model.predict(preprocessed_col)
                 df_copy[col] = list(transformed_sequences)
 
+                if save_models:
+                    file_path = os.path.join(dir_path,'reduced_dimensionality_data', self.privatization_type, f'GRU{layers}', f'{col}_model.pkl')
+                    joblib.dump(rnn_model, file_path)
+
         return df_copy
     
     def create_RNN_models(self, df, end_range=1, save_files=False, utility=False, simple=True, LSTM=True, GRU=True, dir_path: str = None):
@@ -242,21 +247,21 @@ class PreProcessing:
 
         for layer in range(1, end_range + 1):
             if simple:
-                simple_df = self.run_RNN_models(df, 'Simple', layer, utility)
+                simple_df = self.run_RNN_models(df, 'Simple', layer, utility, save_files, dir_path)
                 if save_files:
                     simple_df.to_csv(os.path.join(dir_path, 'reduced_dimensionality_data', self.privatization_type, f'Simple{layer}.csv'), index=False)
                 else:
                     results.append(simple_df)
 
             if LSTM:
-                LSTM_df = self.run_RNN_models(df, 'LSTM', layer, utility)
+                LSTM_df = self.run_RNN_models(df, 'LSTM', layer, utility, save_files, dir_path)
                 if save_files:
                     LSTM_df.to_csv(os.path.join(dir_path, 'reduced_dimensionality_data', self.privatization_type, f'LSTM{layer}.csv'), index=False)
                 else:
                     results.append(LSTM_df)
 
             if GRU:
-                GRU_df = self.run_RNN_models(df, 'GRU', layer, utility)
+                GRU_df = self.run_RNN_models(df, 'GRU', layer, utility, save_files, dir_path)
                 if save_files:
                     GRU_df.to_csv(os.path.join(dir_path,'reduced_dimensionality_data', self.privatization_type, f'GRU{layer}.csv'), index=False)
                 else:
