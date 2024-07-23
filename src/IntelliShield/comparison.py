@@ -3,11 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import logging
+import seaborn as sns
 
 from IntelliShield.tradeoffs import load_feature_importance
-
-# TODO: Combine comparisons and just switch the list order
-# TODO: Make a list of functions that can be called. Use model_path_dict to get the model path for example the key-value pair ISDecisionTreeRegression: 'decision_tree_regression'
 
 class Comparison:
     def __init__(self, model_list: list, privatization_list: list, reduction_list: list, target_list: list, input_path: str, output_path: str, model_path_dict: dict, logger=None):
@@ -84,12 +82,26 @@ def make_comparison(Comparison: Comparison, order: list, save_files=True, return
             'median': combined_metrics_df.median(),
             'std': combined_metrics_df.std(),
             'min': combined_metrics_df.min(),
-            'max': combined_metrics_df.max()
+            'max': combined_metrics_df.max(),
+            'first_quartile': combined_metrics_df.quantile(0.25),
+            'third_quartile': combined_metrics_df.quantile(0.75)
         }
 
+        # Define the aggregate functions for the features
+        def custom_agg(group):
+            return pd.Series({
+                'mean': group.mean(),
+                'median': group.median(),
+                'std': group.std(),
+                'min': group.min(),
+                'max': group.max(),
+                'first_quartile': group.quantile(0.25),
+                'third_quartile': group.quantile(0.75)
+            })
+
         # Get the final dataframes
-        final_features_df = combined_features_df.groupby('Feature').agg(['mean', 'median', 'std', 'min', 'max'])
         final_metrics_df = pd.DataFrame(metrics)
+        final_features_df = combined_features_df.groupby('Feature').apply(lambda group: group.apply(custom_agg)).unstack()
 
         # Save as CSVs
         if save_files:
@@ -98,8 +110,13 @@ def make_comparison(Comparison: Comparison, order: list, save_files=True, return
             if not os.path.exists(output_directory):
                 os.makedirs(output_directory, exist_ok=True)
 
-            final_metrics_df.to_csv(f'{output_directory}/combined_metrics.csv', index=True)
-            final_features_df.to_csv(f'{output_directory}/combined_feature_importance.csv', index=True)
+            # Save the aggregated files
+            final_metrics_df.to_csv(f'{output_directory}/aggregate_metrics.csv', index=True)
+            final_features_df.to_csv(f'{output_directory}/aggregate_feature_importance.csv', index=True)
+
+            # Save the non aggregated files
+            combined_metrics_df.to_csv(f'{output_directory}/combined_metrics.csv', index=True)
+            combined_features_df.to_csv(f'{output_directory}/combined_feature_importance.csv', index=True)
         
         # Return the files
         if return_files:
@@ -146,31 +163,6 @@ def get_output_path(Comparison: Comparison, Model, privatization_type: str, redu
                 break
     return output_path
 
-def plot_metrics(Comparison: Comparison, comparison_df, comparison_type, metrics=['mean', 'median', 'std', 'min', 'max']):
-    """
-    Plots and saves graphs for specified metrics from the aggregated DataFrame.
-
-    Parameters:
-    - Comparison: A comparison object
-    - comparison_df: Aggregated DataFrame containing the metrics.
-    - metrics: A list of metrics to examine
-    """
-    for metric in metrics:
-        # Extract the specified metric from the comparison DataFrame
-        metric_df = comparison_df.xs(metric, level=1, axis=1)
-
-        # Plot the metric
-        plt.figure(figsize=(12, 8))
-        metric_df.plot(kind='bar')
-        plt.title(f'{metric.capitalize()} Importance Comparison Across {comparison_type}')
-        plt.xlabel('Feature')
-        plt.ylabel(f'{metric.capitalize()} Importance')
-        plt.legend(title='Dimension Type')
-
-        # Save the plot
-        plt.savefig(f'{Comparison.output_path}{metric}_importance_comparison.png', bbox_inches='tight')
-        plt.close()
-
 def load_model_metrics(Model, ave_type='macro') -> tuple:
     # Mapping of class names to expected classes
     classification_regressification_class_names = {
@@ -215,3 +207,213 @@ def load_model_metrics(Model, ave_type='macro') -> tuple:
     
     # Raise error if Model is not recognized
     raise ValueError("Need a proper Model object")
+
+def find_and_load_csv_files_as_dataframe(directory, filename):
+    """
+    Iterates through the directory and its subdirectories, finds all CSV files with the specified name,
+    and loads their content into pandas DataFrames. The result is a DataFrame with one column
+    containing lists of folder names representing the path to each found file, and another column
+    containing the DataFrames of these files.
+    
+    Parameters:
+    - directory (str): The root directory to start the search.
+    - filename (str): The name of the CSV files to search for.
+    
+    Returns:
+    - pd.DataFrame: A DataFrame where one column contains lists of folder names representing the path to the found files
+                    and another column contains the DataFrames of these files.
+    """
+    folder_paths = []
+    dataframes = []
+    
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file == filename:
+                file_path = os.path.join(root, file)
+                df = pd.read_csv(file_path)
+                folder_path = os.path.relpath(root, directory).split(os.sep)
+                folder_paths.append(folder_path)
+                dataframes.append(df)
+    
+    result_df = pd.DataFrame({
+        'Folder List': folder_paths,
+        'DataFrame Content': dataframes
+    })
+    
+    return result_df
+
+def load_files(Comparison: Comparison):
+    pass
+
+def boxplot(Comparison: Comparison):
+    pass
+
+# Load the CSV files
+gru_file_path = '/mnt/data/combined_feature_importance_GRU.csv'
+lstm_file_path = '/mnt/data/combined_feature_importance_LSTM.csv'
+simple_file_path = '/mnt/data/combined_feature_importance_Simple.csv'
+
+gru_data = pd.read_csv(gru_file_path)
+lstm_data = pd.read_csv(lstm_file_path)
+simple_data = pd.read_csv(simple_file_path)
+
+# Add a column to identify the model type in each dataset
+gru_data['Model'] = 'GRU'
+lstm_data['Model'] = 'LSTM'
+simple_data['Model'] = 'Simple'
+
+# Combine all datasets into a single DataFrame
+combined_data = pd.concat([gru_data, lstm_data, simple_data])
+
+# Drop the unnamed index column
+combined_data = combined_data.drop(columns=['Unnamed: 0'])
+
+# Create a box plot
+plt.figure(figsize=(14, 8))
+sns.boxplot(x='Feature', y='Importance', hue='Model', data=combined_data, palette="Set3")
+
+plt.title('Box Plot of Feature Importance by Model')
+plt.xlabel('Feature')
+plt.ylabel('Importance')
+plt.xticks(rotation=45)
+plt.legend(title='Model')
+plt.tight_layout()
+
+# Display the plot
+plt.show()
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the CSV files for metrics
+gru_metrics_file_path = '/mnt/data/combined_metrics_GRU.csv'
+lstm_metrics_file_path = '/mnt/data/combined_metrics_LSTM.csv'
+simple_metrics_file_path = '/mnt/data/combined_metrics_Simple.csv'
+
+gru_metrics = pd.read_csv(gru_metrics_file_path)
+lstm_metrics = pd.read_csv(lstm_metrics_file_path)
+simple_metrics = pd.read_csv(simple_metrics_file_path)
+
+# Add a column to identify the model type in each metrics dataset
+gru_metrics['Model'] = 'GRU'
+lstm_metrics['Model'] = 'LSTM'
+simple_metrics['Model'] = 'Simple'
+
+# Combine all metrics datasets into a single DataFrame
+combined_metrics = pd.concat([gru_metrics, lstm_metrics, simple_metrics])
+
+# Drop the unnamed index column
+combined_metrics = combined_metrics.drop(columns=['Unnamed: 0'])
+
+# Melt the dataframe for easier plotting
+melted_metrics = combined_metrics.melt(id_vars=['Model'], var_name='Metric', value_name='Value')
+
+# Create subplots for each metric
+metrics = melted_metrics['Metric'].unique()
+n_metrics = len(metrics)
+
+fig, axes = plt.subplots(n_metrics, 1, figsize=(12, 8 * n_metrics))
+
+for i, metric in enumerate(metrics):
+    sns.boxplot(ax=axes[i], x='Model', y='Value', data=melted_metrics[melted_metrics['Metric'] == metric], palette="Set3")
+    axes[i].set_title(f'Comparison of {metric} across Models')
+    axes[i].set_xlabel('Model')
+    axes[i].set_ylabel(metric)
+
+plt.tight_layout()
+plt.show()
+
+
+def perform_statistical_tests(metrics_files, feature_files):
+    import pandas as pd
+    from scipy.stats import f_oneway, kruskal, ttest_ind
+
+    def load_and_prepare_data(file_paths, data_type):
+        data_frames = []
+        for model, file_path in file_paths.items():
+            df = pd.read_csv(file_path)
+            df['Model'] = model
+            data_frames.append(df)
+        combined_data = pd.concat(data_frames)
+        combined_data = combined_data.drop(columns=['Unnamed: 0'])
+        return combined_data
+
+    def run_anova_kruskal(data, group_column, value_column):
+        unique_groups = data[group_column].unique()
+        grouped_data = [data[data[group_column] == group][value_column] for group in unique_groups]
+        anova_stat, anova_p = f_oneway(*grouped_data)
+        kruskal_stat, kruskal_p = kruskal(*grouped_data)
+        return anova_stat, anova_p, kruskal_stat, kruskal_p
+
+    def run_pairwise_ttests(data, group_column, value_column):
+        unique_groups = data[group_column].unique()
+        pairwise_results = []
+        for i in range(len(unique_groups)):
+            for j in range(i + 1, len(unique_groups)):
+                group1 = unique_groups[i]
+                group2 = unique_groups[j]
+                values1 = data[data[group_column] == group1][value_column]
+                values2 = data[data[group_column] == group2][value_column]
+                t_stat, p_val = ttest_ind(values1, values2)
+                pairwise_results.append((f'{group1} vs {group2}', t_stat, p_val))
+        return pairwise_results
+
+    # Load and prepare data
+    metrics_data = load_and_prepare_data(metrics_files, 'metrics')
+    features_data = load_and_prepare_data(feature_files, 'features')
+
+    # Metrics tests
+    metrics = ['accuracy', 'precision', 'recall', 'f1-score', 'support', 'time']
+    metrics_results = []
+    significant_metrics = []
+
+    for metric in metrics:
+        anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(metrics_data, 'Model', metric)
+        metrics_results.append((metric, anova_stat, anova_p, kruskal_stat, kruskal_p))
+        if anova_p < 0.05 or kruskal_p < 0.05:
+            significant_metrics.append(metric)
+
+    # Features tests
+    features = features_data['Feature'].unique()
+    features_results = []
+    significant_features = []
+
+    for feature in features:
+        anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(features_data[features_data['Feature'] == feature], 'Model', 'Importance')
+        features_results.append((feature, anova_stat, anova_p, kruskal_stat, kruskal_p))
+        if anova_p < 0.05 or kruskal_p < 0.05:
+            significant_features.append(feature)
+
+    # Pairwise comparisons for significant metrics and features
+    pairwise_comparisons = []
+
+    for metric in significant_metrics:
+        pairwise_comparisons.extend(run_pairwise_ttests(metrics_data, 'Model', metric))
+
+    for feature in significant_features:
+        pairwise_comparisons.extend(run_pairwise_ttests(features_data[features_data['Feature'] == feature], 'Model', 'Importance'))
+
+    # Combine results into DataFrames
+    metrics_results_df = pd.DataFrame(metrics_results, columns=['Metric', 'ANOVA Statistic', 'ANOVA p-value', 'Kruskal-Wallis Statistic', 'Kruskal-Wallis p-value'])
+    features_results_df = pd.DataFrame(features_results, columns=['Feature', 'ANOVA Statistic', 'ANOVA p-value', 'Kruskal-Wallis Statistic', 'Kruskal-Wallis p-value'])
+    pairwise_results_df = pd.DataFrame(pairwise_comparisons, columns=['Comparison', 'T-test Statistic', 'p-value'])
+
+    return metrics_results_df, features_results_df, pairwise_results_df
+
+# Define the file paths for metrics and features
+metrics_files = {
+    'GRU': '/mnt/data/combined_metrics_GRU.csv',
+    'LSTM': '/mnt/data/combined_metrics_LSTM.csv',
+    'Simple': '/mnt/data/combined_metrics_Simple.csv'
+}
+
+feature_files = {
+    'GRU': '/mnt/data/combined_feature_importance_GRU.csv',
+    'LSTM': '/mnt/data/combined_feature_importance_LSTM.csv',
+    'Simple': '/mnt/data/combined_feature_importance_Simple.csv'
+}
+
+# Run the statistical tests function
+metrics_results_df, features_results_df, pairwise_results_df = perform_statistical_tests(metrics_files, feature_files)
