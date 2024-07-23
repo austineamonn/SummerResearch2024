@@ -324,15 +324,19 @@ def get_features_plot(Comparison: Comparison, instance_list: list, category_name
     # Prepare the data
     combined_data = list_to_df(instance_list)
 
+    # Determine the order of features alphabetically
+    feature_order = sorted(combined_data['Feature'].unique())
+
     # Create a box plot
     plt.figure(figsize=(14, 8))
-    sns.boxplot(x='Feature', y='Importance', hue=category_name, data=combined_data, palette="Set3")
+    sns.boxplot(x='Feature', y='Importance', hue=category_name, data=combined_data, palette="Set3", order=feature_order)
 
-    plt.title(f'Box Plot of Feature Importance by {category_name}')
+    category_name_no_spaces = category_name.replace('_', ' ')
+    plt.title(f'Box Plot of Feature Importance by {category_name_no_spaces}')
     plt.xlabel('Feature')
     plt.ylabel('Importance')
     plt.xticks(rotation=45)
-    plt.legend(title=f'{category_name}')
+    plt.legend(title=category_name_no_spaces)
     plt.tight_layout()
 
     # Display the plot
@@ -342,7 +346,7 @@ def get_features_plot(Comparison: Comparison, instance_list: list, category_name
     # Save the plot:
     if save_plot:
         category_folder = category_name.lower().replace(' ', '_')
-        plt.savefig(f'{Comparison.output_path}/{category_folder}/features_boxplot.png')
+        plt.savefig(f'{Comparison.output_path}/{category_folder}/features_boxplot.png', dpi=300)
     
     plt.close()
 
@@ -355,37 +359,35 @@ def get_metrics_plot(Comparison: Comparison, instance_list: list, category_name:
 
     # Create subplots for each metric
     metrics = melted_metrics['Metric'].unique()
-    n_metrics = len(metrics)
-
-    fig, axes = plt.subplots(n_metrics, 1, figsize=(12, 8 * n_metrics))
-
-    for i, metric in enumerate(metrics):
+    for metric in metrics:
+        plt.figure(figsize=(12, 8))
         sns.boxplot(
-            ax=axes[i], 
             x=category_name, 
             y='Value', 
-            data=melted_metrics[melted_metrics['Metric'] == metric], 
-            hue=category_name, 
-            palette="Set3", 
-            legend=False
+            data=melted_metrics[melted_metrics['Metric'] == metric],
+            hue=category_name,  
+            palette="Set3",
+            legend=False,
+            showfliers=False
         )
         metric_name = metric.title()
-        axes[i].set_title(f'Comparison of {metric_name} across {category_name} types')
-        axes[i].set_xlabel(category_name)
-        axes[i].set_ylabel(metric)
+        category_name_no_spaces = category_name.replace('_', ' ')
+        plt.title(f'Comparison of {metric_name} across {category_name_no_spaces} types')
+        plt.xlabel(category_name)
+        plt.ylabel(metric)
 
-    plt.tight_layout()
+        plt.tight_layout()
 
-    # Display the plot
-    if show_plot:
-        plt.show()
+        # Display the plot
+        if show_plot:
+            plt.show()
 
-    # Save the plot:
-    if save_plot:
-        category_folder = category_name.lower().replace(' ', '_')
-        plt.savefig(f'{Comparison.output_path}/{category_folder}/metrics_boxplot.png')
+        # Save the plot
+        if save_plot:
+            category_folder = category_name.lower().replace(' ', '_')
+            plt.savefig(f'{Comparison.output_path}/{category_folder}/metrics_boxplot_{metric_name.lower()}.png', dpi=300)
 
-    plt.close()
+        plt.close()
 
 def perform_statistical_tests(metrics_list: list, features_list: list, category_name: str):
 
@@ -413,6 +415,9 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
     metrics_data = list_to_df(metrics_list)
     features_data = list_to_df(features_list)
 
+    # Pairwise comparisons for significant metrics and features
+    pairwise_comparisons = []
+
     # Metrics tests
     metrics = ['accuracy', 'precision', 'recall', 'f1-score', 'support', 'time','MSE','RMSE','MAE','MedAE','R2','Explained Variance','MBD','Runtime','Slope','Y-intercept']
     metrics_results = []
@@ -424,8 +429,7 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
         except KeyError:
             continue
         metrics_results.append((metric, anova_stat, anova_p, kruskal_stat, kruskal_p))
-        if anova_p < 0.05 or kruskal_p < 0.05:
-            significant_metrics.append(metric)
+        pairwise_comparisons.extend(run_pairwise_ttests(metrics_data, category_name, metric))
 
     # Features tests
     features = features_data['Feature'].unique()
@@ -435,16 +439,6 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
     for feature in features:
         anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(features_data[features_data['Feature'] == feature], category_name, 'Importance')
         features_results.append((feature, anova_stat, anova_p, kruskal_stat, kruskal_p))
-        if anova_p < 0.05 or kruskal_p < 0.05:
-            significant_features.append(feature)
-
-    # Pairwise comparisons for significant metrics and features
-    pairwise_comparisons = []
-
-    for metric in significant_metrics:
-        pairwise_comparisons.extend(run_pairwise_ttests(metrics_data, category_name, metric))
-
-    for feature in significant_features:
         pairwise_comparisons.extend(run_pairwise_ttests(features_data[features_data['Feature'] == feature], category_name, 'Importance'))
 
     # Combine results into DataFrames
@@ -452,4 +446,11 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
     features_results_df = pd.DataFrame(features_results, columns=['Feature', 'ANOVA Statistic', 'ANOVA p-value', 'Kruskal-Wallis Statistic', 'Kruskal-Wallis p-value'])
     pairwise_results_df = pd.DataFrame(pairwise_comparisons, columns=['Comparison', 'T-test Statistic', 'p-value'])
 
-    return metrics_results_df, features_results_df, pairwise_results_df
+    # Group by comparison and calculate mean of t-test statistic and p-value
+    averaged_pairwise_results_df = pairwise_results_df.groupby('Comparison').mean().reset_index()
+
+    # Sort by 'p-value' in ascending order
+    averaged_pairwise_results_df = averaged_pairwise_results_df.sort_values(by='p-value')
+
+    return metrics_results_df, features_results_df, averaged_pairwise_results_df
+

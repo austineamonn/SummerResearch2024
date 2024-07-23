@@ -14,6 +14,19 @@ from src.IntelliShield.tradeoffs import (
 )
 from src.IntelliShield.logger import setup_logger
 
+# TODO: Resolve this error
+
+"""
+/opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/scipy/stats/_axis_nan_policy.py:531: ConstantInputWarning: Each of the input arrays is constant; the F statistic is not defined or infinite
+  res = hypotest_fun_out(*samples, **kwds)
+/opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/scipy/stats/_axis_nan_policy.py:531: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+/opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/scipy/stats/_axis_nan_policy.py:531: ConstantInputWarning: Each of the input arrays is constant; the F statistic is not defined or infinite
+  res = hypotest_fun_out(*samples, **kwds)
+/opt/anaconda3/envs/tf-gpu/lib/python3.11/site-packages/scipy/stats/_axis_nan_policy.py:531: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+"""
+
 def test_comparison_regression(logger=None):
     model_path_dict = {
         ISDecisionTreeRegression: ['decision_tree_regression'],
@@ -30,7 +43,7 @@ def test_comparison_regression(logger=None):
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
     #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
-    boxplot(comparison)
+    boxplot(comparison, make_graphs=False, get_stats=True)
     logger.info("regression comparison complete")
 
 def test_comparison_regressification(logger=None):
@@ -49,7 +62,7 @@ def test_comparison_regressification(logger=None):
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
     #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
-    boxplot(comparison)
+    boxplot(comparison, make_graphs=False, get_stats=True)
     logger.info("regressification comparison complete")
 
 def test_comparison_classification(logger=None):
@@ -68,7 +81,7 @@ def test_comparison_classification(logger=None):
     comparison = Comparison(model_list, privatization_list, reduction_list, target_list, input_path, output_path, model_path_dict, logger)
 
     #pipeline(comparison, compare_models=True, compare_reduction=True, compare_privatization=True, compare_target=True)
-    boxplot(comparison, make_graphs=False)
+    boxplot(comparison, make_graphs=False, get_stats=True)
     logger.info("classification comparison complete")
 
 
@@ -77,4 +90,4 @@ logger = setup_logger('testing_comparison_logger', 'testing_comparison.log', lev
 
 test_comparison_regression(logger)
 test_comparison_regressification(logger)
-#test_comparison_classification(logger)
+test_comparison_classification(logger)
