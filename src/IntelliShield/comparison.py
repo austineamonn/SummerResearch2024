@@ -5,6 +5,9 @@ import os
 import logging
 import seaborn as sns
 from scipy.stats import f_oneway, kruskal, ttest_ind
+import matplotlib.colors as mcolors
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import numpy as np
 
 from IntelliShield.tradeoffs import load_feature_importance
 
@@ -251,7 +254,7 @@ def load_files(directory, filename):
 
     return result_df
 
-def boxplot(Comparison: Comparison, feature_name='combined_feature_importance.csv', metrics_name='combined_metrics.csv', save_files=True, show_figs=False, make_graphs=True, get_stats=True):
+def boxplot(Comparison: Comparison, feature_name='combined_feature_importance.csv', metrics_name='combined_metrics.csv', save_files=True, show_figs=False, make_graphs=True, get_stats=True, make_heatmap=True):
     importance_files_df = load_files(Comparison.output_path, feature_name)
     metrics_files_df = load_files(Comparison.output_path, metrics_name)
 
@@ -310,17 +313,25 @@ def boxplot(Comparison: Comparison, feature_name='combined_feature_importance.cs
                 metrics_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/metrics_stats.csv', index=True)
                 features_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/features_stats.csv', index=True)
                 pairwise_results_df.to_csv(f'{Comparison.output_path}/{category_folder}/significant_stats.csv', index=True)
+    
+    # Get the feature importance heatmap
+    if make_heatmap:
+        get_heatmap(Comparison, split_i_dfs_list, show_plot=show_figs, save_plot=save_files)
 
 def list_to_df(instance_list: list):
+    # Flatten the list of lists (or leave it as-is if it's already flat)
+    flattened_list = [df for sublist in instance_list for df in (sublist if isinstance(sublist, list) else [sublist])]
+    
     # Combine all datasets into a single DataFrame
-    combined_data = pd.concat(instance_list)
-
-    # Drop the unnamed index column
-    combined_data = combined_data.drop(columns=['Unnamed: 0'])
-
+    combined_data = pd.concat(flattened_list, ignore_index=True)
+    
+    # Drop the unnamed index column, if it exists
+    if 'Unnamed: 0' in combined_data.columns:
+        combined_data = combined_data.drop(columns=['Unnamed: 0'])
+    
     return combined_data
 
-def get_features_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False,save_plot=True):
+def get_features_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False, save_plot=True):
     # Prepare the data
     combined_data = list_to_df(instance_list)
 
@@ -350,7 +361,7 @@ def get_features_plot(Comparison: Comparison, instance_list: list, category_name
     
     plt.close()
 
-def get_metrics_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False,save_plot=True):
+def get_metrics_plot(Comparison: Comparison, instance_list: list, category_name: str, show_plot=False, save_plot=True):
     # Prepare the data
     combined_data = list_to_df(instance_list)
 
@@ -421,7 +432,6 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
     # Metrics tests
     metrics = ['accuracy', 'precision', 'recall', 'f1-score', 'support', 'time','MSE','RMSE','MAE','MedAE','R2','Explained Variance','MBD','Runtime','Slope','Y-intercept']
     metrics_results = []
-    significant_metrics = []
 
     for metric in metrics:
         try: # Only calculate with the metrics that the model collected
@@ -434,7 +444,6 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
     # Features tests
     features = features_data['Feature'].unique()
     features_results = []
-    significant_features = []
 
     for feature in features:
         anova_stat, anova_p, kruskal_stat, kruskal_p = run_anova_kruskal(features_data[features_data['Feature'] == feature], category_name, 'Importance')
@@ -454,3 +463,52 @@ def perform_statistical_tests(metrics_list: list, features_list: list, category_
 
     return metrics_results_df, features_results_df, averaged_pairwise_results_df
 
+def get_heatmap(Comparison: Comparison, features_list: list, show_plot=False, save_plot=True):
+    # Prepare the data
+    df = list_to_df(features_list)
+
+    # Aggregate the features by their name and compute the mean importance
+    aggregated_df = df.groupby('Feature')['Importance'].mean().reset_index()
+
+    # Sort the aggregated features by their mean importance
+    aggregated_sorted_df = aggregated_df.sort_values(by='Importance', ascending=False).reset_index(drop=True)
+
+    # Perform Tukey's HSD test
+    tukey_result = pairwise_tukeyhsd(endog=df['Importance'], groups=df['Feature'], alpha=0.05)
+    tukey_summary = tukey_result.summary()
+
+    # Extract p-values for the Tukey's HSD results
+    results = tukey_summary.data[1:]
+    pairs = [(row[0], row[1]) for row in results]
+    p_values = [float(row[3]) for row in results]
+
+    # Create a matrix to store p-values
+    features = aggregated_sorted_df['Feature'].tolist()
+    p_value_matrix = np.ones((len(features), len(features)))
+
+    # Fill the matrix with p-values from Tukey's HSD results
+    for i, (pair, p_value) in enumerate(zip(pairs, p_values)):
+        feature1, feature2 = pair
+        idx1 = features.index(feature1)
+        idx2 = features.index(feature2)
+        p_value_matrix[idx1, idx2] = p_value_matrix[idx2, idx1] = p_value
+
+    # Define a custom discrete color map
+    cmap = mcolors.ListedColormap(['red', 'white', 'blue'])
+    bounds = [0, 0.05, 0.1, 1]
+    norm = mcolors.BoundaryNorm(bounds, cmap.N)
+
+    # Create a heatmap with the custom discrete color map
+    plt.figure(figsize=(14, 12))
+    sns.heatmap(p_value_matrix, xticklabels=features, yticklabels=features, annot=False, cmap=cmap, norm=norm, cbar_kws={'label': 'p-value'})
+    plt.title("Heatmap of p-values from Tukey's HSD Test (Red=<0.05, White=0.05-0.1, Blue=>0.1)")
+
+    # Display the plot
+    if show_plot:
+        plt.show()
+
+    # Save the plot:
+    if save_plot:
+        plt.savefig(f'{Comparison.output_path}/features_heatmap.png', dpi=300)
+    
+    plt.close()
