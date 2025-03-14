@@ -34,7 +34,7 @@ class Comparison:
         if not os.path.exists(self.input_path):
             raise FileNotFoundError("The input path does not exist")
 
-def pipeline(Comparison: Comparison, compare_models=False, compare_reduction=False, compare_privatization=False, compare_target=False):
+def pipeline(Comparison: Comparison, compare_models=False, compare_reduction=False, compare_privatization=False, compare_target=False, get_boxplot=False, make_graphs=True, get_stats=True, make_heatmap=True):
     if compare_models:
         order = [Comparison.model_list, Comparison.privatization_list, Comparison.reduction_list, Comparison.target_list]
         make_comparison(Comparison, order)
@@ -47,6 +47,8 @@ def pipeline(Comparison: Comparison, compare_models=False, compare_reduction=Fal
     if compare_target:
         order = [Comparison.target_list, Comparison.privatization_list, Comparison.reduction_list, Comparison.model_list]
         make_comparison(Comparison, order)
+    if get_boxplot:
+        boxplot(Comparison, make_graphs=make_graphs)
 
 def make_comparison(Comparison: Comparison, order: list, save_files=True, return_files=False):
     list_1 = order[0]

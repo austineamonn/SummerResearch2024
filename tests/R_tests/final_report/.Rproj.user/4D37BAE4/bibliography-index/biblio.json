@@ -1,0 +1,1235 @@
+{
+    "sources": [
+        {
+            "DOI": "10.5539/ies.v11n10p50",
+            "ISSN": "1913-9039, 1913-9020",
+            "abstract": "The purpose of this study was to determine what factors other than individual preferences affect undergraduate students’ learning style preferences, if learning style is influenced by gender, age, college affiliation and/or type of activities. A total of 185 students from the University of Bahrain, Bahrain, participated in an online VARK (Visual, Aural, Read/Write and Kinesthetic) for younger people questionnaire. The questionnaire consisted of 16 items about learning style preferences and three about participants’ demographics. The results showed that participants generally preferred multi-modular learning style with both kinesthetic and visual learning styling being most preferred while Reading/Writing was the least preferred. Furthermore, there were statistically significant differences between students learning styles based on age and gender, but it was a moderate difference. What mostly affected the preferences, however, was the type of activities or tasks, something which in turn resulted in some difference among colleges. This suggests that VARK preferences need to be related to activity type rather than be observed at individual reference. Recommendations were provided at the end of the study.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Alkooheji",
+                    "given": "Lamya"
+                },
+                {
+                    "family": "Al-Hattami",
+                    "given": "Abdulghani"
+                }
+            ],
+            "container-title": "International Education Studies",
+            "id": "alkooheji2018",
+            "issue": "10",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018,
+                        9
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "50",
+            "title": "Learning Style Preferences among College Students",
+            "type": "article-journal",
+            "volume": "11"
+        },
+        {
+            "abstract": "A key-value dictionary data structure based on R6 class which is designed to be similar usages with other languages dictionary (e.g. ’Python’) with reference semantics and extendabilities by R6.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Asai",
+                    "given": "Shun"
+                }
+            ],
+            "id": "asai2020",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020,
+                        6
+                    ]
+                ]
+            },
+            "title": "Dict: R6 Based Key-Value Dictionary Implementation",
+            "title-short": "Dict",
+            "type": ""
+        },
+        {
+            "abstract": "HTML formats and templates for ’rmarkdown’ documents, with some extra features such as automatic table of contents, lightboxed figures, dynamic crosstab helper.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Barnier",
+                    "given": "Julien"
+                }
+            ],
+            "id": "barnier2022",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022,
+                        5
+                    ]
+                ]
+            },
+            "title": "Rmdformats: HTML Output Formats and Templates for ’rmarkdown’ Documents",
+            "title-short": "Rmdformats",
+            "type": ""
+        },
+        {
+            "abstract": "Takes screenshots of web pages, including Shiny applications and R Markdown documents. ’webshot2’ uses headless Chrome or Chromium as the browser back-end.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Chang",
+                    "given": "Winston"
+                },
+                {
+                    "family": "Schloerke",
+                    "given": "Barret"
+                },
+                {
+                    "family": "Software",
+                    "given": "Posit"
+                }
+            ],
+            "id": "chang2023",
+            "issued": {
+                "date-parts": [
+                    [
+                        2023,
+                        8
+                    ]
+                ]
+            },
+            "title": "Webshot2: Take Screenshots of Web Pages",
+            "title-short": "Webshot2",
+            "type": ""
+        },
+        {
+            "abstract": "Color maps designed to improve graph readability for readers with common forms of color blindness and/or color vision deficiency. The color maps are also perceptually-uniform, both in regular form and also when converted to black-and-white for printing. This package also contains ’ggplot2’ bindings for discrete and continuous color and fill scales. A lean version of the package called ’viridisLite’ that does not include the ’ggplot2’ bindings can be found at $<$https://cran.r-project.org/package=viridisLite$>$.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Garnier",
+                    "given": "Simon"
+                },
+                {
+                    "family": "Ross",
+                    "given": "Noam"
+                },
+                {
+                    "family": "Rudis",
+                    "given": "Bob"
+                },
+                {
+                    "family": "Sciaini",
+                    "given": "Marco"
+                },
+                {
+                    "family": "Camargo",
+                    "given": "Antônio Pedro"
+                },
+                {
+                    "family": "Scherer",
+                    "given": "Cédric"
+                }
+            ],
+            "id": "garnier2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Spatial",
+            "title": "Viridis: Colorblind-Friendly Color Maps for R",
+            "title-short": "Viridis",
+            "type": ""
+        },
+        {
+            "DOI": "10.48550/arXiv.2108.07670",
+            "URL": "https://arxiv.org/abs/2108.07670",
+            "abstract": "One of the biggest challenges that complicates applied supervised machine learning is the need for huge amounts of labeled data. Active Learning (AL) is a well-known standard method for efficiently obtaining labeled data by first labeling the samples that contain the most information based on a query strategy. Although many methods for query strategies have been proposed in the past, no clear superior method that works well in general for all domains has been found yet. Additionally, many strategies are computationally expensive which further hinders the widespread use of AL for large-scale annotation projects. We, therefore, propose ImitAL, a novel query strategy, which encodes AL as a learning-to-rank problem. For training the underlying neural network we chose Imitation Learning. The required demonstrative expert experience for training is generated from purely synthetic data. To show the general and superior applicability of \\ImitAL{}, we perform an extensive evaluation comparing our strategy on 15 different datasets, from a wide range of domains, with 10 different state-of-the-art query strategies. We also show that our approach is more runtime performant than most other strategies, especially on very large datasets.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Gonsior",
+                    "given": "Julius"
+                },
+                {
+                    "family": "Thiele",
+                    "given": "Maik"
+                },
+                {
+                    "family": "Lehner",
+                    "given": "Wolfgang"
+                }
+            ],
+            "id": "gonsior2021",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        8
+                    ]
+                ]
+            },
+            "keyword": "Computer Science - Artificial Intelligence,Computer Science - Machine Learning",
+            "number": "arXiv:2108.07670",
+            "publisher": "arXiv",
+            "title": "ImitAL: Learning Active Learning Strategies from Synthetic Data",
+            "title-short": "ImitAL",
+            "type": ""
+        },
+        {
+            "DOI": "10.1016/j.ijis.2020.09.001",
+            "ISSN": "20962487",
+            "abstract": "Reflecting on twenty years of educational research, we retrieved over 400 research article on the application of artificial intelligence (AI) and deep learning (DL) techniques in teaching and learning. A computerised content analysis was conducted to examine how AI and DL research themes have evolved in major educational journals. By doing so, we seek to uncover the prominent keywords associated with AI-enabled pedagogical adaptation research in each decade, due to the discipline’s dynamism. By examining the major research themes and historical trends from 2000 to 2019, we demonstrate that, as advanced technologies in education evolve over time, some areas of research topics seem have stood the test of time, while some others have experienced peaks and valleys. More importantly, our analysis highlights the paradigm shifts and emergent trends that are gaining prominence in the field of educational research. For instance, the results suggest the decline in conventional tech-enabled instructional design research and the flourishing of student profiling models and learning analytics. Furthermore, this paper serves to raise awareness on the opportunities and challenges behind AI and DL for pedagogical adaptation and initiate a dialogue.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        4
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Guan",
+                    "given": "Chong"
+                },
+                {
+                    "family": "Mou",
+                    "given": "Jian"
+                },
+                {
+                    "family": "Jiang",
+                    "given": "Zhiying"
+                }
+            ],
+            "container-title": "International Journal of Innovation Studies",
+            "id": "guan2020",
+            "issue": "4",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020,
+                        12
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "134-147",
+            "title": "Artificial intelligence innovation in education: A twenty-year data-driven historical analysis",
+            "title-short": "Artificial intelligence innovation in education",
+            "type": "article-journal",
+            "volume": "4"
+        },
+        {
+            "DOI": "10.48550/arXiv.2205.03257",
+            "URL": "https://arxiv.org/abs/2205.03257",
+            "abstract": "This explainer document aims to provide an overview of the current state of the rapidly expanding work on synthetic data technologies, with a particular focus on privacy. The article is intended for a non-technical audience, though some formal definitions have been given to provide clarity to specialists. This article is intended to enable the reader to quickly become familiar with the notion of synthetic data, as well as understand some of the subtle intricacies that come with it. We do believe that synthetic data is a very useful tool, and our hope is that this report highlights that, while drawing attention to nuances that can easily be overlooked in its deployment.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Jordon",
+                    "given": "James"
+                },
+                {
+                    "family": "Szpruch",
+                    "given": "Lukasz"
+                },
+                {
+                    "family": "Houssiau",
+                    "given": "Florimond"
+                },
+                {
+                    "family": "Bottarelli",
+                    "given": "Mirko"
+                },
+                {
+                    "family": "Cherubin",
+                    "given": "Giovanni"
+                },
+                {
+                    "family": "Maple",
+                    "given": "Carsten"
+                },
+                {
+                    "family": "Cohen",
+                    "given": "Samuel N."
+                },
+                {
+                    "family": "Weller",
+                    "given": "Adrian"
+                }
+            ],
+            "id": "jordon2022",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022,
+                        5
+                    ]
+                ]
+            },
+            "keyword": "Computer Science - Machine Learning",
+            "number": "arXiv:2205.03257",
+            "publisher": "arXiv",
+            "title": "Synthetic Data – what, why and how?",
+            "type": ""
+        },
+        {
+            "DOI": "10.48550/arXiv.2410.13523",
+            "URL": "https://arxiv.org/abs/2410.13523",
+            "abstract": "Medical Vision-Language Pre-training (MedVLP) has made significant progress in enabling zero-shot tasks for medical image understanding. However, training MedVLP models typically requires large-scale datasets with paired, high-quality image-text data, which are scarce in the medical domain. Recent advancements in Large Language Models (LLMs) and diffusion models have made it possible to generate large-scale synthetic image-text pairs. This raises the question: \"Can MedVLP succeed using purely synthetic data?\" To address this, we use off-the-shelf generative models to create synthetic radiology reports and paired Chest X-ray (CXR) images, and propose an automated pipeline to build a diverse, high-quality synthetic dataset, enabling a rigorous study that isolates model and training settings, focusing entirely from the data perspective. Our results show that MedVLP models trained exclusively on synthetic data outperform those trained on real data by 3.8% in averaged AUC on zero-shot classification. Moreover, using a combination of synthetic and real data leads to a further improvement of 9.07%. Additionally, MedVLP models trained on synthetic or mixed data consistently outperform those trained on real data in zero-shot grounding, as well as in fine-tuned classification and segmentation tasks. Our analysis suggests MedVLP trained on well-designed synthetic data can outperform models trained on real datasets, which may be limited by low-quality samples and long-tailed distributions.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Liu",
+                    "given": "Che"
+                },
+                {
+                    "family": "Wan",
+                    "given": "Zhongwei"
+                },
+                {
+                    "family": "Wang",
+                    "given": "Haozhe"
+                },
+                {
+                    "family": "Chen",
+                    "given": "Yinda"
+                },
+                {
+                    "family": "Qaiser",
+                    "given": "Talha"
+                },
+                {
+                    "family": "Jin",
+                    "given": "Chen"
+                },
+                {
+                    "family": "Yousefi",
+                    "given": "Fariba"
+                },
+                {
+                    "family": "Burlutskiy",
+                    "given": "Nikolay"
+                },
+                {
+                    "family": "Arcucci",
+                    "given": "Rossella"
+                }
+            ],
+            "id": "liu2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        10
+                    ]
+                ]
+            },
+            "keyword": "Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition",
+            "number": "arXiv:2410.13523",
+            "publisher": "arXiv",
+            "title": "Can Medical Vision-Language Pre-training Succeed with Purely Synthetic Data?",
+            "type": ""
+        },
+        {
+            "DOI": "10.1016/j.stueduc.2020.100842",
+            "ISSN": "0191491X",
+            "abstract": "Research on data-based decision making has proliferated around the world, fueled by policy recommendations and the diverse data that are now available to educators to inform their practice. Yet, many misconceptions and concerns have been raised by researchers and practitioners. To better understand the issues, a session was convened at AERA’s annual convention in 2018, followed by an analysis of the literature based on misconceptions that emerged. This commentary is an outgrowth of that exploration by providing research, theoretical, and practical evidence to dispel some of the misconceptions. Our objective is to survey and synthesize the landscape of the data-based decision making literature to address the identified misconceptions and then to serve as a stimulus to changes in policy and practice as well as a roadmap for a research agenda.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        4
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Mandinach",
+                    "given": "Ellen B."
+                },
+                {
+                    "family": "Schildkamp",
+                    "given": "Kim"
+                }
+            ],
+            "container-title": "Studies in Educational Evaluation",
+            "id": "mandinach2021",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        6
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "100842",
+            "title": "Misconceptions about data-based decision making in education: An exploration of the literature",
+            "title-short": "Misconceptions about data-based decision making in education",
+            "type": "article-journal",
+            "volume": "69"
+        },
+        {
+            "abstract": "Provides color schemes for maps (and other graphics) designed by Cynthia Brewer as described at http://colorbrewer2.org.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Neuwirth",
+                    "given": "Erich"
+                }
+            ],
+            "id": "neuwirth2022",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022,
+                        4
+                    ]
+                ]
+            },
+            "keyword": "Spatial",
+            "title": "RColorBrewer: ColorBrewer Palettes",
+            "title-short": "RColorBrewer",
+            "type": ""
+        },
+        {
+            "abstract": "There is a scarcity of empirical education data suitable for research that does not raising ethical concerns, such as the risk of exposing sensitive student information, including personal identifiers, learning progress, and behavioral patterns. To address this, a purely synthetic dataset that can be easily generated is essential for educational research purposes. As a result, we designed a novel pipeline that generates synthetic data by establishing unique mappings between empirical data, large language models, and uniformly distributed random numbers. The resulting dataset incorporates student demographic information, learning history, potential career paths, and future areas of exploration. To safeguard privacy, foundational techniques like random shuffling and more advanced methods such as differential privacy are employed. The privacy-utility tradeoff is a key consideration in our approach, as enhancing privacy often reduces the utility of the data, and vice versa. Privacy leakage is evaluated by analyzing the accuracy of Classification models for predicting private data, while utility is measured by employing Regression and Regressification models.",
+            "author": [
+                {
+                    "family": "Nicolas",
+                    "given": "Austin"
+                },
+                {
+                    "family": "Sakib",
+                    "given": "Shahnewaz Karim"
+                }
+            ],
+            "id": "nicolas2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        11
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "title": "PipelineEDU: Creating High-Quality Synthetic Data for Educational Research and Applications",
+            "title-short": "PipelineEDU",
+            "type": "manuscript"
+        },
+        {
+            "abstract": "A reasonably fast JSON parser and generator, optimized for statistical data and the web. Offers simple, flexible tools for working with JSON in R, and is particularly powerful for building pipelines and interacting with a web API. The implementation is based on the mapping described in the vignette (Ooms, 2014). In addition to converting JSON data from/to R objects, ’jsonlite’ contains functions to stream, validate, and prettify JSON data. The unit tests included with the package verify that all edge cases are encoded and decoded consistently for use with dynamic data in systems and applications.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Ooms",
+                    "given": "Jeroen"
+                },
+                {
+                    "family": "Lang",
+                    "given": "Duncan Temple"
+                },
+                {
+                    "family": "Hilaiel",
+                    "given": "Lloyd"
+                }
+            ],
+            "id": "ooms2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        9
+                    ]
+                ]
+            },
+            "keyword": "WebTechnologies",
+            "title": "Jsonlite: A Simple and Robust JSON Parser and Generator for R",
+            "title-short": "Jsonlite",
+            "type": ""
+        },
+        {
+            "abstract": "A compilation of extra ’ggplot2’ themes, scales and utilities, including a spell check function for plot label fields and an overall emphasis on typography. A copy of the ’Google’ font ’Roboto Condensed’ is also included.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Rudis",
+                    "given": "Bob"
+                }
+            ],
+            "id": "rudis2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        3
+                    ]
+                ]
+            },
+            "title": "Hrbrthemes: Additional Themes, Theme Components and Utilities for ’Ggplot2’",
+            "title-short": "Hrbrthemes",
+            "type": ""
+        },
+        {
+            "DOI": "10.1609/aaai.v35i17.17751",
+            "ISSN": "2374-3468, 2159-5399",
+            "abstract": "Planning scenarios involving user pre-specified items present themselves frequently in recommender system domains. Although next-item and next-basket recommendation has been a focus of prior research, multiple consecutive item or basket approaches are needed for planning. No prior work has leveraged pre-specified future reference items to improve this type of challenging consecutive prediction task at inference time. PLAN-BERT is the first to accommodate this general planning scenario. It does so by contributing novel modifications that take inspiration from the masked training and contextual embedding of self-attention models. To test the model, we use the domain of student academic degree planning, in which students’ past course histories and future pre-specified courses of interest are used to fill in the remainder of their curriculum. Our offline analyses consist of 15 million historic course enrollments at 20 institutions and an online evaluation conducted at one of the institutions. Our results show that PLAN-BERT outperforms existing models including BERT, BiLSTM, and a UserKNN baseline, with small numbers of future reference items substantially improving accuracy. Significant results from our online evaluation show PLAN-BERT to be strongest in students’ perceptions of personalization.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        4
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Shao",
+                    "given": "Erzhuo"
+                },
+                {
+                    "family": "Guo",
+                    "given": "Shiyuan"
+                },
+                {
+                    "family": "Pardos",
+                    "given": "Zachary A."
+                }
+            ],
+            "container-title": "Proceedings of the AAAI Conference on Artificial Intelligence",
+            "id": "shao2021",
+            "issue": "17",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        5
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "14920-14929",
+            "title": "Degree Planning with PLAN-BERT: Multi-Semester Recommendation Using Future Courses of Interest",
+            "title-short": "Degree Planning with PLAN-BERT",
+            "type": "article-journal",
+            "volume": "35"
+        },
+        {
+            "abstract": "Create interactive web graphics from ’ggplot2’ graphs and/or a custom interface to the (MIT-licensed) JavaScript library ’plotly.js’ inspired by the grammar of graphics.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Sievert",
+                    "given": "Carson"
+                },
+                {
+                    "family": "Parmer",
+                    "given": "Chris"
+                },
+                {
+                    "family": "Hocking",
+                    "given": "Toby"
+                },
+                {
+                    "family": "Chamberlain",
+                    "given": "Scott"
+                },
+                {
+                    "family": "Ram",
+                    "given": "Karthik"
+                },
+                {
+                    "family": "Corvellec",
+                    "given": "Marianne"
+                },
+                {
+                    "family": "Despouy",
+                    "given": "Pedro"
+                },
+                {
+                    "family": "Brüggemann",
+                    "given": "Salim"
+                },
+                {
+                    "family": "Inc",
+                    "given": "Plotly Technologies"
+                }
+            ],
+            "id": "sievert2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "DynamicVisualizations,WebTechnologies",
+            "title": "Plotly: Create Interactive Web Graphics via ’plotly.js’",
+            "title-short": "Plotly",
+            "type": ""
+        },
+        {
+            "DOI": "10.1109/ICCVW54120.2021.00217",
+            "ISBN": "978-1-66540-191-3",
+            "abstract": "Though many attempts have been made in blind superresolution to restore low-resolution images with unknown and complex degradations, they are still far from addressing general real-world degraded images. In this work, we extend the powerful ESRGAN to a practical restoration application (namely, Real-ESRGAN), which is trained with pure synthetic data. Specifically, a high-order degradation modeling process is introduced to better simulate complex realworld degradations. We also consider the common ringing and overshoot artifacts in the synthesis process. In addition, we employ a U-Net discriminator with spectral normalization to increase discriminator capability and stabilize the training dynamics. Extensive comparisons have shown its superior visual performance than prior works on various real datasets. We also provide efficient implementations to synthesize training pairs on the fly.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Wang",
+                    "given": "Xintao"
+                },
+                {
+                    "family": "Xie",
+                    "given": "Liangbin"
+                },
+                {
+                    "family": "Dong",
+                    "given": "Chao"
+                },
+                {
+                    "family": "Shan",
+                    "given": "Ying"
+                }
+            ],
+            "container-title": "2021 IEEE/CVF International Conference on Computer Vision Workshops (ICCVW)",
+            "id": "wang2021",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021,
+                        10
+                    ]
+                ]
+            },
+            "language": "en-US",
+            "page": "1905-1914",
+            "publisher": "IEEE",
+            "publisher-place": "Montreal, BC, Canada",
+            "title": "Real-ESRGAN: Training Real-World Blind Super-Resolution with Pure Synthetic Data",
+            "title-short": "Real-ESRGAN",
+            "type": "paper-conference"
+        },
+        {
+            "abstract": "The ’tidyverse’ is a set of packages that work in harmony because they share common data representations and ’API’ design. This package is designed to make it easy to install and load multiple ’tidyverse’ packages in a single step. Learn more about the ’tidyverse’ at $<$https://www.tidyverse.org$>$.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Wickham",
+                    "given": "Hadley"
+                }
+            ],
+            "id": "wickham2023",
+            "issued": {
+                "date-parts": [
+                    [
+                        2023,
+                        2
+                    ]
+                ]
+            },
+            "keyword": "ChemPhys",
+            "title": "Tidyverse: Easily Install and Load the ’Tidyverse’",
+            "title-short": "Tidyverse",
+            "type": ""
+        },
+        {
+            "abstract": "Provides a general-purpose tool for dynamic report generation in R using Literate Programming techniques.",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "author": [
+                {
+                    "family": "Xie",
+                    "given": "Yihui"
+                },
+                {
+                    "family": "Sarma",
+                    "given": "Abhraneel"
+                },
+                {
+                    "family": "Vogt",
+                    "given": "Adam"
+                },
+                {
+                    "family": "Andrew",
+                    "given": "Alastair"
+                },
+                {
+                    "family": "Zvoleff",
+                    "given": "Alex"
+                },
+                {
+                    "family": "Al-Zubaidi",
+                    "given": "Amar"
+                },
+                {
+                    "dropping-particle": "package",
+                    "family": "http://www.andre-simon.de)",
+                    "given": "Andre Simon (the CSS files under inst/themes/ were derived from the Highlight"
+                },
+                {
+                    "family": "Atkins",
+                    "given": "Aron"
+                },
+                {
+                    "family": "Wolen",
+                    "given": "Aaron"
+                },
+                {
+                    "family": "Manton",
+                    "given": "Ashley"
+                },
+                {
+                    "family": "Yasumoto",
+                    "given": "Atsushi"
+                },
+                {
+                    "family": "Baumer",
+                    "given": "Ben"
+                },
+                {
+                    "family": "Diggs",
+                    "given": "Brian"
+                },
+                {
+                    "family": "Zhang",
+                    "given": "Brian"
+                },
+                {
+                    "family": "Yapparov",
+                    "given": "Bulat"
+                },
+                {
+                    "family": "Pereira",
+                    "given": "Cassio"
+                },
+                {
+                    "family": "Dervieux",
+                    "given": "Christophe"
+                },
+                {
+                    "family": "Hall",
+                    "given": "David"
+                },
+                {
+                    "family": "Hugh-Jones",
+                    "given": "David"
+                },
+                {
+                    "family": "Robinson",
+                    "given": "David"
+                },
+                {
+                    "family": "Hemken",
+                    "given": "Doug"
+                },
+                {
+                    "family": "Murdoch",
+                    "given": "Duncan"
+                },
+                {
+                    "family": "Campitelli",
+                    "given": "Elio"
+                },
+                {
+                    "family": "Hughes",
+                    "given": "Ellis"
+                },
+                {
+                    "family": "Riederer",
+                    "given": "Emily"
+                },
+                {
+                    "family": "Hirschmann",
+                    "given": "Fabian"
+                },
+                {
+                    "family": "Simeon",
+                    "given": "Fitch"
+                },
+                {
+                    "family": "Fang",
+                    "given": "Forest"
+                },
+                {
+                    "family": "Harrell",
+                    "given": "Frank E."
+                },
+                {
+                    "family": "Aden-Buie",
+                    "given": "Garrick"
+                },
+                {
+                    "family": "Detrez",
+                    "given": "Gregoire"
+                },
+                {
+                    "family": "Wickham",
+                    "given": "Hadley"
+                },
+                {
+                    "family": "Zhu",
+                    "given": "Hao"
+                },
+                {
+                    "family": "Jeon",
+                    "given": "Heewon"
+                },
+                {
+                    "family": "Bengtsson",
+                    "given": "Henrik"
+                },
+                {
+                    "family": "Yutani",
+                    "given": "Hiroaki"
+                },
+                {
+                    "family": "Lyttle",
+                    "given": "Ian"
+                },
+                {
+                    "family": "Daniel",
+                    "given": "Hodges"
+                },
+                {
+                    "family": "Bien",
+                    "given": "Jacob"
+                },
+                {
+                    "family": "Burkhead",
+                    "given": "Jake"
+                },
+                {
+                    "family": "Manton",
+                    "given": "James"
+                },
+                {
+                    "family": "Lander",
+                    "given": "Jared"
+                },
+                {
+                    "family": "Punyon",
+                    "given": "Jason"
+                },
+                {
+                    "family": "Luraschi",
+                    "given": "Javier"
+                },
+                {
+                    "family": "Arnold",
+                    "given": "Jeff"
+                },
+                {
+                    "family": "Bryan",
+                    "given": "Jenny"
+                },
+                {
+                    "family": "Ashkenas",
+                    "given": "Jeremy"
+                },
+                {
+                    "family": "Stephens",
+                    "given": "Jeremy"
+                },
+                {
+                    "family": "Hester",
+                    "given": "Jim"
+                },
+                {
+                    "family": "Cheng",
+                    "given": "Joe"
+                },
+                {
+                    "family": "Ranke",
+                    "given": "Johannes"
+                },
+                {
+                    "family": "Honaker",
+                    "given": "John"
+                },
+                {
+                    "family": "Muschelli",
+                    "given": "John"
+                },
+                {
+                    "family": "Keane",
+                    "given": "Jonathan"
+                },
+                {
+                    "family": "Allaire",
+                    "given": "J. J."
+                },
+                {
+                    "family": "Toloe",
+                    "given": "Johan"
+                },
+                {
+                    "family": "Sidi",
+                    "given": "Jonathan"
+                },
+                {
+                    "family": "Larmarange",
+                    "given": "Joseph"
+                },
+                {
+                    "family": "Barnier",
+                    "given": "Julien"
+                },
+                {
+                    "family": "Zhong",
+                    "given": "Kaiyin"
+                },
+                {
+                    "family": "Slowikowski",
+                    "given": "Kamil"
+                },
+                {
+                    "family": "Forner",
+                    "given": "Karl"
+                },
+                {
+                    "family": "Smith",
+                    "given": "Kevin K."
+                },
+                {
+                    "family": "Mueller",
+                    "given": "Kirill"
+                },
+                {
+                    "family": "Takahashi",
+                    "given": "Kohske"
+                },
+                {
+                    "family": "Walthert",
+                    "given": "Lorenz"
+                },
+                {
+                    "family": "Gallindo",
+                    "given": "Lucas"
+                },
+                {
+                    "family": "Hofert",
+                    "given": "Marius"
+                },
+                {
+                    "family": "Modrák",
+                    "given": "Martin"
+                },
+                {
+                    "family": "Chirico",
+                    "given": "Michael"
+                },
+                {
+                    "family": "Friendly",
+                    "given": "Michael"
+                },
+                {
+                    "family": "Bojanowski",
+                    "given": "Michal"
+                },
+                {
+                    "family": "Kuhlmann",
+                    "given": "Michel"
+                },
+                {
+                    "family": "Patrick",
+                    "given": "Miller"
+                },
+                {
+                    "family": "Caballero",
+                    "given": "Nacho"
+                },
+                {
+                    "family": "Salkowski",
+                    "given": "Nick"
+                },
+                {
+                    "family": "Hansen",
+                    "given": "Niels Richard"
+                },
+                {
+                    "family": "Ross",
+                    "given": "Noam"
+                },
+                {
+                    "family": "Mahdi",
+                    "given": "Obada"
+                },
+                {
+                    "family": "Krivitsky",
+                    "given": "Pavel N."
+                },
+                {
+                    "family": "Faria",
+                    "given": "Pedro"
+                },
+                {
+                    "family": "Li",
+                    "given": "Qiang"
+                },
+                {
+                    "family": "Vaidyanathan",
+                    "given": "Ramnath"
+                },
+                {
+                    "family": "Cotton",
+                    "given": "Richard"
+                },
+                {
+                    "family": "Krzyzanowski",
+                    "given": "Robert"
+                },
+                {
+                    "family": "Copetti",
+                    "given": "Rodrigo"
+                },
+                {
+                    "family": "Francois",
+                    "given": "Romain"
+                },
+                {
+                    "family": "Williamson",
+                    "given": "Ruaridh"
+                },
+                {
+                    "family": "Mati",
+                    "given": "Sagiru"
+                },
+                {
+                    "family": "Kostyshak",
+                    "given": "Scott"
+                },
+                {
+                    "family": "Meyer",
+                    "given": "Sebastian"
+                },
+                {
+                    "family": "Brouwer",
+                    "given": "Sietse"
+                },
+                {
+                    "dropping-particle": "de",
+                    "family": "Bernard",
+                    "given": "Simon"
+                },
+                {
+                    "family": "Rousseau",
+                    "given": "Sylvain"
+                },
+                {
+                    "family": "Wei",
+                    "given": "Taiyun"
+                },
+                {
+                    "family": "Assus",
+                    "given": "Thibaut"
+                },
+                {
+                    "family": "Lamadon",
+                    "given": "Thibaut"
+                },
+                {
+                    "family": "Leeper",
+                    "given": "Thomas"
+                },
+                {
+                    "family": "Mastny",
+                    "given": "Tim"
+                },
+                {
+                    "family": "Torsney-Weir",
+                    "given": "Tom"
+                },
+                {
+                    "family": "Davis",
+                    "given": "Trevor"
+                },
+                {
+                    "family": "Veitas",
+                    "given": "Viktoras"
+                },
+                {
+                    "family": "Zhu",
+                    "given": "Weicheng"
+                },
+                {
+                    "family": "Wu",
+                    "given": "Wush"
+                },
+                {
+                    "family": "Foster",
+                    "given": "Zachary"
+                },
+                {
+                    "family": "Kamvar",
+                    "given": "Zhian N."
+                }
+            ],
+            "id": "xie2024",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024,
+                        11
+                    ]
+                ]
+            },
+            "keyword": "ReproducibleResearch",
+            "title": "Knitr: A General-Purpose Package for Dynamic Report Generation in R",
+            "title-short": "Knitr",
+            "type": ""
+        },
+        {
+            "abstract": "Back to College Dashboard The College Majors Explorer is a tool that allows you to compare college majors quickly on key outcomes. These include: Starting Income, Lifetime Income, Difficulty of the major, Early career unemployment rate of the major, Field of the major, The share of graduates from the major that are female, The share of graduates in each major that work in its top 10 occupations",
+            "accessed": {
+                "date-parts": [
+                    [
+                        2024,
+                        12,
+                        3
+                    ]
+                ]
+            },
+            "container-title": "Big Economics",
+            "id": "zotero-106",
+            "language": "en-US",
+            "publisher": "https://bigeconomics.org/college-majors-explorer/",
+            "title": "College Majors Explorer",
+            "type": ""
+        }
+    ],
+    "project_biblios": []
+}

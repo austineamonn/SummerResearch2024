@@ -1,0 +1,1220 @@
+---
+title: "Synthetic Educational Dataset Analysis"
+author: "Austin Nicolas"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+  rmdformats::downcute:
+    code_folding: show
+    self_contained: true
+    thumbnails: false
+    lightbox: true
+always_allow_html: true
+pkgdown:
+  as_is: true
+bibliography: references.bib
+csl: apa.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+if (!require(rmdformats)) install.packages('rmdformats', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(rmdformats)))
+
+if (!require(knitr)) install.packages('knitr', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(knitr)))
+
+if (!require(tidyverse)) install.packages('tidyverse', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(tidyverse)))
+
+if (!require(jsonlite)) install.packages('jsonlite', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(jsonlite)))
+
+if (!require(RColorBrewer)) install.packages('RColorBrewer', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(RColorBrewer)))
+
+if (!require(Dict)) install.packages('Dict', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(Dict)))
+
+if (!require(plotly)) install.packages('plotly', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(plotly)))
+
+if (!require(viridis)) install.packages('viridis', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(viridis)))
+
+if (!require(hrbrthemes)) install.packages('hrbrthemes', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(hrbrthemes)))
+
+if (!require(webshot2)) install.packages('webshot2', dependencies = TRUE) 
+suppressWarnings(suppressMessages(library(webshot2)))
+
+```
+
+```{css, echo=FALSE}
+/* Customize column width for the original unaltered dataset */
+#unaltered-dataset-table .dataTable thead th {
+  text-align: center;
+}
+#unaltered-dataset-table .dataTable td:nth-child(12) {
+  min-width: 700px;
+}
+#unaltered-dataset-table .dataTable td:nth-child(13) {
+  min-width: 450px;
+}
+#unaltered-dataset-table .dataTable td:nth-child(14) {
+  min-width: 200px;
+}
+#unaltered-dataset-table .dataTable td:nth-child(17) {
+  min-width: 350px;
+}
+```
+
+# Background
+
+There has been a recent increase in machine learning being used for educational research and to inform educational practices. However, all the data used is empirical and using this data risks privacy leaks. At the same time, there have been great advances in the usage of purely synthetic data to improve machine learning models and train models without needing any empirical data. Our work in Nicolas and Sakib 2024 bridged this gap by creating a purely synthetic educational dataset to improve educational research and practices. To learn more about this work visit the [github page](https://github.com/austineamonn/SummerResearch2024).
+
+## Data Generation Flowchart
+
+The following flowchart, taken from the conference paper Nicolas and Sakib 2024, shows the process used for generating each observation in the dataset.
+
+![Data Generation Flowchart](data_generation_flowchart.png)
+
+Here we show the code used to generate a single observation which is one student. This was run 100,000 times to generate the dataset this work analyzes.
+
+```{python single_datum_generation_func, eval = FALSE}
+
+def generate_single_sample(self):
+        """
+        Generate a single sample of synthetic data.
+        :return: Dictionary representing a single data sample.
+        """
+        try:
+            first_name = random.choice(self.first_names)
+            last_name = random.choice(self.last_names)
+            ethnoracial_group = self.assign_demographic(self.ethnoracial_stats, self.ethnoracial_dist)
+            gender = self.assign_demographic(self.gender_stats, self.gender_dist)
+            international_status = self.assign_demographic(self.international_stats, self.international_dist)
+            socioeconomic_status = self.assign_demographic(self.socioeconomic_stats, self.socioeconomic_dist)
+            identities = [ethnoracial_group, gender, international_status]
+            learning_style = self.generate_learning_style()
+            student_semester = np.random.randint(0, 15)
+            gpa = self.generate_gpa(student_semester)
+            major = self.choose_major(student_semester, gender)
+            extracurricular_activities = self.generate_identity_org(identities)
+
+            previous_courses = []
+            subjects = []
+            career_aspirations_list = []
+
+            # Iterate through each semester the student has been at the school.
+            # Courses, subjects or interest, career aspirations and extracurriculars
+            # all interact with one another.
+            for semester in range(student_semester + 1):
+                previous_courses = self.generate_previous_courses(semester, learning_style, previous_courses, major)
+                num_courses = len(previous_courses)
+                top_subject, class_count = self.most_common_class_subject(previous_courses)
+                subjects = self.generate_subjects_of_interest(previous_courses, subjects, major, top_subject, career_aspirations_list)
+                career_aspirations_list = self.generate_career_aspirations(career_aspirations_list, subjects, major, extracurricular_activities)
+                extracurricular_activities = self.generate_extracurricular_activities(subjects, extracurricular_activities, major, career_aspirations_list)
+
+                # If the student has been there for 4 or more semesters and has enough courses,
+                # including those in their major then make them graduate by breaking the loop
+                if semester >= 8 and num_courses >= 32 and class_count >= 8:
+                    student_semester = semester
+                    break
+
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug("Iterated through %s semesters", student_semester)
+
+            # Split the tuples into course name, course type, and course subject
+            # Ex: Intro Asian American Studies, Discussion/Recitation, AAS
+            course_names = [course[0] for course in previous_courses]
+            course_type = list(set([tuple(course[2]) for course in previous_courses]))
+            course_subject = list(set([course[3] for course in previous_courses]))
+
+            # Create weighted lists based on how often an element was in a list
+            subjects, subject_weights = self.create_weighted_list(subjects)
+            extracurricular_activities, activity_weights = self.create_weighted_list(extracurricular_activities)
+            career_aspirations_list, career_weights = self.create_weighted_list(career_aspirations_list)
+
+            # Majors are weighted by semester and gpa
+            major_weights = [student_semester * gpa if student_semester != 0 else 0] * len(major)
+
+            # Generate the future topics
+            future_topics = self.generate_future_topics(subjects, subject_weights, extracurricular_activities, activity_weights, career_aspirations_list, career_weights, major, major_weights)
+
+            # Create the new 'student'
+            sample_data = {
+                'first name': first_name,
+                'last name': last_name,
+                'ethnoracial group': ethnoracial_group,
+                'gender': gender,
+                'international status': international_status,
+                'socioeconomic status': socioeconomic_status,
+                'learning style': learning_style,
+                'gpa': gpa,
+                'student semester': student_semester,
+                'major': major,
+                'previous courses': course_names,
+                'course types': course_type,
+                'course subjects': course_subject,
+                'subjects of interest': subjects,
+                'extracurricular activities': extracurricular_activities,
+                'career aspirations': career_aspirations_list,
+                'future topics': future_topics
+            }
+
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug("Single sample generated")
+            return sample_data
+        except Exception as e:
+            logging.error(f"Error generating sample: {e}")
+            return None
+
+```
+
+## Motivating the Analysis
+
+The work took this dataset and privatized it and then used machine learning to predict the privacy-utility tradeoff of the different privatization methods. However, the question of the accuracy of the original purely synthetic dataset remains. <b>This work addresses this by running a variety of descriptive statistics on the dataset and comparing the results to both the algorithm that produced the dataset and the intended connections and distributions.</b>
+
+# The Dataset
+
+First we import the purely synthetic educational dataset and look at the top 100 entries of the dataset:
+
+```{r import_dataset, results="asis"}
+
+# Import the dataset
+dataset <- read_csv("final_report/Dataset.csv")
+
+# Make a table with the top 100 entries of the dataset
+htmltools::div(
+  id = "unaltered-dataset-table",
+  DT::datatable(dataset[1:100, ],
+              options = list(pageLength = 1))
+)
+
+```
+
+Now we do some minimal preprocessing to prepare the dataset for analysis. The following code renames columns and converts some variables to factors. A dictionary connecting actual column names with how they would be written in a sentence is made using the @dict package.
+
+```{r dataset_preprocessing}
+
+dataset <- dataset |> # Rename the dataset columns and convert some to factors
+  rename(first_name = `first name`) |>
+  rename(last_name = `last name`) |>
+  rename(ethnoracial_group = `ethnoracial group`) |>
+  mutate(ethnoracial_group = as.factor(ethnoracial_group)) |>
+  mutate(gender = as.factor(gender)) |>
+  rename(international_status = `international status`) |>
+  mutate(international_status = as.factor(international_status)) |>
+  rename(socioeconomic_status = `socioeconomic status`) |>
+  mutate(socioeconomic_status = as.factor(socioeconomic_status)) |>
+  rename(learning_style = `learning style`) |>
+  rename(student_semester = `student semester`) |>
+  rename(previous_courses = `previous courses`) |>
+  rename(course_types = `course types`) |>
+  rename(course_subjects = `course subjects`) |>
+  rename(subjects_of_interest = `subjects of interest`) |>
+  rename(extracurricular_activities = `extracurricular activities`) |>
+  rename(career_aspirations = `career aspirations`) |>
+  rename(future_topics = `future topics`)
+
+# Create a dataset of column names
+dataset_col_names <- dict(
+    "Ethnoracial Group" = "ethnoracial_group",
+    "Gender" = "gender",
+    "International Student Status" = "international_status",
+    "Socioeconomic Status" = "socioeconomic_status",
+    "Learning Style" = "learning_style",
+    "GPA" = "gpa",
+    "GPA rounded to the nearest half" = "gpa_nearest_half",
+    "GPA rounded to the nearest integer" = "gpa_nearest_integer",
+    "Student Semester" = "student_semester",
+    "Student Year" = "student_year",
+    "Major" = "major",
+    "Previous Courses" = "previous_courses",
+    "Course Types" = "course_types",
+    "Course Subjects" = "course_subjects",
+    "Subjects of Interest" = "subjects_of_interest",
+    "Extracurricular Activities" = "extracurricular_activities",
+    "Career Aspirations" = "career_aspirations",
+    "Future Topics" = "future_topics"
+    )
+
+```
+
+## Working with Numerical Variables
+
+The range of GPA and Student Semester are too large for correlations and comparisons. So here we make two new columns. One with GPA in intervals of 0.5 and one with Student Year.
+
+```{r numerical_cols}
+
+dataset <- dataset |>
+  # Count the number of observations with each value
+  group_by(gpa) |>
+  mutate(gpa_count = n()) |>
+  ungroup() |>
+  # Make the GPA tooltip text
+  mutate(text_gpa = paste("GPA", ": ", gpa, "\nCount: ", gpa_count, sep="")) |>
+  # Count the number of observations with each value
+  group_by(student_semester) |>
+  mutate(student_semester_count = n()) |>
+  ungroup() |>
+  # Make the Student Semester tooltip text
+  mutate(text_student_semester = paste("Student Semester", ": ", student_semester, "\nCount: ", student_semester_count, sep=""))
+
+```
+
+## Function Design
+
+Before we begin the analysis, we design functions to reduce repetitiveness and length. The `split_into_multiple` function was inspired by [stack exchange](https://stackoverflow.com/questions/4350440/split-data-frame-string-column-into-multiple-columns).
+
+```{r correlation_func}
+
+# This function makes correlation tables
+correlation_table <- function(.data_1, .data_2) {
+  SES_tab <- table(.data_1,.data_2)
+  pilltabs(SES_tab)
+}
+ 
+# This function makes correlation graphs
+correlation_graph <- function(x_name, y_name, flip = TRUE) {
+  # Get the x and y columns based on the inputed name
+  .x = dataset_col_names[x_name]
+  .y = dataset_col_names[y_name]
+    
+  # Make the ggplot
+  plot <- ggplot(dataset, aes_string(x = .x,
+                    fill = .y)) +
+  geom_bar(position = "fill") +
+  theme_classic() +
+  scale_fill_brewer(palette = "Dark2") +
+  labs(x = x_name,
+       y = "Proportion",
+       fill = y_name)
+  
+  # Flip coordinates if flip is TRUE
+  if (flip) {
+    plot <- plot + coord_flip()
+  }
+  
+  # Return the plot
+  return(plot)
+}
+
+```
+
+
+```{r split_func}
+
+# This function splits the list columns
+split_into_multiple <- function(column, into_prefix, pattern = "\', \'"){
+  cols <- str_split_fixed(column, pattern, n = Inf)
+  # Sub out the ""'s returned by filling the matrix to the right, with NAs which are useful
+  cols[which(cols == "")] <- NA
+  cols <- as.tibble(cols)
+
+  # name the 'cols' tibble as 'into_prefix_1', 'into_prefix_2', ..., 'into_prefix_m' 
+  # where m = # columns of 'cols'
+  m <- dim(cols)[2]
+
+  names(cols) <- paste(into_prefix, 1:m, sep = "_")
+  
+  # Convert the tibble to a dataframe
+  cols <- as.data.frame(cols)
+  
+  # Remove remaining brackets and quotes
+  for (i in 1:m) {
+    cols[,i] <- str_remove_all(cols[,i], "[\'\\[\\]]")
+  }
+  
+  return(cols)
+}
+
+```
+
+
+```{r demographic_dataframe_func}
+
+# Convert split list columns into a single dataframe with demographic information
+make_demographic_dataframe <- function(main_df, .columns, .name, dem_cols = c(3:6), rm.na = FALSE, .name_list = list()) {
+  # Create an empty dataframe
+  final_df = data.frame(ethnoracial_group=factor(),
+                        gender = factor(),
+                        international_status = factor(),
+                        socioeconomic_status = factor())
+  
+  # Take each split list column and combine row wise
+  for (i in .columns) {
+    df <- main_df |>
+      select(c(dem_cols,i))
+    final_df <- rbind(final_df, setNames(df, colnames(final_df)))
+  }
+  
+
+  # Add in extra names if more columns are added beyond the demographic ones
+  
+  if (length(.name_list) > 0) {
+    for (i in 1:length(.name_list)) {
+      colnames(final_df)[i+4] <- .name_list[i]
+    }
+  }
+  
+  # Ensure proper naming for the final column
+  colnames(final_df)[5+length(.name_list)] <- .name
+  
+  # Drop the empty columns
+  if (rm.na) {
+    final_df <- final_df |>
+      drop_na()
+  }
+  
+  return(final_df)
+}
+
+```
+
+```{r numerical_col_graph_func}
+
+# Makes Graphs for the different numerical columns whose data
+# was generated from a uniform distribution
+numerical_col_graph <- function(.dataset, .column, .name, .text, .size) {
+  
+  # Get the dataset size
+  row_len_df <- .dataset |>
+    drop_na({{.column}})
+  
+  row_len <- nrow(row_len_df)
+
+  # Make the ggplot graph with a line for the uniform distribution
+  graph <- .dataset |>
+    
+    # Make the ggplot
+    ggplot(aes(x = {{.column}}, text = {{.text}})) +
+    geom_bar(fill = "gray") +
+    theme_ipsum() +
+    labs(x = .name, y = "Number of Students") +
+    geom_hline(yintercept = row_len/.size) +
+    theme(legend.position="none")
+  
+  # Make the plotly
+  #ggplotly(graph, tooltip = "text")
+  
+  return(graph)
+}
+
+```
+
+```{r major_gender_graph_func}
+
+# Generate a graph of the top ten majors with the highest majority of a certain
+# gender identity
+major_gender_dominated_graph <- function(.dataset, .gender, .xlab, .ylab) {
+  # Arrange major by top percent gender minority
+  g_dominate_dataset <- .dataset |>
+    arrange(desc({{.gender}}))
+  
+  # Get a graph of the top ten majors
+  ggplot(g_dominate_dataset[1:10,],
+         aes(x=reorder(major, {{.gender}}, FUN = function(x) sum(x)),
+             y={{.gender}},
+             fill = division)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    theme_classic() +
+    scale_color_brewer(palette = "Dark2") +
+    labs(x = .xlab,
+         y = .ylab,
+         fill = "Major Division")
+
+}
+
+```
+
+```{r chi_squared_func}
+
+chisq_df_generation <- function(demographic_df, .column, expected_percent) {
+  
+  # Count the number of students with each learning style
+  counts_df <- demographic_df |>
+    group_by({{.column}}) |>
+    drop_na() |>
+    summarize(count = n()) |>
+    ungroup()
+  
+  # Combine the expected results with the counts Dataset
+  counts_df <- counts_df |>
+    mutate(observed_percent = count / nrow(demographic_df)) |>
+    cbind(expected_percent) |>
+    mutate(expected_percent = expected_percent / 100)
+  
+  return(counts_df)
+}
+
+```
+
+## Spliting the Lists
+
+Now we will use our `split_into_multiple` function to split up the list features that we will use in this work.
+
+```{r split_lists}
+
+# Split the dataset by learning style, major, previous course types, and previous course subjects
+dataset_split <- dataset |>
+  # Learning Style
+  cbind(split_into_multiple(dataset$learning_style, "learning_style")) |>
+  mutate(learning_style = NULL) |>
+  mutate(learning_style_1 = as.factor(learning_style_1)) |>
+  mutate(learning_style_2 = as.factor(learning_style_2)) |>
+  # Major
+  cbind(split_into_multiple(dataset$major, "major")) |>
+  mutate(major = NULL) |>
+  # Previous Course Types
+  cbind(split_into_multiple(dataset$course_types, "course_types")) |>
+  mutate(course_types = NULL) |>
+  # Previous Course Subjects
+  cbind(split_into_multiple(dataset$course_subjects, "course_subjects")) |>
+  mutate(course_subjects = NULL)
+
+```
+
+# Demographics {.tabset}
+
+In this section, we examine how close the observed demographic variable distribution was to the expected real world distribution. This is the code used to generate different demographic variables.
+
+```{python demographic_generation_func, eval = FALSE}
+
+def assign_demographic(self, demographic_type, bias='Uniform'):
+        """
+        Assign demographic attributes to students based on the specified type and bias.
+        :param demographic_type: Type of demographic attribute to assign (e.g., gender, ethnicity).
+        :param bias: The distribution bias to use for assignment.
+        :return: The assigned demographic value.
+        """
+        demographics = list(demographic_type.keys())
+        if bias == 'real':
+            probabilities = [demographic_type[demo] / 100 for demo in demographics]
+            result = np.random.choice(demographics, p=probabilities)
+        elif bias == 'uniform':
+            result = np.random.choice(demographics)
+        return result
+
+```
+
+## Ethnoracial Group
+
+```{r eg_make_dataset}
+
+# Make the Counts Dataset
+ethnoracial_group_counts <- chisq_df_generation(dataset, .column = ethnoracial_group, expected_percent = c(13.1, 0.7, 7.6, 53.4, 20.6, 4.3, 0.3))
+```
+
+This is the Chi Squared Goodness of Fit Test
+
+```{r eg_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+chisq.test(x = ethnoracial_group_counts$observed_percent, p = ethnoracial_group_counts$expected_percent / sum(ethnoracial_group_counts$expected_percent))
+
+```
+
+## Gender
+
+```{r gender_make_dataset}
+
+# Make the Counts Dataset
+gender_counts <- chisq_df_generation(dataset, .column = gender, expected_percent = c(54.83, 40.07, 5.1))
+```
+
+This is the Chi Squared Goodness of Fit Test
+
+```{r gender_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+chisq.test(x = gender_counts$observed_percent, p = gender_counts$expected_percent / sum(gender_counts$expected_percent))
+
+```
+
+## International Status
+
+```{r is_make_dataset}
+
+# Make the Counts Dataset
+international_status_counts <- chisq_df_generation(dataset, .column = international_status, expected_percent = c(94.08, 5.92))
+```
+
+This is the Chi Squared Goodness of Fit Test
+
+```{r is_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+chisq.test(x = international_status_counts$observed_percent, p = international_status_counts$expected_percent / sum(international_status_counts$expected_percent))
+
+```
+
+## Socioeconomic Status
+
+```{r ses_make_dataset}
+
+# Make the Counts Dataset
+socioeconomic_status_counts <- chisq_df_generation(dataset, .column = socioeconomic_status, expected_percent = c(9, 20, 15, 37, 19))
+```
+
+This is the Chi Squared Goodness of Fit Test
+
+```{r ses_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+chisq.test(x = socioeconomic_status_counts$observed_percent, p = socioeconomic_status_counts$expected_percent / sum(socioeconomic_status_counts$expected_percent))
+
+```
+
+## GPA
+
+Here we show the function used to generate GPA. Notice that GPA is not generated for 0th semester students, i.e. those that have not started college yet.
+
+```{python gpa_generation_func, eval = FALSE}
+
+def generate_gpa(self, semester):
+        """
+        Generate a GPA for the student based on the semester.
+        :param semester: The semester number of the student.
+        :return: A GPA value.
+        """
+        if semester == 0:
+            gpa = None
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug("GPA left empty because student semester is zero")
+        else:
+            gpa = round(np.random.uniform(2.0, 4.0), 2)
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug("GPA chosen: %.2f", gpa)
+        return gpa
+
+```
+
+### GPA Graph
+
+```{r gpa_graph}
+
+plot<- numerical_col_graph(dataset, gpa, "GPA", text_gpa, 201)
+
+ggsave("gpa_graph.pdf", plot)
+
+```
+
+## Student Semester
+
+Notice that student semester was generated from a randomly from a uniform distribution from 0 to 14.
+
+```{python student_semester_generation_func, eval = FALSE}
+
+student_semester = np.random.randint(0, 15)
+
+```
+
+
+```{r student_semester_graph}
+
+numerical_col_graph(dataset, student_semester, "Student Semester", text_student_semester, 15)
+
+```
+
+# Demographic Correlations
+
+In this section, we examine the various correlations between each pair of demographic variables. We run a Chi-Squared test of independence to determine if the demographic variables are independent or not. We do not examine first and last name since those were assigned randomly. This includes:
+
+<ol>
+
+<li>Ethnoracial Group</li>
+
+<li>Gender</li>
+
+<li>International Student Status</li>
+
+<li>Socioeconomic Status</li>
+
+</ol>
+
+## Graphs and Tables {.tabset}
+
+We will deal with the correlations between the more complicated list variables in a later section.
+
+### Ethnoracial Group vs Gender
+
+We begin with Ethnoracial Group vs Gender:
+
+```{r ethnoracial_group_by_gender_table}
+
+correlation_table(dataset$ethnoracial_group, dataset$gender)
+
+correlation_graph("Ethnoracial Group", "Gender")
+
+```
+
+### Ethnoracial Group vs International Student Status
+
+Here we have Ethnoracial Group vs. International Student Status:
+
+```{r ethnoracial_group_by_international_student_status}
+
+correlation_table(dataset$ethnoracial_group, dataset$international_status)
+
+correlation_graph("Ethnoracial Group", "International Student Status")
+
+```
+
+### Ethnoracial Group vs Socioeconomic Status
+
+Here we have Ethnoracial Group vs. Socioeconomic Status:
+
+```{r ethnoracial_group_by_socioeconomic_status}
+
+correlation_table(dataset$ethnoracial_group, dataset$socioeconomic_status)
+
+correlation_graph("Ethnoracial Group", "Socioeconomic Status")
+
+```
+
+### Gender vs International Student Status
+
+Here we have Gender vs. International Student Status:
+
+```{r gender_by_international_status}
+
+correlation_table(dataset$gender, dataset$international_status)
+
+correlation_graph("International Student Status", "Gender")
+
+```
+
+### Gender vs Socioeconomic Status
+
+Here we have Gender vs. Socioeconomic Status:
+
+```{r gender_by_socioeconomic_status}
+
+correlation_table(dataset$gender, dataset$socioeconomic_status)
+
+correlation_graph("Gender", "Socioeconomic Status")
+
+```
+
+### International Student Status vs Socioeconomic Status
+
+Here we have International Student Status vs. Socioeconomic Status:
+
+```{r international_status_by_socioeconomic_status}
+
+correlation_table(dataset$international_status, dataset$socioeconomic_status)
+
+correlation_graph("International Student Status", "Socioeconomic Status")
+
+```
+
+## Conclusion
+
+We found that none of the different demographics had any correlations. This result was expected as all the demographics were sampled from separate distributions. The result confirms that this dataset should not be used for research on college student intersectionality.
+
+# Major
+
+The code used in my summer research to determine major for each student (observation) is shown here. Notice that the only features that are direct inputs to the function are semester and gender. Thus we expect that of all the demographic data only gender should be correlated to major. Here are the demographics generated for each student:
+
+-   Ethnoracial Group
+-   Gender
+-   International Student Status
+-   Socioeconomic Status
+
+```{python major_func, eval = FALSE}
+
+def choose_major(self, semester, gender):
+        """
+        Choose a major for the student based on the semester and gender.
+        :param semester: The semester number of the student.
+        :param gender: The gender of the student.
+        :return: A major.
+        """
+        # Weigh majors by gender and popularity
+        major_weights = [
+            (1 - float(major[2]) / 173) + (1 - float(major[1]) / 100 if gender == 'Male' else float(major[1]) / 100)
+            for major in self.major_tuples
+        ]
+
+        major = []
+        if semester <= 4:
+            if np.random.rand() < 0.3:
+                major.append(random.choices(self.major_list, major_weights, k=1)[0])
+            elif logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug("Major left empty because student has no major / intended major")
+        else:
+            major.append(random.choices(self.major_list, major_weights, k=1)[0])
+
+        if len(major) == 1 and np.random.rand() < 0.3:
+            extra_major = random.choices(self.major_list, major_weights, k=1)[0]
+            if extra_major not in major:
+                major.append(extra_major)
+        
+        return major
+
+```
+
+## Most Popular Majors
+
+First, we look across majors and pull out the demographic data. Here we list out the top 10 most popular majors. Data from the majors dataset was webscrapped and and slightly altered from this website @big_economics_college_majors. The jsonlite package @jsonlite is used to import this data.
+
+```{r major_demographics}
+
+# Bring in the Majors Dataset which contains real world statistics
+majors_data <- fromJSON("majors.json", flatten = TRUE)
+
+# Rename the columns and convert the strings to numerical values and factors
+majors_data <- as.data.frame(majors_data) |>
+  rename(major = V1) |>
+  rename(national_percent_female = V2) |>
+  mutate(national_percent_female = as.numeric(national_percent_female) / 100) |>
+  # Divide by 100 since the values are between 1 and 100 not 0 and 1
+  rename(national_popularity_ranking = V3) |>
+  mutate(national_popularity_ranking = as.numeric(national_popularity_ranking)) |>
+  rename(division = V4) |>
+  mutate(division = as.factor(division)) |>
+  rename(top_5_careers = V5) |>
+  mutate(top_5_careers = str_remove_all(top_5_careers, "[\'\\[\\]]"))
+
+# Make the Major Demographics Dataset and join it to the Majors Data dataset
+majors_demographics <- make_demographic_dataframe(dataset_split, c("major_1", "major_2"), "major", rm.na = TRUE) |>
+  group_by(major) |>
+  mutate(major = case_when(major == "" ~ NA, .default = major)) |>
+  ungroup()
+
+# Create the Major Counts Dataset
+major_counts <- majors_demographics |>
+  group_by(major) |>
+  drop_na() |>
+  summarize(major_count = n()) |>
+  ungroup()
+
+# Add in the Majors Data to the Majors Counts Dataset
+major_counts <- major_counts |>
+  left_join(majors_data, by = join_by(major)) |>
+  arrange(desc(major_count))
+
+# Add in the observed popularity rankings to the Major Counts Dataset
+popularity_ranking <- c(1:length(major_counts$major))
+
+major_counts <- cbind(major_counts, popularity_ranking)
+
+# Join Major Counts to Majors Demographics
+majors_demographics <- majors_demographics |>
+  left_join(major_counts, by = join_by(major)) |>
+  arrange(desc(major_count))
+
+# Plot the Top 10 Majors
+ggplot(major_counts[1:10,], aes(x = reorder(major, major_count, FUN = function(x) sum(x)),
+                                y = major_count,
+                                fill = division)) +
+  coord_flip() +
+  theme_classic() +
+  scale_fill_viridis(discrete=TRUE) +
+  geom_bar(stat = "identity") +
+  labs(x = "Size of Major",
+       y = "Most Popular Majors",
+       fill = "Major Division")
+
+```
+
+The popularity ranking of a major impacts the major choice in the major function. Thus we will compare our expected and observed major popularity rankings to see if this aspect of the major function worked as intended. Now we run a Chi Squared Goodness of Fit Test comparing the observed major popularity rankings and expected major popularity rankings.
+
+```{r major_rankings_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+observed_major_rankings <- major_counts[,7]
+expected_major_rankings <- major_counts[,4]
+
+chisq.test(x = observed_major_rankings, p = expected_major_rankings / sum(expected_major_rankings))
+
+```
+
+This graph shows each major and compares observed major popularity vs what was expected based on the national data.
+
+```{r major_popularity_rankings_graph}
+
+p <- major_counts |>
+  # Make tooltip text
+    mutate(text = paste("Major: ", major, "\nNumber of Majors: ", major_count, "\nObserved Major Popularity Ranking: ", popularity_ranking, "\nNational Major Popularity Ranking: ", national_popularity_ranking, sep="")) |>
+  
+  ggplot(aes(x = popularity_ranking,
+           y = national_popularity_ranking,
+           color = division,
+           text=text)) +
+  geom_point() +
+  theme_classic() +
+  scale_color_viridis(discrete=TRUE, guide=FALSE) +
+  labs(x = "Observed Major Popularity Ranking",
+       y = "Expected Major Popularity Ranking",
+       color = "Major Division")
+
+# Make the plot interactive with ggplotly
+ggplotly(p, tooltip="text")
+
+```
+
+## Demographic Correlations {.tabset}
+
+In this section, we examine the four demographics and see if they are correlated to Major by running a Chi Squared Test of Independence between each demographic and major choice.
+
+### Ethnoracial Group
+
+The insignificant p-value means that there was no clear pattern between ethnoracial group and major. Thus, ethnoracial group did not impact the algorithm for major choice.
+
+```{r major_ethnoracial_group}
+
+correlation_table(majors_demographics$ethnoracial_group, majors_demographics$major)
+
+correlation_table(majors_demographics$ethnoracial_group, majors_demographics$division)
+
+```
+
+### International Status
+
+We examine major along whether a student is an international or a domestic student. The insignificant p-value means that there was no clear pattern between international student status and major. Thus, international student status did not impact the algorithm for major choice.
+
+```{r major_international_status}
+
+correlation_table(majors_demographics$international_status, majors_demographics$major)
+
+correlation_table(majors_demographics$international_status, majors_demographics$division)
+
+```
+
+### Socioeconomic Status
+
+The insignificant p-value means that there was no clear pattern between socioeconomic status and major. Thus, socioeconomic status did not impact the algorithm for major choice.
+
+```{r major_socioeconomic_status}
+
+correlation_table(majors_demographics$socioeconomic_status, majors_demographics$major)
+
+correlation_table(majors_demographics$socioeconomic_status, majors_demographics$division)
+
+```
+
+### Gender
+
+Gender is different than the other demographics because major choice was explicitly based on the gender ratio. First, we make the same table from the other demographics, comparing major and gender. Notice that this is the only demographic with a significant p-value.
+
+```{r major_gender_table}
+
+correlation_table(majors_demographics$gender, majors_demographics$major)
+
+correlation_table(majors_demographics$gender, majors_demographics$division)
+
+```
+
+## Gender
+
+Since <b>Gender</b> was the only demographic with a statistically significant correlation it requires further investigation.
+
+We examine both the observed percent female and the expected percent female based on the data from [Big Economics](https://bigeconomics.org/college-majors-explorer/).
+
+> Gender was the only demographic that was explicitly tied to majors thus we expect to see gender distribution across majors align with the real world data.
+
+```{r gxm_make_dataset}
+
+gender_by_major <- majors_demographics[,c(2,5)] |>
+  group_by(major) |>
+  mutate(percent_male = sum(gender == "Male")/n()) |>
+  mutate(percent_female = sum(gender == "Female")/n()) |>
+  mutate(percent_nonbinary = sum(gender == "Nonbinary")/n()) |>
+  mutate(percent_gender_minority = 1-percent_male) |>
+  distinct(major, .keep_all = TRUE) |>
+  ungroup() |>
+  select(-gender) |>
+  drop_na() |>
+  arrange(major) |>
+  # Join the Major Counts dataset
+  left_join(major_counts, join_by(major))
+
+```
+
+This is the Chi Squared Goodness of Fit Test comparing the observed percent female and expected percent female for each major.
+
+```{r gxm_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+observed_gxm <- as.matrix(gender_by_major[,3])
+expected_gxm <- as.matrix(gender_by_major[,6])
+
+chisq.test(x = observed_gxm, p = expected_gxm / sum(expected_gxm))
+
+```
+
+Since the p-value of the Chi Squared Goodness of Fit Test is one this means that there is a 100% probability the null hypothesis is true. Thus, the data generation code worked as intended and distribution of genders across majors that matches empirical data. This graph shows each major and compares its observed percent female vs what was expected based on the national data.
+
+```{r major_gender_percent_female_graph}
+
+# Calculate the Regression line
+reg<-lm(national_percent_female ~ percent_female, data = gender_by_major)
+
+# Make ggplot graph
+p <- gender_by_major |>
+  mutate(percent_female = round(percent_female, 3)) |>
+  
+  # Make tooltip text
+    mutate(text = paste("Major: ", major, "\nNumber of Majors: ", major_count, "\nNational Percent Female: ", national_percent_female, "\nObserved Percent Female: ", percent_female, "\nNational Popularity Ranking: ", national_popularity_ranking, sep="")) |>
+  
+  # Make ggplot
+  ggplot(aes(x = percent_female,
+           y = national_percent_female,
+           color = division,
+           text=text)) +
+  geom_point() +
+  theme_classic() +
+  scale_color_viridis(discrete=TRUE, guide=FALSE) +
+  labs(x = "Observed Percent Female",
+       y = "Expected Percent Female",
+       color = "Major Division") +
+  # Add line for y=x, the expected regression line
+  geom_abline(intercept = 0, slope = 1,
+              color="gray",
+              linetype="dashed") +
+  # Add line for the observed regression line
+  geom_abline(intercept = reg$coefficients[1], slope = reg$coefficients[2],
+              color="black",
+              linetype="dashed")+
+  xlim(0,1) +
+  ylim(0,1)
+
+# Make the plot interactive with ggplotly
+ggplotly(p, tooltip="text")
+
+```
+
+Here is a more interactive graph showing the same data. The graph was inspired by [r-graph-gallery](https://r-graph-gallery.com/bubble_chart_interactive_ggplotly.html).
+
+```{r major_gender_percent_female_graph_interactive, fig.align='center', fig.height=10}
+
+# Interactive Plot
+p <- gender_by_major |>
+  mutate(percent_female = round(percent_female, 3)) |>
+  
+  # Reorder countries to having big bubbles on top
+  arrange(desc(major_count)) |>
+  mutate(major = factor(major, major)) |>
+  
+  # Make tooltip text
+  mutate(text = paste("Major: ", major, "\nNumber of Majors: ", major_count, "\nNational Percent Female: ", national_percent_female, "\nObserved Percent Female: ", percent_female, "\nNational Popularity Ranking: ", national_popularity_ranking, sep="")) |>
+  
+  # Create ggplot
+  ggplot( aes(x=percent_female,
+              y=national_percent_female,
+              size = major_count,
+              color = division,
+              text=text)) +
+  geom_point(alpha=0.7) +
+  scale_size(range = c(1.4, 19), name="Number of Majors") +
+  scale_color_viridis(discrete=TRUE, guide=FALSE) +
+  theme_ipsum() +
+  labs(x = "Observed Percent Female",
+       y = "Expected Percent Female") +
+  xlim(0,1) +
+  ylim(0,1)
+
+# Turn ggplot interactive with plotly
+pp <- ggplotly(p, tooltip="text")
+pp
+
+```
+
+## Major Domination by Gender {.tabset}
+
+In this section, we examine the top ten majors with the highest percentage of people who identify as men, women, and minoritized genders.
+
+### Male Dominated
+
+This graph shows the top 10 majors dominated by men.
+
+```{r gxm_top_male_majors_graph}
+
+major_gender_dominated_graph(gender_by_major, percent_male, "Percent Male", "Top Male Dominated Majors")
+
+
+```
+
+### Female Dominated
+
+This graph shows the top 10 majors dominated by women.
+
+```{r gxm_top_female_majors_graph}
+
+major_gender_dominated_graph(gender_by_major, percent_female, "Percent Female", "Top Female Dominated Majors")
+
+```
+
+### Minoritized Gender Dominated
+
+This graph shows the top 10 majors dominated by gender minorities (Women and Nonbinary People).
+
+```{r gxm_top_gender_minority_majors_graph}
+
+major_gender_dominated_graph(gender_by_major, percent_gender_minority, "Percent Gender Minority", "Top Gender Minority Dominated Majors")
+
+```
+
+## Major vs Course Subjects
+
+```{r major_vs_course_subjects_chi_squared}
+
+# Split by major
+m_v_cs_df0 <- dataset |>
+  cbind(split_into_multiple(dataset$major, "major")) |>
+  mutate(major = NULL)
+
+# Make a dataset with major and demographic data
+m_v_cs_df1 <- make_demographic_dataframe(m_v_cs_df0, c("major_1", "major_2"), "major", dem_cols = c(3:6,16), rm.na = TRUE, list("course_subjects")) |>
+  group_by(major) |>
+  # Remove students without a major
+  mutate(major = case_when(major == "" ~ NA, .default = major)) |>
+  drop_na() |>
+  ungroup()
+
+# Split by previous course subjects
+m_v_cs_df1 <- m_v_cs_df1|>
+  # Previous Course Subjects
+  cbind(split_into_multiple(m_v_cs_df1$course_subjects, "course_subjects")) |>
+  mutate(course_subjects = NULL)
+
+# Make a dataset with major and previous course subjects and demographic data
+m_v_cs_df2 <- make_demographic_dataframe(m_v_cs_df1, c(6:10), "course_subjects", dem_cols = c(1:5), rm.na = TRUE, list("major")) |>
+  group_by(course_subjects) |>
+  # Remove students without who have taken no courses
+  mutate(course_subjects = case_when(course_subjects == "" ~ NA, .default = course_subjects)) |>
+  drop_na() |>
+  ungroup()
+
+# Run a chi squared
+chisq.test(m_v_cs_df2$major, m_v_cs_df2$course_subjects)
+
+```
+
+# Learning Style
+
+The code used in my summer research to determine the learning style(s) for each student (observation) is shown here. Notice that no features are direct inputs to the function. Here are the demographics generated for each student:
+
+-   Ethnoracial Group
+-   Gender
+-   International Student Status
+-   Socioeconomic Status
+
+The function assigned a learning style based on the real world distribution of learning styles taken from @eric_college_completion.
+
+```{python learning_style_func, eval = FALSE}
+
+ def generate_learning_style(self):
+        """
+        Generate a learning style for the student.
+        :return: A learning style.
+        """
+        learning_style = [self.assign_demographic(self.learning_style_stats, self.learning_style_dist)]
+        if np.random.rand() < 0.1:
+            extra_style = self.assign_demographic(self.learning_style_stats, self.learning_style_dist)
+            if extra_style not in learning_style:
+                learning_style.append(extra_style)
+        return learning_style
+
+```
+
+## Learning Style Demographics
+
+First, we need to generate the `learning_style_demographics` using the `make_demographic_dataframe` function. Then, we compare the expected percentage of people with specific learning styles and the observed percent of people with specific learning styles.
+
+```{r ls_make_dataset}
+
+# Make the Learning Style Demographics Dataset
+learning_style_demographics <- make_demographic_dataframe(dataset_split, c("learning_style_1", "learning_style_2"), "learning_style", rm.na = TRUE) 
+
+# Make the Counts Dataset
+learning_style_counts <- chisq_df_generation(learning_style_demographics, .column = learning_style, expected_percent = c(23.56, 28.01, 21.16, 27.27))
+```
+
+This is the Chi Squared Goodness of Fit Test comparing the observed percent female and expected percent female for each major.
+
+```{r ls_chi_squared}
+
+# Chi Squared Goodness of Fit Test
+chisq.test(x = learning_style_counts$observed_percent, p = learning_style_counts$expected_percent / sum(learning_style_counts$expected_percent))
+
+```
+
+Since the p-value of the Chi Squared Goodness of Fit Test is one this means that there is a 100% probability the null hypothesis is true. Thus, the data generation code worked as intended and produced a learning style distribution that matches empirical data.
+
+## Demographic Correlations {.tabset}
+
+### Ethnoracial Group
+
+```{r learning_style_ethnoracial_group}
+
+correlation_table(learning_style_demographics$ethnoracial_group, learning_style_demographics$learning_style)
+
+```
+
+### Gender Group
+
+```{r learning_style_gender}
+
+correlation_table(learning_style_demographics$gender, learning_style_demographics$learning_style)
+
+```
+
+### International Student Status
+
+```{r learning_style_international_status}
+
+correlation_table(learning_style_demographics$international_status, learning_style_demographics$learning_style)
+
+```
+
+### Socioeconomic Status
+
+```{r learning_style_socioeconomic_status}
+
+correlation_table(learning_style_demographics$socioeconomic_status, learning_style_demographics$learning_style)
+
+```
+
+## Learning Style vs Course Types
+
+```{r learning_style_vs_course_types_chi_squared}
+
+# Split the dataset by Learning Style
+ls_v_ct_df0 <- dataset |>
+  cbind(split_into_multiple(dataset$learning_style, "learning_style")) |>
+  mutate(learning_style = NULL) |>
+  mutate(learning_style_1 = as.factor(learning_style_1)) |>
+  mutate(learning_style_2 = as.factor(learning_style_2))
+
+# Make a dataset with learning style and demographic data
+ls_v_ct_df1 <- make_demographic_dataframe(ls_v_ct_df0, c("learning_style_1", "learning_style_2"), "learning_style", dem_cols = c(3:6,15), rm.na = TRUE, list("course_types"))
+
+# Split by previous course types
+ls_v_ct_df1 <- ls_v_ct_df1|>
+  # Previous Course Types
+  cbind(split_into_multiple(ls_v_ct_df1$course_types, "course_types")) |>
+  mutate(course_types = NULL)
+
+# Make a dataset with learning style and previous course types and demographic data
+ls_v_ct_df2 <- make_demographic_dataframe(ls_v_ct_df1, c(6:39), "course_types", dem_cols = c(1:5), rm.na = TRUE, list("learning_style")) |>
+  group_by(course_types) |>
+  # Remove students who have not taken any courses
+  mutate(course_types = case_when(course_types == "" ~ NA, .default = course_types)) |>
+  drop_na() |>
+  ungroup()
+
+# Run a chi squared
+chisq.test(ls_v_ct_df2$learning_style, ls_v_ct_df2$course_types)
+
+```
+
+# References

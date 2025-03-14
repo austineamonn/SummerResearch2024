@@ -1,0 +1,32 @@
+{
+    "id": "D840D859",
+    "path": "~/Documents/395_R/final_project/final_report/final_report.Rmd",
+    "project_path": "final_report.Rmd",
+    "type": "r_markdown",
+    "hash": "761022384",
+    "contents": "",
+    "dirty": false,
+    "created": 1734044475283.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "1008,0",
+        "scrollLine": "995",
+        "docOutlineVisible": "1",
+        "last_setup_crc32": "",
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "rmdVisualModeLocation": "19685:7610",
+        "rmdVisualCollapsedChunks": ""
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1734148473,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1734148474005,
+    "read_only": false,
+    "read_only_alternatives": []
+}
