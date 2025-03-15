@@ -1,9 +1,11 @@
 # IntelliShield: A Privacy Preserving Explainable Educational Recommendation System
-For the iCompBio REU program Summer of 2024 at the University of Tennessee Chattanooga.
+For the iCompBio REU program Summer of 2024 at the University of Tennessee Chattanooga. Additional analysis done in the Introduction to R for Biologists course taught by Dr. Caroline Dong at Grinnell College.
 
 Project Lead: Austin Nicolas.
 
 Project Mentor: Dr. Shahnewaz Sakib.
+
+Additional Mentors: Dr. Caroline Dong
 
 ## General Outline of Summer Research Project:
 First a synthetic dataset was generated based on both real life data and synthetic mappings. Within the mapping there are three column types: Xp are private data that should not be leaked, X are the data being used to calculate Xu the utility data that the machine learning model is trying to predict. Then the feature importance for the dataset was calculated based on how much each X column impacted the target Xu column. Then the data was privatized using a variety of techniques including variations on differential privacy and random shuffling. Then the privacy loss - utility gain tradeoff was calculated across machine learning models and privatization techniques.
@@ -35,6 +37,7 @@ The file structures are currently going under a major overhaul to match python p
 <ol>
   <li>Main Functions</li>
   <li>Data Generation</li>
+  <li>Data Analysis</li>
   <li>Data Preprocessing</li>
   <li>Data Privatization</li>
   <li>Calculating Tradeoffs</li>
@@ -91,9 +94,9 @@ After you have completed the inital set up there are some additional instruction
 ### [Config - Under Construction](config.py):
 Contains the basic configurations for the model. Most important is the ability to configure which parts of the model you want to run. The list you can pick from is: Generate Dataset, Privatize Dataset, Calculate Privacy Metrics.
 
-## Data Generation:
+## Datasets:
 
-There was no available dataset that contained all the information required for this application. Thus, data was generated synthetically with a basis in real data.
+There was no available dataset that contained all the information required for this application. Thus, a purely synthetic dataset was created based on empirical distributions and known mappings. Unknown distributions were considered random. Unknown mappings were based on "common sense" connections. For example an Asian American student would be assumed to be more likely to join an Asian American Association college group over a student from a different ethnoracial group. Many of these connections were generated using a large language model.
 
 ### [Datafiles for Data Construction](src/IntelliShield/data_generation/datafiles_for_data_construction):
 Various JSON files that have lists of data and feature tuples. This folder also contains the data.py file. The following table describes the JSON files of this folder.
@@ -124,7 +127,7 @@ Various JSON files that have lists of data and feature tuples. This folder also 
 ### [Data](src/IntelliShield/data_generation/datafiles_for_data_construction/data.py):
 Dictionary that containts demographic information, lists of features, feature tuples, and mappings between various features of the dataset.
 
-### Data Generation:
+### Synthetic Dataset Generation:
 
 Both CPU and GPU dataset generation generate the dataset in the same way. One is just optimized for CPU usage and the other is optimized for GPU usage. The following flowchart explains how one sample is generated.
 
@@ -174,7 +177,20 @@ batch_size = 100
 generator.generate_synthetic_dataset(num_samples, batch_size)
 ```
 
-### [Data Analysis - Under Construction](src/IntelliShield/data_generation/data_analysis.py):
+### Dataset
+Synthetic dataset. The file was removed because it was too large, but you can generate as much data as you need using the data generation functions. Note that all the example files were created using a 100,000 length dataset.
+
+Note: data category column is explained in the splitting the data section of data preprocessing.
+
+<p align="center">
+  <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A table giving the details of each data column.">
+</p>
+
+&ast; Chosen uniformly from 2.0 to 4.0.
+
+## Dataset Analysis:
+
+### [Dataset Analysis Python - Under Construction](src/IntelliShield/data_generation/data_analysis.py):
 Takes the synthetic dataset and produces various graphs about the data. For the numerical columns boxplots, distributions, and summary statistics are produced. For all the other columns the top ten highest count items are displayed. Calculates the percentage of empty of NaN values in each column.
 
 ```python
@@ -195,19 +211,10 @@ analyzer.analyze_data()
 analyzer.analyze_data()
 ```
 
-### [Data Analysis Graphs - Under Construction](outputs/examples/data_analysis_graphs):
+### [Dataset Analysis Python Graphs - Under Construction](outputs/examples/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
-### Dataset
-Synthetic dataset. The file was removed because it was too large, but you can generate as much data as you need using the data generation functions. Note that all the example files were created using a 100,000 length dataset.
-
-Note: data category column is explained in the splitting the data section of data preprocessing.
-
-<p align="center">
-  <img src="/docs/graphics/canva_generated/data_construction.png" width="1080" title="Data Column Details" alt="A table giving the details of each data column.">
-</p>
-
-&ast; Chosen uniformly from 2.0 to 4.0.
+### [Dataset Analysis R](tests/R_tests)
 
 ## Data Preprocessing:
 
