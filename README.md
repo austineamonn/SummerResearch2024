@@ -1,4 +1,5 @@
-# IntelliShield: A Privacy Preserving Explainable Educational Recommendation System
+# PipelineEDU: Creating High-Quality Synthetic Data
+for Educational Research and Applications
 For the iCompBio REU program Summer of 2024 at the University of Tennessee Chattanooga. Additional analysis done in the Introduction to R for Biologists course taught by Dr. Caroline Dong at Grinnell College.
 
 Project Lead: Austin Nicolas.
@@ -7,7 +8,7 @@ Project Mentor: Dr. Shahnewaz Sakib.
 
 Additional Mentors: Dr. Caroline Dong
 
-## General Outline of Summer Research Project:
+## General Outline of Research Project:
 First a synthetic dataset was generated based on both real life data and synthetic mappings. Within the mapping there are three column types: Xp are private data that should not be leaked, X are the data being used to calculate Xu the utility data that the machine learning model is trying to predict. Then the feature importance for the dataset was calculated based on how much each X column impacted the target Xu column. Then the data was privatized using a variety of techniques including variations on differential privacy and random shuffling. Then the privacy loss - utility gain tradeoff was calculated across machine learning models and privatization techniques.
 
 ### Goal:
@@ -214,7 +215,17 @@ analyzer.analyze_data()
 ### [Dataset Analysis Python Graphs - Under Construction](outputs/examples/data_analysis_graphs):
 This folder contains all the graphs produced by data_analysis.
 
-### [Dataset Analysis R](tests/R_tests)
+### [Dataset Analysis R](tests/R_tests):
+
+The R analysis aimed to determine the accuracy of the mappings and distributions of the purely synthetic dataset. This work was the final project for my Introduction to R for Biologists course.
+
+This HTML file contains the analysis of the purely synthetic dataset including some interactive graphics.
+
+[R Analysis HTML](tests/R_tests/final_project/final_project.html)
+
+This paper is the final project for the course which analyzes the results shown in the above HTML file.
+
+[Novel Generation of Purely Synthetic Educational Dataset Effective For Research Applications](tests/R_tests/final_report/final_report.pdf)
 
 ## Data Preprocessing:
 
